@@ -36,7 +36,7 @@ class ArchitectureMigrationTest {
     }
 
     /**
-     * 校验顶层业务包只使用约定的四个入口，防止继续出现平铺式目录。
+     * 校验顶层业务包只使用约定的业务域入口，防止继续出现平铺式目录。
      */
     @Test
     void shouldUseLayeredTopLevelPackages() throws IOException {
@@ -47,7 +47,7 @@ class ArchitectureMigrationTest {
                     .filter(Files::isDirectory)
                     .filter(path -> {
                         String packageName = path.getFileName().toString();
-                        return !List.of("web", "infra", "common", "service").contains(packageName);
+                        return !List.of("support", "user", "dict", "file", "wxmp").contains(packageName);
                     })
                     .toList();
 

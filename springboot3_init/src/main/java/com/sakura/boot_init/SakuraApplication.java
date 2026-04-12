@@ -7,13 +7,13 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * 主类（项目启动入口）
+ * 涓荤被锛堥」鐩惎鍔ㄥ叆鍙ｏ級
  *
  * @author sakura
  * @from sakura
  */
 @SpringBootApplication
-@MapperScan("com.sakura.boot_init.infra.mapper")
+@MapperScan({"com.sakura.boot_init.user.repository", "com.sakura.boot_init.dict.repository"})
 @EnableScheduling
 @EnableAspectJAutoProxy(proxyTargetClass = true, exposeProxy = true)
 public class SakuraApplication {
@@ -23,3 +23,6 @@ public class SakuraApplication {
     }
 
 }
+
+
+

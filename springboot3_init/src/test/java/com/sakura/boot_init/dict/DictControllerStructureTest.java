@@ -1,10 +1,10 @@
 package com.sakura.boot_init.dict;
 
-import com.sakura.boot_init.common.constant.UserConstant;
-import com.sakura.boot_init.web.annotation.AuthCheck;
-import com.sakura.boot_init.web.controller.DictItemController;
-import com.sakura.boot_init.web.controller.DictMappingController;
-import com.sakura.boot_init.web.controller.DictTypeController;
+import com.sakura.boot_init.support.constant.UserConstant;
+import com.sakura.boot_init.support.annotation.AuthCheck;
+import com.sakura.boot_init.dict.controller.publicapi.DictMappingController;
+import com.sakura.boot_init.dict.controller.admin.DictItemController;
+import com.sakura.boot_init.dict.controller.admin.DictTypeController;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -75,3 +75,4 @@ class DictControllerStructureTest {
         return null;
     }
 }
+

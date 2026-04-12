@@ -1,4 +1,4 @@
-package com.sakura.boot_init.common.util;
+package com.sakura.boot_init.utils;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.support.ExcelTypeEnum;
@@ -32,3 +32,4 @@ public class EasyExcelTest {
     }
 
 }
+

@@ -1,6 +1,6 @@
 package com.sakura.boot_init;
 
-import com.sakura.boot_init.infra.auth.TokenManager;
+import com.sakura.boot_init.support.auth.TokenManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -77,8 +77,8 @@ class AuthMigrationTest {
      */
     @Test
     void shouldMoveAuthEndpointsOutOfUserController() throws IOException {
-        Path userController = Path.of("src", "main", "java", "com", "sakura", "boot_init", "web", "controller", "UserController.java");
-        Path authController = Path.of("src", "main", "java", "com", "sakura", "boot_init", "web", "controller", "AuthController.java");
+        Path userController = Path.of("src", "main", "java", "com", "sakura", "boot_init", "user", "controller", "app", "UserController.java");
+        Path authController = Path.of("src", "main", "java", "com", "sakura", "boot_init", "user", "controller", "app", "AuthController.java");
         String content = Files.readString(userController, StandardCharsets.UTF_8);
 
         assertTrue(Files.exists(authController), "认证入口应拆分到 AuthController");
@@ -94,10 +94,10 @@ class AuthMigrationTest {
      */
     @Test
     void shouldMoveAuthMethodsOutOfUserService() throws IOException {
-        Path userService = Path.of("src", "main", "java", "com", "sakura", "boot_init", "service", "UserService.java");
-        Path userServiceImpl = Path.of("src", "main", "java", "com", "sakura", "boot_init", "service", "impl", "UserServiceImpl.java");
-        Path authService = Path.of("src", "main", "java", "com", "sakura", "boot_init", "service", "AuthService.java");
-        Path authServiceImpl = Path.of("src", "main", "java", "com", "sakura", "boot_init", "service", "impl", "AuthServiceImpl.java");
+        Path userService = Path.of("src", "main", "java", "com", "sakura", "boot_init", "user", "service", "UserService.java");
+        Path userServiceImpl = Path.of("src", "main", "java", "com", "sakura", "boot_init", "user", "service", "impl", "UserServiceImpl.java");
+        Path authService = Path.of("src", "main", "java", "com", "sakura", "boot_init", "user", "service", "AuthService.java");
+        Path authServiceImpl = Path.of("src", "main", "java", "com", "sakura", "boot_init", "user", "service", "impl", "AuthServiceImpl.java");
         String interfaceContent = Files.readString(userService, StandardCharsets.UTF_8);
         String implContent = Files.readString(userServiceImpl, StandardCharsets.UTF_8);
 
@@ -152,6 +152,7 @@ class AuthMigrationTest {
      * 断言文本中不包含指定内容。
      */
     private void assertFalseContent(String content, String forbiddenText) {
-        assertTrue(!content.contains(forbiddenText), "UserController 不应包含认证方法：" + forbiddenText);
+        assertTrue(!content.contains(forbiddenText), "app.UserController 不应包含认证方法：" + forbiddenText);
     }
 }
+

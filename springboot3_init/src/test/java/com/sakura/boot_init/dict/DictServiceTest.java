@@ -1,14 +1,14 @@
 package com.sakura.boot_init.dict;
 
-import com.sakura.boot_init.common.exception.BusinessException;
-import com.sakura.boot_init.infra.persistence.entity.DictItem;
-import com.sakura.boot_init.infra.persistence.entity.DictType;
-import com.sakura.boot_init.service.DictItemService;
-import com.sakura.boot_init.service.DictTypeService;
-import com.sakura.boot_init.service.impl.DictMappingServiceImpl;
-import com.sakura.boot_init.service.impl.DictTypeServiceImpl;
-import com.sakura.boot_init.web.dto.dict.DictTypeAddRequest;
-import com.sakura.boot_init.web.vo.dict.DictItemSimpleVO;
+import com.sakura.boot_init.support.exception.BusinessException;
+import com.sakura.boot_init.dict.model.entity.DictItem;
+import com.sakura.boot_init.dict.model.entity.DictType;
+import com.sakura.boot_init.dict.service.DictItemService;
+import com.sakura.boot_init.dict.service.DictTypeService;
+import com.sakura.boot_init.dict.service.impl.DictMappingServiceImpl;
+import com.sakura.boot_init.dict.service.impl.DictTypeServiceImpl;
+import com.sakura.boot_init.dict.model.dto.DictTypeAddRequest;
+import com.sakura.boot_init.dict.model.vo.DictItemSimpleVO;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -101,3 +101,4 @@ class DictServiceTest {
         field.set(target, value);
     }
 }
+
