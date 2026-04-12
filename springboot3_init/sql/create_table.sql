@@ -3,10 +3,10 @@
 # @from sakura
 
 -- 创建库
-create database if not exists sakura_interview;
+create database if not exists sakura_boot_init;
 
 -- 切换库
-use sakura_interview;
+use sakura_boot_init;
 
 -- 用户表
 create table if not exists user

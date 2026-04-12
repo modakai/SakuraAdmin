@@ -1,5 +1,4 @@
-### @author <a href="https://github.com/liyupi">程序员鱼皮</a> ###
-### @from <a href="https://yupi.icu">编程导航知识星球</a> ###
+### 作者：Sakura ###
 
 HELP.md
 target/
@@ -148,3 +147,4 @@ fabric.properties
 # 后端本地环境变量文件
 .env.local
 .env.*.local
+
