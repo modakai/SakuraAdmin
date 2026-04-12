@@ -1,18 +1,24 @@
 # 公共配置文件
 # @author sakura
 # @from sakura
+server:
+  address: 0.0.0.0
+  port: 8101
+  servlet:
+    context-path: /api
 spring:
   application:
     name: sakura-interview-api
   # 默认 dev 环境
   profiles:
     active: dev
-  # 支持 swagger3
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
+  # 导入后端根目录下的 .env 配置文件
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - optional:file:.env.${spring.profiles.active}[.properties]
+      - optional:file:.env.local[.properties]
   # 数据库配置
-  # todo 需替换配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/sakura_interview
@@ -25,18 +31,13 @@ spring:
       # 大小限制
       max-file-size: 10MB
   # Redis 配置
-  # todo 需替换配置，然后取消注释
   data:
     redis:
       database: 1
       host: localhost
       port: 6379
       timeout: 5000
-server:
-  address: 0.0.0.0
-  port: 8101
-  servlet:
-    context-path: /api
+
 mybatis-flex:
   configuration:
     map-underscore-to-camel-case: true
@@ -45,12 +46,11 @@ mybatis-flex:
 # 微信相关
 wx:
   # 微信公众平台
-  # todo 需替换配置
   mp:
-    token: xxx
-    aesKey: xxx
-    appId: xxx
-    secret: xxx
+    token: ${WX_MP_TOKEN:xxx}
+    aesKey: ${WX_MP_AES_KEY:xxx}
+    appId: ${WX_MP_APP_ID:xxx}
+    secret: ${WX_MP_SECRET:xxx}
     config-storage:
       http-client-type: HttpClient
       key-prefix: wx
@@ -59,20 +59,18 @@ wx:
         port: 6379
       type: Memory
   # 微信开放平台
-  # todo 需替换配置
   open:
-    appId: xxx
-    appSecret: xxx
+    appId: ${WX_OPEN_APP_ID:xxx}
+    appSecret: ${WX_OPEN_APP_SECRET:xxx}
 # 对象存储
-# todo 需替换配置
 oss:
   enable: false
   # 对应云厂商的站点域名
   endpoint: 127.0.0.1:9000
   # 对应云厂商桶的绑定域名
   domain: ''
-  accessKey: UBCX82S9TLNq4WxkTBOJ
-  secretKey: j0uPaCTvUKaOCU82tjFW8qdWeZxdsGOOp7mFX0yP
+  accessKey: ${OSS_ACCESS_KEY:}
+  secretKey: ${OSS_SECRET_KEY:}
   # 前缀
   prefix: ''
   # 存储空间名/桶名
