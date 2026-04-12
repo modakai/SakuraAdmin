@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 /**
  * 用户角色枚举
  *
- * 作者：Sakura
+ * @author Sakura
  */
 public enum UserRoleEnum {
 

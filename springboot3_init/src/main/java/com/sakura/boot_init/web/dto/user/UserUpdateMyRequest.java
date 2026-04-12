@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * 用户更新个人信息请求
  *
- * 作者：Sakura
+ * @author Sakura
  */
 @Data
 public class UserUpdateMyRequest implements Serializable {

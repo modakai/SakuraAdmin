@@ -11,4 +11,8 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  test: {
+    // 使用 jsdom 让路由与浏览器存储相关逻辑可在单元测试中运行。
+    environment: 'jsdom',
+  },
 })

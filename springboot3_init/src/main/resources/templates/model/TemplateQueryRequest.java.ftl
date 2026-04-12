@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * 查询${dataName}请求
  *
- * 作者：Sakura
+ * @author Sakura
  * @from <a href="https://www.code-nav.cn">编程导航学习圈</a>
  */
 @EqualsAndHashCode(callSuper = true)

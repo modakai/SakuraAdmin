@@ -17,7 +17,7 @@ import java.util.Map;
  * @author sakura
  * @from sakura
  */
-@SpringBootTest
+@SpringBootTest(classes = com.sakura.boot_init.SakuraApplication.class)
 public class EasyExcelTest {
 
     @Test

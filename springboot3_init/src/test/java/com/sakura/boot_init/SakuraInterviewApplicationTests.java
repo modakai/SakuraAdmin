@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author sakura
  * @from sakura
  */
-@SpringBootTest
+@SpringBootTest(classes = SakuraApplication.class)
 class SakuraInterviewApplicationTests {
 
     @Test

@@ -26,5 +26,37 @@ create table if not exists user
     index idx_union_id (union_id)
 ) comment '用户' collate = utf8mb4_unicode_ci;
 
+-- 字典类型表
+create table if not exists sys_dict_type
+(
+    id          bigint auto_increment comment 'id' primary key,
+    dict_code   varchar(128)                           not null comment '字典编码',
+    dict_name   varchar(256)                           not null comment '字典名称',
+    status      tinyint      default 1                 not null comment '状态：1启用 0禁用',
+    remark      varchar(512)                           null comment '备注',
+    create_time datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    is_delete   tinyint      default 0                 not null comment '是否删除',
+    unique key uk_dict_code (dict_code)
+) comment '字典类型' collate = utf8mb4_unicode_ci;
+
+-- 字典明细表
+create table if not exists sys_dict_item
+(
+    id           bigint auto_increment comment 'id' primary key,
+    dict_type_id bigint                                not null comment '字典类型id',
+    dict_label   varchar(256)                          not null comment '字典标签',
+    dict_value   varchar(256)                          not null comment '字典值',
+    sort_order   int          default 0                not null comment '排序值',
+    status       tinyint      default 1                not null comment '状态：1启用 0禁用',
+    tag_type     varchar(64)                           null comment '标签类型',
+    remark       varchar(512)                          null comment '备注',
+    ext_json     text                                  null comment '扩展JSON',
+    create_time  datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time  datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    is_delete    tinyint      default 0                not null comment '是否删除',
+    unique key uk_dict_type_value (dict_type_id, dict_value),
+    key idx_dict_type_id (dict_type_id)
+) comment '字典明细' collate = utf8mb4_unicode_ci;
 
 

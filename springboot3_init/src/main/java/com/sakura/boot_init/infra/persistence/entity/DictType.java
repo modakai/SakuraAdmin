@@ -11,59 +11,39 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 用户
+ * 字典类型
  *
- * @author Sakura
+ * @author sakura
  */
-@Table("user")
 @Data
-public class User implements Serializable {
+@Table("sys_dict_type")
+public class DictType implements Serializable {
 
     /**
-     * id
+     * 主键 id
      */
     @Id(keyType = KeyType.Generator, value = KeyGenerators.flexId)
     private Long id;
 
     /**
-     * 用户账号
+     * 字典编码
      */
-    private String userAccount;
+    private String dictCode;
 
     /**
-     * 用户密码
+     * 字典名称
      */
-    private String userPassword;
+    private String dictName;
 
     /**
-     * 开放平台id
+     * 状态：1 启用，0 禁用
      */
-    private String unionId;
+    private Integer status;
 
     /**
-     * 公众号openId
+     * 备注
      */
-    private String mpOpenId;
-
-    /**
-     * 用户昵称
-     */
-    private String userName;
-
-    /**
-     * 用户头像
-     */
-    private String userAvatar;
-
-    /**
-     * 用户简介
-     */
-    private String userProfile;
-
-    /**
-     * 用户角色：user/admin/ban
-     */
-    private String userRole;
+    private String remark;
 
     /**
      * 创建时间
@@ -81,7 +61,9 @@ public class User implements Serializable {
     @Column(isLogicDelete = true)
     private Integer isDelete;
 
+    /**
+     * 序列化版本号
+     */
     @Column(ignore = true)
     private static final long serialVersionUID = 1L;
 }
-

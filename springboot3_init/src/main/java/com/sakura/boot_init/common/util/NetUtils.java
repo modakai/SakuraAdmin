@@ -7,7 +7,7 @@ import java.net.InetAddress;
 /**
  * 网络工具类
  *
- * 作者：Sakura
+ * @author Sakura
  */
 public class NetUtils {
 

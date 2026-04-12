@@ -5,7 +5,7 @@ import com.sakura.boot_init.common.ErrorCode;
 /**
  * 自定义异常类
  *
- * 作者：Sakura
+ * @author Sakura
  */
 public class BusinessException extends RuntimeException {
 

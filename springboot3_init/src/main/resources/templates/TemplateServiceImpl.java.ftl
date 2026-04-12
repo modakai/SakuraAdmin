@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 /**
  * ${dataName}服务实现
  *
- * 作者：Sakura
+ * @author Sakura
  * @from <a href="https://www.code-nav.cn">编程导航学习圈</a>
  */
 @Service

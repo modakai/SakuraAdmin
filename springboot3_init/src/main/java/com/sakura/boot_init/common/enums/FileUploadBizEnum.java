@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 /**
  * 文件上传业务类型枚举
  *
- * 作者：Sakura
+ * @author Sakura
  */
 public enum FileUploadBizEnum {
 

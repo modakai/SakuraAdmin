@@ -1,0 +1,165 @@
+package com.sakura.boot_init.service.impl;
+
+import cn.hutool.core.collection.CollUtil;
+import com.mybatisflex.core.query.QueryWrapper;
+import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.sakura.boot_init.common.ErrorCode;
+import com.sakura.boot_init.common.constant.CommonConstant;
+import com.sakura.boot_init.common.exception.BusinessException;
+import com.sakura.boot_init.common.exception.ThrowUtils;
+import com.sakura.boot_init.common.util.SqlUtils;
+import com.sakura.boot_init.infra.mapper.DictTypeMapper;
+import com.sakura.boot_init.infra.persistence.entity.DictType;
+import com.sakura.boot_init.service.DictItemService;
+import com.sakura.boot_init.service.DictTypeService;
+import com.sakura.boot_init.web.dto.dict.DictTypeAddRequest;
+import com.sakura.boot_init.web.dto.dict.DictTypeQueryRequest;
+import com.sakura.boot_init.web.dto.dict.DictTypeUpdateRequest;
+import com.sakura.boot_init.web.vo.dict.DictTypeVO;
+import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+/**
+ * 字典类型服务实现
+ *
+ * @author sakura
+ */
+@Service
+public class DictTypeServiceImpl extends ServiceImpl<DictTypeMapper, DictType> implements DictTypeService {
+
+    /**
+     * 字典编码合法格式
+     */
+    private static final Pattern DICT_CODE_PATTERN = Pattern.compile("^[a-zA-Z][a-zA-Z0-9_]*$");
+
+    @Resource
+    private DictItemService dictItemService;
+
+    @Override
+    public Long addDictType(DictTypeAddRequest request) {
+        if (request == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        DictType dictType = new DictType();
+        BeanUtils.copyProperties(request, dictType);
+        validDictType(dictType, true);
+        boolean result = this.save(dictType);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return dictType.getId();
+    }
+
+    @Override
+    public boolean updateDictType(DictTypeUpdateRequest request) {
+        if (request == null || request.getId() == null || request.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        DictType oldDictType = this.getById(request.getId());
+        ThrowUtils.throwIf(oldDictType == null, ErrorCode.NOT_FOUND_ERROR);
+        DictType dictType = new DictType();
+        BeanUtils.copyProperties(request, dictType);
+        validDictType(dictType, false);
+        return this.updateById(dictType);
+    }
+
+    @Override
+    public boolean removeDictType(Long id) {
+        if (id == null || id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        long itemCount = dictItemService.countEnabledByTypeId(id);
+        ThrowUtils.throwIf(itemCount > 0, ErrorCode.OPERATION_ERROR, "请先删除该字典类型下的明细数据");
+        DictType oldDictType = this.getById(id);
+        ThrowUtils.throwIf(oldDictType == null, ErrorCode.NOT_FOUND_ERROR);
+        return this.removeById(id);
+    }
+
+    @Override
+    public QueryWrapper getQueryWrapper(DictTypeQueryRequest queryRequest) {
+        if (queryRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
+        }
+        QueryWrapper queryWrapper = QueryWrapper.create();
+        queryWrapper.eq("id", queryRequest.getId(), queryRequest.getId() != null);
+        queryWrapper.like("dict_code", queryRequest.getDictCode(), StringUtils.isNotBlank(queryRequest.getDictCode()));
+        queryWrapper.like("dict_name", queryRequest.getDictName(), StringUtils.isNotBlank(queryRequest.getDictName()));
+        queryWrapper.eq("status", queryRequest.getStatus(), queryRequest.getStatus() != null);
+        if (SqlUtils.validSortField(queryRequest.getSortField())) {
+            queryWrapper.orderBy(queryRequest.getSortField(),
+                    CommonConstant.SORT_ORDER_ASC.equals(queryRequest.getSortOrder()));
+        } else {
+            queryWrapper.orderBy("id", false);
+        }
+        return queryWrapper;
+    }
+
+    @Override
+    public boolean existsByDictCode(String dictCode, Long excludeId) {
+        QueryWrapper queryWrapper = QueryWrapper.create()
+                .eq("dict_code", dictCode);
+        if (excludeId != null) {
+            queryWrapper.ne("id", excludeId);
+        }
+        return this.count(queryWrapper) > 0;
+    }
+
+    @Override
+    public DictType getByDictCode(String dictCode) {
+        if (StringUtils.isBlank(dictCode)) {
+            return null;
+        }
+        QueryWrapper queryWrapper = QueryWrapper.create()
+                .eq("dict_code", dictCode);
+        return this.getOne(queryWrapper);
+    }
+
+    @Override
+    public DictTypeVO getDictTypeVO(DictType dictType) {
+        if (dictType == null) {
+            return null;
+        }
+        DictTypeVO dictTypeVO = new DictTypeVO();
+        BeanUtils.copyProperties(dictType, dictTypeVO);
+        return dictTypeVO;
+    }
+
+    @Override
+    public List<DictTypeVO> getDictTypeVO(List<DictType> dictTypeList) {
+        if (CollUtil.isEmpty(dictTypeList)) {
+            return new ArrayList<>();
+        }
+        return dictTypeList.stream().map(this::getDictTypeVO).collect(Collectors.toList());
+    }
+
+    /**
+     * 校验字典类型参数
+     *
+     * @param dictType 字典类型实体
+     * @param add 是否新增
+     */
+    private void validDictType(DictType dictType, boolean add) {
+        if (dictType == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        if (!add && (dictType.getId() == null || dictType.getId() <= 0)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "字典类型 id 非法");
+        }
+        if (StringUtils.isBlank(dictType.getDictCode()) || !DICT_CODE_PATTERN.matcher(dictType.getDictCode()).matches()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "字典编码格式错误，仅支持字母、数字和下划线，且必须以字母开头");
+        }
+        if (StringUtils.isBlank(dictType.getDictName())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "字典名称不能为空");
+        }
+        if (dictType.getStatus() == null || (dictType.getStatus() != 0 && dictType.getStatus() != 1)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "字典状态非法");
+        }
+        boolean exists = existsByDictCode(dictType.getDictCode(), add ? null : dictType.getId());
+        ThrowUtils.throwIf(exists, ErrorCode.PARAMS_ERROR, "字典编码已存在");
+    }
+}

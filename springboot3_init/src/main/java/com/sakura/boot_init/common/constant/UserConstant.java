@@ -3,7 +3,7 @@ package com.sakura.boot_init.common.constant;
 /**
  * 用户常量
  *
- * 作者：Sakura
+ * @author Sakura
  */
 public interface UserConstant {
 

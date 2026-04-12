@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * 用户查询请求
  *
- * 作者：Sakura
+ * @author Sakura
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
