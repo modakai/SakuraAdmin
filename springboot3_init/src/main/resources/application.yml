@@ -8,7 +8,7 @@ server:
     context-path: /api
 spring:
   application:
-    name: sakura-interview-api
+    name: sakura-boot-init-api
   # 默认 dev 环境
   profiles:
     active: dev
@@ -21,7 +21,7 @@ spring:
   # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/sakura_interview
+    url: jdbc:mysql://localhost:3306/sakura_boot_init
     username: root
     password: root
 
@@ -42,7 +42,7 @@ mybatis-flex:
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
-  type-aliases-package: com.sakura.interview.infra.persistence.entity
+  type-aliases-package: com.sakura.boot_init.infra.persistence.entity
 # 微信相关
 wx:
   # 微信公众平台
