@@ -2,7 +2,7 @@
 import { LoaderCircleIcon, PlusIcon, SquarePenIcon } from '@lucide/vue'
 import { toast } from 'vue-sonner'
 
-import type { AgreementForm, AgreementItem } from '@/services/api/agreement.api'
+import type { AgreementForm, AgreementItem } from '@/services/types/agreement.type'
 
 import {
   useCreateAgreementMutation,

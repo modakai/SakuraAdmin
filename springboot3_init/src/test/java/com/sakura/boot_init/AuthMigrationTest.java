@@ -1,9 +1,9 @@
 package com.sakura.boot_init;
 
 import com.sakura.boot_init.support.auth.TokenManager;
+import com.sakura.boot_init.support.util.RedisUtil;
 import org.junit.jupiter.api.Test;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
+import org.mockito.MockedStatic;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -26,7 +26,7 @@ class AuthMigrationTest {
      */
     @Test
     void shouldGenerateThirtyTwoLengthRandomToken() {
-        TokenManager tokenManager = new TokenManager(mock(StringRedisTemplate.class));
+        TokenManager tokenManager = new TokenManager();
 
         String firstToken = tokenManager.generateToken();
         String secondToken = tokenManager.generateToken();
@@ -45,15 +45,28 @@ class AuthMigrationTest {
      */
     @Test
     void shouldStoreTokenAndUserMappingInRedis() {
-        StringRedisTemplate redisTemplate = mock(StringRedisTemplate.class);
-        ValueOperations<String, String> valueOperations = mock(ValueOperations.class);
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-        TokenManager tokenManager = new TokenManager(redisTemplate);
+        TokenManager tokenManager = new TokenManager();
+        try (MockedStatic<RedisUtil> redisUtilMockedStatic = mockStatic(RedisUtil.class)) {
+            redisUtilMockedStatic.when(() -> RedisUtil.getCacheObject("login:user:1001")).thenReturn(null);
 
-        tokenManager.storeToken(1001L, "abc123");
+            tokenManager.storeToken(1001L, "abc123");
 
-        verify(valueOperations).set("login:token:abc123", "1001", 30L, TimeUnit.DAYS);
-        verify(valueOperations).set("login:user:1001", "abc123", 30L, TimeUnit.DAYS);
+            redisUtilMockedStatic.verify(() -> RedisUtil.setCacheObject("login:token:abc123", "1001", 30, TimeUnit.DAYS));
+            redisUtilMockedStatic.verify(() -> RedisUtil.setCacheObject("login:user:1001", "abc123", 30, TimeUnit.DAYS));
+        }
+    }
+
+    /**
+     * Token 管理器应统一复用 RedisUtil，避免散落的 RedisTemplate 访问方式。
+     */
+    @Test
+    void shouldUseRedisUtilInTokenManager() throws IOException {
+        Path tokenManager = Path.of("src", "main", "java", "com", "sakura", "boot_init", "support", "auth", "TokenManager.java");
+        String content = Files.readString(tokenManager, StandardCharsets.UTF_8);
+
+        assertTrue(content.contains("RedisUtil"), "TokenManager 应改为使用 RedisUtil");
+        assertFalseContent(content, "StringRedisTemplate");
+        assertFalseContent(content, "redisTemplate.opsForValue()");
     }
 
     /**

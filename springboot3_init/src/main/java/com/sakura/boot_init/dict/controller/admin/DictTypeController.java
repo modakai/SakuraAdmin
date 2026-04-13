@@ -110,7 +110,7 @@ public class DictTypeController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<DictTypeVO>> listDictTypeByPage(@Valid @RequestBody DictTypeQueryRequest queryRequest,
             HttpServletRequest httpServletRequest) {
-        long current = queryRequest.getCurrent();
+        long current = queryRequest.getPage();
         long pageSize = queryRequest.getPageSize();
         Page<DictType> page = dictTypeService.page(new Page<>(current, pageSize),
                 dictTypeService.getQueryWrapper(queryRequest));

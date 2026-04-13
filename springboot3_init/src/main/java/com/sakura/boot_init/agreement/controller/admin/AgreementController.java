@@ -111,7 +111,7 @@ public class AgreementController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<AgreementVO>> listAgreementByPage(@Valid @RequestBody AgreementQueryRequest queryRequest,
             HttpServletRequest httpServletRequest) {
-        long current = queryRequest.getCurrent();
+        long current = queryRequest.getPage();
         long pageSize = queryRequest.getPageSize();
         Page<Agreement> page = agreementService.page(new Page<>(current, pageSize),
                 agreementService.getQueryWrapper(queryRequest));

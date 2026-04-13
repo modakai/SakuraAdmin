@@ -14,10 +14,10 @@ import lombok.Data;
 public class PageRequest {
 
     /**
-     * 当前页号
+     * 当前页号，前后端统一使用 page 命名。
      */
     @Min(value = 1, message = "当前页号必须大于等于 1")
-    private int current = 1;
+    private int page = 1;
 
     /**
      * 页面大小
@@ -34,4 +34,22 @@ public class PageRequest {
      * 排序顺序，默认升序
      */
     private String sortOrder = CommonConstant.SORT_ORDER_ASC;
+
+    /**
+     * 兼容旧字段 current，避免存量请求立即失效。
+     *
+     * @return 当前页号
+     */
+    public int getCurrent() {
+        return page;
+    }
+
+    /**
+     * 兼容旧字段 current，统一写回 page。
+     *
+     * @param current 当前页号
+     */
+    public void setCurrent(int current) {
+        this.page = current;
+    }
 }

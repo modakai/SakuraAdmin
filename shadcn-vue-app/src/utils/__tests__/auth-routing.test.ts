@@ -25,7 +25,9 @@ describe('auth-routing', () => {
     const adminSession: AuthSession = {
       isLogin: true,
       loginEntry: 'admin',
+      token: 'token-admin',
       user: {
+        id: 1,
         name: '系统管理员',
         email: 'admin@example.com',
         roles: ['admin', 'user'],
@@ -48,7 +50,9 @@ describe('auth-routing', () => {
     const session: AuthSession = {
       isLogin: true,
       loginEntry: 'user',
+      token: 'token-user',
       user: {
+        id: 2,
         name: '普通用户',
         email: 'user@example.com',
         roles: ['user'],
@@ -63,7 +67,9 @@ describe('auth-routing', () => {
     const session: AuthSession = {
       isLogin: true,
       loginEntry,
+      token: 'token-admin',
       user: {
+        id: 3,
         name: '系统管理员',
         email: 'admin@example.com',
         roles: ['admin'],

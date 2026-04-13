@@ -2,7 +2,7 @@
 import { LoaderCircleIcon, RefreshCwIcon, Trash2Icon } from '@lucide/vue'
 import { toast } from 'vue-sonner'
 
-import type { AgreementQuery } from '@/services/api/agreement.api'
+import type { AgreementQuery } from '@/services/types/agreement.type'
 
 import { BasicPage } from '@/components/global-layout'
 import {
@@ -17,7 +17,7 @@ import AgreementFormDialog from './components/agreement-form-dialog.vue'
  * 协议列表查询条件。
  */
 const query = reactive<AgreementQuery>({
-  current: 1,
+  page: 1,
   pageSize: 10,
   agreementType: '',
   title: '',
@@ -83,7 +83,7 @@ function formatTime(value?: string) {
  * 提交查询前重置分页。
  */
 function handleSearch() {
-  query.current = 1
+  query.page = 1
   refetch()
 }
 
@@ -91,7 +91,7 @@ function handleSearch() {
  * 重置筛选条件。
  */
 function handleReset() {
-  query.current = 1
+  query.page = 1
   query.pageSize = 10
   query.agreementType = ''
   query.title = ''
@@ -103,7 +103,7 @@ function handleReset() {
  * 切换分页。
  */
 function changePage(nextPage: number) {
-  query.current = Math.min(Math.max(nextPage, 1), totalPages.value)
+  query.page = Math.min(Math.max(nextPage, 1), totalPages.value)
   refetch()
 }
 
@@ -279,12 +279,12 @@ async function handleDelete() {
           </div>
 
           <div class="mt-4 flex items-center justify-between text-sm text-muted-foreground">
-            <span>第 {{ query.current }} / {{ totalPages }} 页</span>
+            <span>第 {{ query.page }} / {{ totalPages }} 页</span>
             <div class="flex gap-2">
-              <UiButton variant="outline" size="sm" :disabled="query.current <= 1" @click="changePage(query.current - 1)">
+              <UiButton variant="outline" size="sm" :disabled="query.page <= 1" @click="changePage(query.page - 1)">
                 上一页
               </UiButton>
-              <UiButton variant="outline" size="sm" :disabled="query.current >= totalPages" @click="changePage(query.current + 1)">
+              <UiButton variant="outline" size="sm" :disabled="query.page >= totalPages" @click="changePage(query.page + 1)">
                 下一页
               </UiButton>
             </div>

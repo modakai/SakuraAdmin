@@ -1,8 +1,8 @@
 package com.sakura.boot_init.support.auth;
 
+import com.sakura.boot_init.support.util.RedisUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
@@ -69,15 +69,6 @@ public class TokenManager {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     /**
-     * Redis 模板。
-     */
-    private final StringRedisTemplate redisTemplate;
-
-    public TokenManager(StringRedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
-
-    /**
      * 生成 32 位随机 token，并保证至少包含数字、字母和特殊字符。
      *
      * @return token 字符串
@@ -102,12 +93,12 @@ public class TokenManager {
      */
     public void storeToken(Long userId, String token) {
         String userKey = buildUserKey(userId);
-        String oldToken = redisTemplate.opsForValue().get(userKey);
+        String oldToken = RedisUtil.getCacheObject(userKey);
         if (StringUtils.isNotBlank(oldToken)) {
-            redisTemplate.delete(buildTokenKey(oldToken));
+            RedisUtil.deleteObject(buildTokenKey(oldToken));
         }
-        redisTemplate.opsForValue().set(buildTokenKey(token), String.valueOf(userId), TOKEN_EXPIRE_DAYS, TimeUnit.DAYS);
-        redisTemplate.opsForValue().set(userKey, token, TOKEN_EXPIRE_DAYS, TimeUnit.DAYS);
+        RedisUtil.setCacheObject(buildTokenKey(token), String.valueOf(userId), (int) TOKEN_EXPIRE_DAYS, TimeUnit.DAYS);
+        RedisUtil.setCacheObject(userKey, token, (int) TOKEN_EXPIRE_DAYS, TimeUnit.DAYS);
     }
 
     /**
@@ -120,7 +111,7 @@ public class TokenManager {
         if (StringUtils.isBlank(token)) {
             return null;
         }
-        String userId = redisTemplate.opsForValue().get(buildTokenKey(token));
+        String userId = RedisUtil.getCacheObject(buildTokenKey(token));
         if (StringUtils.isBlank(userId)) {
             return null;
         }
@@ -135,10 +126,10 @@ public class TokenManager {
     public void removeToken(String token) {
         Long userId = getUserId(token);
         if (userId != null) {
-            redisTemplate.delete(buildUserKey(userId));
+            RedisUtil.deleteObject(buildUserKey(userId));
         }
         if (StringUtils.isNotBlank(token)) {
-            redisTemplate.delete(buildTokenKey(token));
+            RedisUtil.deleteObject(buildTokenKey(token));
         }
     }
 

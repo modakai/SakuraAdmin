@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { AlertCircleIcon } from '@lucide/vue'
 
-import type { LoginPayload } from '@/constants/mock-auth'
+import type { LoginPayload } from '@/services/types/auth.type'
 
 import { useAuth } from '@/composables/use-auth'
 
 // 用户端登录页走统一认证逻辑，但默认回用户端首页。
 const { loading, login } = useAuth()
 const formState = reactive<LoginPayload>({
-  email: 'student@example.com',
-  password: '123456',
+  userAccount: 'student@example.com',
+  userPassword: '12345678',
   entry: 'user',
 })
 const errorMessage = ref('')
@@ -47,14 +47,14 @@ async function handleLogin() {
           <UiLabel for="user-email">
             邮箱
           </UiLabel>
-          <UiInput id="user-email" v-model="formState.email" type="email" placeholder="student@example.com" />
+          <UiInput id="user-email" v-model="formState.userAccount" type="email" placeholder="student@example.com" />
         </div>
 
         <div class="grid gap-2">
           <UiLabel for="user-password">
             密码
           </UiLabel>
-          <UiInput id="user-password" v-model="formState.password" type="password" placeholder="123456" />
+          <UiInput id="user-password" v-model="formState.userPassword" type="password" placeholder="12345678" />
         </div>
 
         <UiButton class="w-full" @click="handleLogin">
@@ -63,7 +63,7 @@ async function handleLogin() {
         </UiButton>
 
         <UiCardDescription>
-          演示账号：`student@example.com / 123456`，管理员账号：`admin@example.com / 123456`
+          默认密码需满足后端最小 8 位要求，例如：`student@example.com / 12345678`
         </UiCardDescription>
       </UiCardContent>
     </UiCard>

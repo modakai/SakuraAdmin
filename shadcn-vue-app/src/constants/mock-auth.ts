@@ -12,7 +12,9 @@ export const demoAccounts: Record<string, DemoAccount> = {
     session: {
       isLogin: true,
       loginEntry: 'user',
+      token: 'mock-user-token',
       user: {
+        id: 1,
         name: '林知夏',
         email: 'student@example.com',
         roles: ['user'],
@@ -24,7 +26,9 @@ export const demoAccounts: Record<string, DemoAccount> = {
     session: {
       isLogin: true,
       loginEntry: 'admin',
+      token: 'mock-admin-token',
       user: {
+        id: 2,
         name: '系统管理员',
         email: 'admin@example.com',
         roles: ['admin', 'user'],

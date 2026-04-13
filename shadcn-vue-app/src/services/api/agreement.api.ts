@@ -2,66 +2,17 @@ import type { Ref } from 'vue'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 
+import type {
+  AgreementForm,
+  AgreementItem,
+  AgreementPageResponse,
+  AgreementQuery,
+} from '@/services/types/agreement.type'
+import type { DictOption } from '@/services/types/dict.type'
+
 import { useApiFetch } from '@/composables/use-fetch'
 
 import type { IResponse } from '../types/response.type'
-
-/**
- * 协议分页响应。
- */
-interface IPageResponse<T> {
-  records: T[]
-  totalRow: number
-  pageSize: number
-  pageNumber: number
-}
-
-/**
- * 协议列表项。
- */
-export interface AgreementItem {
-  id: number
-  agreementType: string
-  title: string
-  content: string
-  status: number
-  sortOrder: number
-  remark?: string
-  createTime?: string
-  updateTime?: string
-}
-
-/**
- * 协议查询参数。
- */
-export interface AgreementQuery {
-  current: number
-  pageSize: number
-  agreementType?: string
-  title?: string
-  status?: number | ''
-}
-
-/**
- * 协议表单参数。
- */
-export interface AgreementForm {
-  id?: number
-  agreementType: string
-  title: string
-  content: string
-  status: number
-  sortOrder: number
-  remark: string
-}
-
-/**
- * 字典选项。
- */
-export interface DictOption {
-  label: string
-  value: string
-}
 
 /**
  * 获取协议分页列表。
@@ -69,9 +20,9 @@ export interface DictOption {
 export function useGetAgreementPageQuery(query: AgreementQuery) {
   const { apiFetch } = useApiFetch()
 
-  return useQuery<IResponse<IPageResponse<AgreementItem>>, Error>({
-    queryKey: ['agreement-page', query.current, query.pageSize, query.agreementType, query.title, query.status],
-    queryFn: async () => await apiFetch<IResponse<IPageResponse<AgreementItem>>>('/agreement/list/page', {
+  return useQuery<IResponse<AgreementPageResponse<AgreementItem>>, Error>({
+    queryKey: ['agreement-page', query.page, query.pageSize, query.agreementType, query.title, query.status],
+    queryFn: async () => await apiFetch<IResponse<AgreementPageResponse<AgreementItem>>>('/agreement/list/page', {
       method: 'post',
       body: {
         ...query,

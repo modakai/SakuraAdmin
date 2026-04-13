@@ -5,7 +5,7 @@ import { useStorage } from '@vueuse/core'
 import { useForm } from 'vee-validate'
 import { toast } from 'vue-sonner'
 
-import { useCreateSystemMutation, useGetSystemConfigByKeyQuery, useUpdateSystemConfigByKeyMutation } from '@/services/api/example-system-config.api'
+import { useCreateSystemConfigMutation, useGetSystemConfigByKeyQuery, useUpdateSystemConfigByKeyMutation } from '@/services/api/system-config.api'
 
 export function useSystemConfig<S extends z.ZodObject<z.ZodRawShape>>({
   key,
@@ -29,13 +29,13 @@ export function useSystemConfig<S extends z.ZodObject<z.ZodRawShape>>({
   const localCacheConfig = useStorage<z.input<S>>(key, initialConfig)
 
   const { data: systemConfigData, isPending: isGetSystemConfigByKeyQueryPending } = useGetSystemConfigByKeyQuery(key)
-  const { mutate: createSystemConfigMutate, isPending: isCreateSystemConfigPending } = useCreateSystemMutation()
+  const { mutate: createSystemConfigMutate, isPending: isCreateSystemConfigPending } = useCreateSystemConfigMutation()
   const { mutate: updateSystemConfigMutate, isPending: isUpdateSystemConfigPending } = useUpdateSystemConfigByKeyMutation(key)
   const isPending = computed(() => isCreateSystemConfigPending.value || isUpdateSystemConfigPending.value)
 
   watch(systemConfigData, () => {
-    if (!isGetSystemConfigByKeyQueryPending.value && !systemConfigData.value) {
-      localCacheConfig.value = systemConfigData.value
+    if (!isGetSystemConfigByKeyQueryPending.value && !systemConfigData.value?.data) {
+      localCacheConfig.value = initialConfig
       createSystemConfigMutate({
         key,
         description,

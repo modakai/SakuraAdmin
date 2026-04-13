@@ -122,7 +122,7 @@ public class UserAdminController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<User>> listUserByPage(@Valid @RequestBody UserQueryRequest userQueryRequest,
             HttpServletRequest request) {
-        long current = userQueryRequest.getCurrent();
+        long current = userQueryRequest.getPage();
         long size = userQueryRequest.getPageSize();
         Page<User> userPage = userService.page(new Page<>(current, size),
                 userService.getQueryWrapper(userQueryRequest));

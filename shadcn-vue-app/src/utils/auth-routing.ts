@@ -3,14 +3,18 @@ export type AuthEntry = 'user' | 'admin'
 export type UserRole = 'user' | 'admin'
 
 export interface AuthUserInfo {
+  id: number
   name: string
   email: string
+  avatar?: string
+  profile?: string
   roles: UserRole[]
 }
 
 export interface AuthSession {
   isLogin: boolean
   loginEntry: AuthEntry
+  token: string | null
   user: AuthUserInfo | null
 }
 
@@ -27,6 +31,7 @@ export function createGuestSession(): AuthSession {
   return {
     isLogin: false,
     loginEntry: 'user',
+    token: null,
     user: null,
   }
 }

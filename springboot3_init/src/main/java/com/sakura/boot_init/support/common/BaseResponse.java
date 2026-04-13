@@ -3,6 +3,8 @@ package com.sakura.boot_init.support.common;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * 通用返回类
@@ -18,12 +20,24 @@ public class BaseResponse<T> implements Serializable {
 
     private T data;
 
+    /**
+     * 扩展数据，默认返回空对象，保持前端结构稳定。
+     */
+    private Map<String, Object> extra;
+
     private String message;
+
+    /**
+     * 是否成功，便于前端快速判断，但业务仍以 code 为准。
+     */
+    private boolean success;
 
     public BaseResponse(int code, T data, String message) {
         this.code = code;
         this.data = data;
+        this.extra = Collections.emptyMap();
         this.message = message;
+        this.success = ErrorCode.SUCCESS.getCode() == code;
     }
 
     public BaseResponse(int code, T data) {

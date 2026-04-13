@@ -66,7 +66,7 @@ public class UserController {
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<UserVO>> listUserVOByPage(@Valid @RequestBody UserQueryRequest userQueryRequest,
             HttpServletRequest request) {
-        long current = userQueryRequest.getCurrent();
+        long current = userQueryRequest.getPage();
         long size = userQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);

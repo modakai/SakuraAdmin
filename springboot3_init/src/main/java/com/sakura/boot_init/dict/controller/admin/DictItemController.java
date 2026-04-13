@@ -93,7 +93,7 @@ public class DictItemController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<DictItemVO>> listDictItemByPage(@Valid @RequestBody DictItemQueryRequest queryRequest,
             HttpServletRequest httpServletRequest) {
-        long current = queryRequest.getCurrent();
+        long current = queryRequest.getPage();
         long pageSize = queryRequest.getPageSize();
         Page<DictItem> page = dictItemService.page(new Page<>(current, pageSize),
                 dictItemService.getQueryWrapper(queryRequest));
@@ -103,5 +103,4 @@ public class DictItemController {
         return ResultUtils.success(voPage);
     }
 }
-
 
