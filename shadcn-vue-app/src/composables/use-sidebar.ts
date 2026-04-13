@@ -1,4 +1,4 @@
-import { BadgeHelpIcon, BellDotIcon, BoxesIcon, BugIcon, ComponentIcon, CreditCardIcon, LayoutDashboardIcon, ListTodoIcon, PaletteIcon, PictureInPicture2Icon, PodcastIcon, SettingsIcon, SquareUserRoundIcon, UserIcon, UsersIcon, WrenchIcon } from '@lucide/vue'
+import { BadgeHelpIcon, BellDotIcon, BoxesIcon, BugIcon, ComponentIcon, CreditCardIcon, FileTextIcon, LayoutDashboardIcon, ListTodoIcon, PaletteIcon, PictureInPicture2Icon, PodcastIcon, SettingsIcon, SquareUserRoundIcon, UserIcon, UsersIcon, WrenchIcon } from '@lucide/vue'
 
 import type { NavGroup } from '@/components/app-sidebar/types'
 
@@ -19,6 +19,7 @@ export function useSidebar() {
         { title: 'Tasks', url: '/tasks', icon: ListTodoIcon },
         { title: 'Apps', url: '/apps', icon: BoxesIcon },
         { title: 'Users', url: '/users', icon: UsersIcon },
+        { title: '协议管理', url: '/agreements', icon: FileTextIcon },
         { title: 'Ai Talk Example', url: '/ai-talk', icon: PodcastIcon },
       ],
     },
