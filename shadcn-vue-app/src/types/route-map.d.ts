@@ -137,6 +137,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/dicts/': RouteRecordInfo<
+      '/dicts/',
+      '/dicts',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/errors': RouteRecordInfo<
       '/errors',
       '/errors',
@@ -402,6 +409,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/dashboard/index.vue': {
       routes:
         | '/dashboard/'
+      views:
+        | never
+    }
+    'src/pages/dicts/index.vue': {
+      routes:
+        | '/dicts/'
       views:
         | never
     }

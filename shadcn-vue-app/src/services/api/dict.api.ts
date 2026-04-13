@@ -1,8 +1,9 @@
 import { useMutation, useQuery } from '@tanstack/vue-query'
 
-import { useApiFetch } from '@/composables/use-fetch'
 import type { DictOption } from '@/services/types/dict.type'
 import type { IResponse } from '@/services/types/response.type'
+
+import { useApiFetch } from '@/composables/use-fetch'
 
 /**
  * 根据字典编码获取选项列表。

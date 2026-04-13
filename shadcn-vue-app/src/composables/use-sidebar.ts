@@ -1,8 +1,21 @@
-import { BadgeHelpIcon, BellDotIcon, BoxesIcon, BugIcon, ComponentIcon, CreditCardIcon, FileTextIcon, LayoutDashboardIcon, ListTodoIcon, PaletteIcon, PictureInPicture2Icon, PodcastIcon, SettingsIcon, SquareUserRoundIcon, UserIcon, UsersIcon, WrenchIcon } from '@lucide/vue'
+import { BellDotIcon, CreditCardIcon, FileTextIcon, PaletteIcon, PictureInPicture2Icon, SettingsIcon, UserIcon, UsersIcon, WrenchIcon } from '@lucide/vue'
 
 import type { NavGroup } from '@/components/app-sidebar/types'
 
 export function useSidebar() {
+  /**
+   * 系统管理的子菜单。
+   * 仅保留当前项目实际需要展示的后台功能入口。
+   */
+  const systemManagementItems = [
+    { title: '用户管理', url: '/users', icon: UsersIcon },
+    { title: '字典管理', url: '/dicts', icon: WrenchIcon },
+    { title: '协议管理', url: '/agreements', icon: FileTextIcon },
+  ]
+
+  /**
+   * 设置页导航仍然保留给设置模块内部复用。
+   */
   const settingsNavItems = [
     { title: 'Profile', url: '/settings/', icon: UserIcon },
     { title: 'Account', url: '/settings/account', icon: WrenchIcon },
@@ -13,50 +26,13 @@ export function useSidebar() {
 
   const navData = ref<NavGroup[]> ([
     {
-      title: 'General',
-      items: [
-        { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboardIcon },
-        { title: 'Tasks', url: '/tasks', icon: ListTodoIcon },
-        { title: 'Apps', url: '/apps', icon: BoxesIcon },
-        { title: 'Users', url: '/users', icon: UsersIcon },
-        { title: '协议管理', url: '/agreements', icon: FileTextIcon },
-        { title: 'Ai Talk Example', url: '/ai-talk', icon: PodcastIcon },
-      ],
-    },
-    {
-      title: 'Pages',
+      title: '主菜单',
       items: [
         {
-          title: 'Auth',
-          icon: SquareUserRoundIcon,
-          items: [
-            { title: 'Sign In', url: '/auth/sign-in' },
-            { title: 'Sign In(2 Col)', url: '/auth/sign-in-2' },
-            { title: 'Sign Up', url: '/auth/sign-up' },
-            { title: 'Forgot Password', url: '/auth/forgot-password' },
-            { title: 'OTP', url: '/auth/otp' },
-          ],
+          title: '系统管理',
+          icon: SettingsIcon,
+          items: systemManagementItems,
         },
-        {
-          title: 'Errors',
-          icon: BugIcon,
-          items: [
-            { title: '401 | Unauthorized', url: '/errors/401' },
-            { title: '403 | Forbidden', url: '/errors/403' },
-            { title: '404 | Not Found', url: '/errors/404' },
-            { title: '500 | Internal Server Error', url: '/errors/500' },
-            { title: '503 | Maintenance Error', url: '/errors/503' },
-          ],
-        },
-      ],
-    },
-    {
-      title: 'Other',
-      items: [
-        { title: 'Settings', items: settingsNavItems, icon: SettingsIcon },
-        { title: 'Prop Components', url: '/prop-components', icon: ComponentIcon },
-        { title: 'Help Center', url: '/help-center', icon: BadgeHelpIcon },
-        { title: 'Outside Page(GitHub)', url: 'https://www.github.com/Whbbit1999/shadcn-vue-admin' },
       ],
     },
   ])

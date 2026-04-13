@@ -1,7 +1,8 @@
 import { useMutation } from '@tanstack/vue-query'
 
-import { useApiFetch } from '@/composables/use-fetch'
 import type { IResponse } from '@/services/types/response.type'
+
+import { useApiFetch } from '@/composables/use-fetch'
 
 /**
  * 上传文件到后端 OSS 接口。

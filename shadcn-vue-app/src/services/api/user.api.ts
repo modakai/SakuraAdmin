@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 
-import { useApiFetch } from '@/composables/use-fetch'
 import type { IResponse } from '@/services/types/response.type'
 import type {
   UserAddForm,
@@ -9,6 +8,8 @@ import type {
   UserUpdateForm,
   UserUpdateMyForm,
 } from '@/services/types/user.type'
+
+import { useApiFetch } from '@/composables/use-fetch'
 
 /**
  * 通用分页响应。

@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 
-import { useApiFetch } from '@/composables/use-fetch'
 import type { IResponse } from '@/services/types/response.type'
 import type { SystemConfigItem } from '@/services/types/system-config.type'
+
+import { useApiFetch } from '@/composables/use-fetch'
 
 /**
  * 按键查询系统配置。

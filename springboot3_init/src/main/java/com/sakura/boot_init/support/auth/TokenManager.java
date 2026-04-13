@@ -54,7 +54,7 @@ public class TokenManager {
     /**
      * 特殊字符集。
      */
-    private static final char[] SYMBOL_CHARS = "!@#$%^&*()_+[]{};:,.?/".toCharArray();
+    private static final char[] SYMBOL_CHARS = "!@#$%^&*()_+[]{};,.?".toCharArray();
 
     /**
      * 完整可选字符集。

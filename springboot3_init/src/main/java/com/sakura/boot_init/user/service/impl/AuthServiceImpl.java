@@ -68,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
             User user = new User();
             user.setUserAccount(userAccount);
             user.setUserPassword(encryptPassword(userPassword));
-            int saveResult = userMapper.insert(user);
+            int saveResult = userMapper.insertSelective(user);
             if (saveResult <= 0) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
             }
