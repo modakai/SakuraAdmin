@@ -41,6 +41,20 @@ declare module 'vue-router/auto-routes' {
       { path: ParamValue<false> },
       | never
     >,
+    '/agreement/[agreementType]': RouteRecordInfo<
+      '/agreement/[agreementType]',
+      '/agreement/:agreementType',
+      { agreementType: ParamValue<true> },
+      { agreementType: ParamValue<false> },
+      | never
+    >,
+    '/agreements/': RouteRecordInfo<
+      '/agreements/',
+      '/agreements',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/ai-talk/': RouteRecordInfo<
       '/ai-talk/',
       '/ai-talk',
@@ -304,6 +318,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/[...path].vue': {
       routes:
         | '/[...path]'
+      views:
+        | never
+    }
+    'src/pages/agreement/[agreementType].vue': {
+      routes:
+        | '/agreement/[agreementType]'
+      views:
+        | never
+    }
+    'src/pages/agreements/index.vue': {
+      routes:
+        | '/agreements/'
       views:
         | never
     }

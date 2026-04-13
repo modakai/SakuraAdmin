@@ -47,7 +47,7 @@ class ArchitectureMigrationTest {
                     .filter(Files::isDirectory)
                     .filter(path -> {
                         String packageName = path.getFileName().toString();
-                        return !List.of("support", "user", "dict", "file", "wxmp").contains(packageName);
+                        return !List.of("support", "user", "dict", "file", "wxmp", "agreement").contains(packageName);
                     })
                     .toList();
 
