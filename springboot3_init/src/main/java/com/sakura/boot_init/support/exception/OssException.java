@@ -3,12 +3,12 @@ package com.sakura.boot_init.support.exception;
 import com.sakura.boot_init.support.common.ErrorCode;
 
 /**
- * 澶勭悊Oss寮傚父
+ * 处理 OSS 异常
  */
 public class OssException extends RuntimeException {
 
     /**
-     * 閿欒鐮?
+     * 错误码
      */
     private final int code;
 
@@ -31,5 +31,3 @@ public class OssException extends RuntimeException {
         return code;
     }
 }
-
-

@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 鏉冮檺鏍￠獙
+ * 权限校验
  *
  * @author sakura
  * @from sakura
@@ -16,12 +16,9 @@ import java.lang.annotation.Target;
 public @interface AuthCheck {
 
     /**
-     * 蹇呴』鏈夋煇涓鑹?     *
-     * @return
+     * 必须具备的角色
+     *
+     * @return 角色标识
      */
     String mustRole() default "";
-
 }
-
-
-

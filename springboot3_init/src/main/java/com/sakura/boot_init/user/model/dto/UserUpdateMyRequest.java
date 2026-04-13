@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 鐢ㄦ埛鏇存柊涓汉淇℃伅璇锋眰
+ * 用户更新个人信息请求
  *
  * @author Sakura
  */
@@ -13,20 +13,19 @@ import java.io.Serializable;
 public class UserUpdateMyRequest implements Serializable {
 
     /**
-     * 鐢ㄦ埛鏄电О
+     * 用户昵称
      */
     private String userName;
 
     /**
-     * 鐢ㄦ埛澶村儚
+     * 用户头像
      */
     private String userAvatar;
 
     /**
-     * 绠€浠?     */
+     * 简介
+     */
     private String userProfile;
 
     private static final long serialVersionUID = 1L;
 }
-
-

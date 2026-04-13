@@ -7,7 +7,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 鍒犻櫎璇锋眰
+ * 删除请求
  *
  * @author sakura
  * @from sakura
@@ -18,11 +18,9 @@ public class DeleteRequest implements Serializable {
     /**
      * id
      */
-    @NotNull(message = "id 涓嶈兘涓虹┖")
-    @Positive(message = "id 蹇呴』澶т簬 0")
+    @NotNull(message = "id 不能为空")
+    @Positive(message = "id 必须大于 0")
     private Long id;
 
     private static final long serialVersionUID = 1L;
 }
-
-

@@ -6,7 +6,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 /**
- * Spring 涓婁笅鏂囪幏鍙栧伐鍏? *
+ * Spring 上下文获取工具
+ *
  * @author sakura
  * @from sakura
  */
@@ -21,36 +22,35 @@ public class SpringContextUtils implements ApplicationContextAware {
     }
 
     /**
-     * 閫氳繃鍚嶇О鑾峰彇 Bean
+     * 通过名称获取 Bean
      *
-     * @param beanName
-     * @return
+     * @param beanName Bean 名称
+     * @return Bean 实例
      */
     public static Object getBean(String beanName) {
         return applicationContext.getBean(beanName);
     }
 
     /**
-     * 閫氳繃 class 鑾峰彇 Bean
+     * 通过 class 获取 Bean
      *
-     * @param beanClass
-     * @param <T>
-     * @return
+     * @param beanClass Bean 类型
+     * @param <T> Bean 类型
+     * @return Bean 实例
      */
     public static <T> T getBean(Class<T> beanClass) {
         return applicationContext.getBean(beanClass);
     }
 
     /**
-     * 閫氳繃鍚嶇О鍜岀被鍨嬭幏鍙?Bean
+     * 通过名称和类型获取 Bean
      *
-     * @param beanName
-     * @param beanClass
-     * @param <T>
-     * @return
+     * @param beanName Bean 名称
+     * @param beanClass Bean 类型
+     * @param <T> Bean 类型
+     * @return Bean 实例
      */
     public static <T> T getBean(String beanName, Class<T> beanClass) {
         return applicationContext.getBean(beanName, beanClass);
     }
 }
-

@@ -3,7 +3,7 @@ package com.sakura.boot_init.support.util;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * SQL 宸ュ叿
+ * SQL 工具
  *
  * @author sakura
  * @from sakura
@@ -11,9 +11,10 @@ import org.apache.commons.lang3.StringUtils;
 public class SqlUtils {
 
     /**
-     * 鏍￠獙鎺掑簭瀛楁鏄惁鍚堟硶锛堥槻姝?SQL 娉ㄥ叆锛?     *
-     * @param sortField
-     * @return
+     * 校验排序字段是否合法，防止 SQL 注入
+     *
+     * @param sortField 排序字段
+     * @return 是否合法
      */
     public static boolean validSortField(String sortField) {
         if (StringUtils.isBlank(sortField)) {
@@ -22,5 +23,3 @@ public class SqlUtils {
         return !StringUtils.containsAny(sortField, "=", "(", ")", " ");
     }
 }
-
-

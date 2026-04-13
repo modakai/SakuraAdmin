@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 瀛楀吀绫诲瀷
+ * 字典类型
  *
  * @author sakura
  */
@@ -20,52 +20,50 @@ import java.util.Date;
 public class DictType implements Serializable {
 
     /**
-     * 涓婚敭 id
+     * 主键 id
      */
     @Id(keyType = KeyType.Generator, value = KeyGenerators.flexId)
     private Long id;
 
     /**
-     * 瀛楀吀缂栫爜
+     * 字典编码
      */
     private String dictCode;
 
     /**
-     * 瀛楀吀鍚嶇О
+     * 字典名称
      */
     private String dictName;
 
     /**
-     * 鐘舵€侊細1 鍚敤锛? 绂佺敤
+     * 状态：1 启用，0 禁用
      */
     private Integer status;
 
     /**
-     * 澶囨敞
+     * 备注
      */
     private String remark;
 
     /**
-     * 鍒涘缓鏃堕棿
+     * 创建时间
      */
     private Date createTime;
 
     /**
-     * 鏇存柊鏃堕棿
+     * 更新时间
      */
     private Date updateTime;
 
     /**
-     * 鏄惁鍒犻櫎
+     * 是否删除
      */
     @Column(isLogicDelete = true)
     private Integer isDelete;
 
     /**
-     * 搴忓垪鍖栫増鏈彿
+     * 序列化版本号
      */
     @Column(ignore = true)
     private static final long serialVersionUID = 1L;
 }
-
-

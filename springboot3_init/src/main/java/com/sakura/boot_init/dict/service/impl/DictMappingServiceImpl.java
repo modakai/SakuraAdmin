@@ -3,10 +3,10 @@ package com.sakura.boot_init.dict.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.sakura.boot_init.dict.model.entity.DictItem;
 import com.sakura.boot_init.dict.model.entity.DictType;
+import com.sakura.boot_init.dict.model.vo.DictItemSimpleVO;
 import com.sakura.boot_init.dict.service.DictItemService;
 import com.sakura.boot_init.dict.service.DictMappingService;
 import com.sakura.boot_init.dict.service.DictTypeService;
-import com.sakura.boot_init.dict.model.vo.DictItemSimpleVO;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 瀛楀吀鏄犲皠鏈嶅姟瀹炵幇
+ * 字典映射服务实现
  *
  * @author sakura
  */
@@ -73,9 +73,10 @@ public class DictMappingServiceImpl implements DictMappingService {
     }
 
     /**
-     * 杞崲涓烘渶灏忓瓧鍏告槧灏勫璞?     *
-     * @param dictItem 瀛楀吀鏄庣粏
-     * @return 鏄犲皠瀵硅薄
+     * 转换为最小字典映射对象
+     *
+     * @param dictItem 字典明细
+     * @return 映射对象
      */
     private DictItemSimpleVO toSimpleVO(DictItem dictItem) {
         DictItemSimpleVO simpleVO = new DictItemSimpleVO();
@@ -87,6 +88,3 @@ public class DictMappingServiceImpl implements DictMappingService {
         return simpleVO;
     }
 }
-
-
-

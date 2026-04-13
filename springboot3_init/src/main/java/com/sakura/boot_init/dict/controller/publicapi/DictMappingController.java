@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 瀛楀吀鏄犲皠鎺ュ彛
+ * 字典映射接口
  *
  * @author sakura
  */
@@ -28,21 +28,21 @@ public class DictMappingController {
     private DictMappingService dictMappingService;
 
     /**
-     * 鑾峰彇鍗曚釜瀛楀吀鏄犲皠
+     * 获取单个字典映射
      *
-     * @param dictCode 瀛楀吀缂栫爜
-     * @return 瀛楀吀鏄犲皠鍒楄〃
+     * @param dictCode 字典编码
+     * @return 字典映射列表
      */
     @GetMapping("/map")
-    public BaseResponse<List<DictItemSimpleVO>> getDictMap(@RequestParam @NotBlank(message = "瀛楀吀缂栫爜涓嶈兘涓虹┖") String dictCode) {
+    public BaseResponse<List<DictItemSimpleVO>> getDictMap(@RequestParam @NotBlank(message = "字典编码不能为空") String dictCode) {
         return ResultUtils.success(dictMappingService.getEnabledItemsByCode(dictCode));
     }
 
     /**
-     * 鎵归噺鑾峰彇瀛楀吀鏄犲皠
+     * 批量获取字典映射
      *
-     * @param request 鎵归噺鏌ヨ璇锋眰
-     * @return 瀛楀吀鏄犲皠缁撴灉
+     * @param request 批量查询请求
+     * @return 字典映射结果
      */
     @PostMapping("/map/batch")
     public BaseResponse<Map<String, List<DictItemSimpleVO>>> getDictMapBatch(@Valid @RequestBody DictBatchQueryRequest request) {
@@ -50,13 +50,15 @@ public class DictMappingController {
     }
 
     /**
-     * 鏍规嵁缂栫爜鍜屽€艰幏鍙栨爣绛?     *
-     * @param dictCode 瀛楀吀缂栫爜
-     * @param value 瀛楀吀鍊?     * @return 鏍囩鏂囨湰
+     * 根据编码和值获取标签
+     *
+     * @param dictCode 字典编码
+     * @param value 字典值
+     * @return 标签文本
      */
     @GetMapping("/label")
     public BaseResponse<String> getLabelByCodeAndValue(
-            @RequestParam @NotBlank(message = "瀛楀吀缂栫爜涓嶈兘涓虹┖") String dictCode,
+            @RequestParam @NotBlank(message = "字典编码不能为空") String dictCode,
             @RequestParam @NotBlank(message = "字典值不能为空") String value) {
         return ResultUtils.success(dictMappingService.getLabelByCodeAndValue(dictCode, value));
     }

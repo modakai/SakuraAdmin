@@ -1,12 +1,12 @@
 package com.sakura.boot_init.support.interceptor;
 
+import com.sakura.boot_init.support.annotation.NoLoginRequired;
+import com.sakura.boot_init.support.auth.TokenManager;
 import com.sakura.boot_init.support.common.ErrorCode;
 import com.sakura.boot_init.support.context.LoginUserContext;
 import com.sakura.boot_init.support.exception.BusinessException;
-import com.sakura.boot_init.support.auth.TokenManager;
 import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.service.UserService;
-import com.sakura.boot_init.support.annotation.NoLoginRequired;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpMethod;
@@ -15,16 +15,19 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
- * 鐧诲綍鎷︽埅鍣紝璐熻矗瑙ｆ瀽 token 骞跺啓鍏ュ綋鍓嶈姹傜敤鎴蜂笂涓嬫枃銆? */
+ * 登录拦截器，负责解析 token 并写入当前请求用户上下文。
+ */
 @Component
 public class LoginInterceptor implements HandlerInterceptor {
 
     /**
-     * Token 绠＄悊鍣ㄣ€?     */
+     * Token 管理器。
+     */
     private final TokenManager tokenManager;
 
     /**
-     * 鐢ㄦ埛鏈嶅姟銆?     */
+     * 用户服务。
+     */
     private final UserService userService;
 
     public LoginInterceptor(TokenManager tokenManager, UserService userService) {
@@ -33,10 +36,12 @@ public class LoginInterceptor implements HandlerInterceptor {
     }
 
     /**
-     * 璇锋眰杩涘叆 Controller 鍓嶅畬鎴愮櫥褰曟牎楠屻€?     *
-     * @param request  璇锋眰瀵硅薄
-     * @param response 鍝嶅簲瀵硅薄
-     * @param handler  澶勭悊鍣?     * @return 鏄惁鏀捐
+     * 请求进入 Controller 前完成登录校验。
+     *
+     * @param request 请求对象
+     * @param response 响应对象
+     * @param handler 处理器
+     * @return 是否放行
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -63,10 +68,12 @@ public class LoginInterceptor implements HandlerInterceptor {
     }
 
     /**
-     * 璇锋眰缁撴潫鍚庢竻鐞?ThreadLocal銆?     *
-     * @param request  璇锋眰瀵硅薄
-     * @param response 鍝嶅簲瀵硅薄
-     * @param handler  澶勭悊鍣?     * @param ex       寮傚父淇℃伅
+     * 请求结束后清理 ThreadLocal。
+     *
+     * @param request 请求对象
+     * @param response 响应对象
+     * @param handler 处理器
+     * @param ex 异常信息
      */
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
@@ -74,15 +81,13 @@ public class LoginInterceptor implements HandlerInterceptor {
     }
 
     /**
-     * 鍒ゆ柇鎺ュ彛鎴?Controller 鏄惁鍏佽鏈櫥褰曡闂€?     *
-     * @param handlerMethod Controller 鏂规硶
-     * @return 鏄惁鏀捐
+     * 判断接口或 Controller 是否允许未登录访问。
+     *
+     * @param handlerMethod Controller 方法
+     * @return 是否放行
      */
     private boolean isNoLoginRequired(HandlerMethod handlerMethod) {
         return handlerMethod.hasMethodAnnotation(NoLoginRequired.class)
                 || handlerMethod.getBeanType().isAnnotationPresent(NoLoginRequired.class);
     }
 }
-
-
-

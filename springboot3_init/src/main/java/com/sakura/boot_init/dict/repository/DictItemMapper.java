@@ -5,13 +5,10 @@ import com.sakura.boot_init.dict.model.entity.DictItem;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 瀛楀吀鏄庣粏 Mapper
+ * 字典明细 Mapper
  *
  * @author sakura
  */
 @Mapper
 public interface DictItemMapper extends BaseMapper<DictItem> {
 }
-
-
-

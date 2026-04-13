@@ -5,36 +5,37 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 瀛楀吀鏄犲皠鏈€灏忚繑鍥炲璞? *
+ * 字典映射最小返回对象
+ *
  * @author sakura
  */
 @Data
 public class DictItemSimpleVO implements Serializable {
 
     /**
-     * 鏍囩
+     * 标签
      */
     private String label;
 
     /**
-     * 鍊?     */
+     * 值
+     */
     private String value;
 
     /**
-     * 鏍囩鏍峰紡绫诲瀷
+     * 标签样式类型
      */
     private String tagType;
 
     /**
-     * 鎺掑簭鍊?     */
+     * 排序值
+     */
     private Integer sortOrder;
 
     /**
-     * 鎵╁睍 JSON
+     * 扩展 JSON
      */
     private String extJson;
 
     private static final long serialVersionUID = 1L;
 }
-
-

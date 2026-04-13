@@ -3,20 +3,20 @@ package com.sakura.boot_init.dict.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.sakura.boot_init.dict.model.dto.DictItemAddRequest;
+import com.sakura.boot_init.dict.model.dto.DictItemQueryRequest;
+import com.sakura.boot_init.dict.model.dto.DictItemUpdateRequest;
+import com.sakura.boot_init.dict.model.entity.DictItem;
+import com.sakura.boot_init.dict.model.entity.DictType;
+import com.sakura.boot_init.dict.model.vo.DictItemVO;
+import com.sakura.boot_init.dict.repository.DictItemMapper;
+import com.sakura.boot_init.dict.repository.DictTypeMapper;
+import com.sakura.boot_init.dict.service.DictItemService;
 import com.sakura.boot_init.support.common.ErrorCode;
 import com.sakura.boot_init.support.constant.CommonConstant;
 import com.sakura.boot_init.support.exception.BusinessException;
 import com.sakura.boot_init.support.exception.ThrowUtils;
 import com.sakura.boot_init.support.util.SqlUtils;
-import com.sakura.boot_init.dict.repository.DictTypeMapper;
-import com.sakura.boot_init.dict.repository.DictItemMapper;
-import com.sakura.boot_init.dict.model.entity.DictItem;
-import com.sakura.boot_init.dict.model.entity.DictType;
-import com.sakura.boot_init.dict.service.DictItemService;
-import com.sakura.boot_init.dict.model.dto.DictItemAddRequest;
-import com.sakura.boot_init.dict.model.dto.DictItemQueryRequest;
-import com.sakura.boot_init.dict.model.dto.DictItemUpdateRequest;
-import com.sakura.boot_init.dict.model.vo.DictItemVO;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 瀛楀吀鏄庣粏鏈嶅姟瀹炵幇
+ * 字典明细服务实现
  *
  * @author sakura
  */
@@ -76,7 +76,7 @@ public class DictItemServiceImpl extends ServiceImpl<DictItemMapper, DictItem> i
     @Override
     public QueryWrapper getQueryWrapper(DictItemQueryRequest queryRequest) {
         if (queryRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "璇锋眰鍙傛暟涓虹┖");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
         }
         QueryWrapper queryWrapper = QueryWrapper.create();
         queryWrapper.eq("id", queryRequest.getId(), queryRequest.getId() != null);
@@ -142,17 +142,17 @@ public class DictItemServiceImpl extends ServiceImpl<DictItemMapper, DictItem> i
     }
 
     /**
-     * 鏍￠獙瀛楀吀鏄庣粏鍙傛暟
+     * 校验字典明细参数
      *
-     * @param dictItem 瀛楀吀鏄庣粏
-     * @param add 鏄惁鏂板
+     * @param dictItem 字典明细
+     * @param add 是否新增
      */
     private void validDictItem(DictItem dictItem, boolean add) {
         if (dictItem == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         if (!add && (dictItem.getId() == null || dictItem.getId() <= 0)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "瀛楀吀鏄庣粏 id 闈炴硶");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "字典明细 id 非法");
         }
         if (dictItem.getDictTypeId() == null || dictItem.getDictTypeId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "字典类型不存在");
@@ -160,7 +160,7 @@ public class DictItemServiceImpl extends ServiceImpl<DictItemMapper, DictItem> i
         DictType dictType = dictTypeMapper.selectOneById(dictItem.getDictTypeId());
         ThrowUtils.throwIf(dictType == null, ErrorCode.NOT_FOUND_ERROR, "字典类型不存在");
         if (StringUtils.isBlank(dictItem.getDictLabel())) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "瀛楀吀鏍囩涓嶈兘涓虹┖");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "字典标签不能为空");
         }
         if (StringUtils.isBlank(dictItem.getDictValue())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "字典值不能为空");
@@ -172,9 +172,6 @@ public class DictItemServiceImpl extends ServiceImpl<DictItemMapper, DictItem> i
             dictItem.setSortOrder(0);
         }
         boolean exists = existsByTypeAndValue(dictItem.getDictTypeId(), dictItem.getDictValue(), add ? null : dictItem.getId());
-        ThrowUtils.throwIf(exists, ErrorCode.PARAMS_ERROR, "鍚屼竴瀛楀吀绫诲瀷涓嬬殑瀛楀吀鍊煎凡瀛樺湪");
+        ThrowUtils.throwIf(exists, ErrorCode.PARAMS_ERROR, "同一字典类型下的字典值已存在");
     }
 }
-
-
-

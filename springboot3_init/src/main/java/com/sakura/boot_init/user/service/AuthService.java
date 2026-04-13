@@ -6,77 +6,84 @@ import jakarta.servlet.http.HttpServletRequest;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 
 /**
- * 璁よ瘉鏈嶅姟銆? */
+ * 认证服务。
+ */
 public interface AuthService {
 
     /**
-     * 鐢ㄦ埛娉ㄥ唽銆?     *
-     * @param userAccount   鐢ㄦ埛璐﹀彿
-     * @param userPassword  鐢ㄦ埛瀵嗙爜
-     * @param checkPassword 鏍￠獙瀵嗙爜
-     * @return 鏂扮敤鎴?id
+     * 用户注册。
+     *
+     * @param userAccount 用户账号
+     * @param userPassword 用户密码
+     * @param checkPassword 校验密码
+     * @return 新用户 id
      */
     long userRegister(String userAccount, String userPassword, String checkPassword);
 
     /**
-     * 鐢ㄦ埛鐧诲綍銆?     *
-     * @param userAccount  鐢ㄦ埛璐﹀彿
-     * @param userPassword 鐢ㄦ埛瀵嗙爜
-     * @param request      HTTP 璇锋眰
-     * @return 鐧诲綍鐢ㄦ埛淇℃伅
+     * 用户登录。
+     *
+     * @param userAccount 用户账号
+     * @param userPassword 用户密码
+     * @param request HTTP 请求
+     * @return 登录用户信息
      */
     LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
 
     /**
-     * 寰俊寮€鏀惧钩鍙扮櫥褰曘€?     *
-     * @param wxOAuth2UserInfo 寰俊鎺堟潈鐢ㄦ埛淇℃伅
-     * @param request          HTTP 璇锋眰
-     * @return 鐧诲綍鐢ㄦ埛淇℃伅
+     * 微信开放平台登录。
+     *
+     * @param wxOAuth2UserInfo 微信授权用户信息
+     * @param request HTTP 请求
+     * @return 登录用户信息
      */
     LoginUserVO userLoginByMpOpen(WxOAuth2UserInfo wxOAuth2UserInfo, HttpServletRequest request);
 
     /**
-     * 鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛銆?     *
-     * @param request HTTP 璇锋眰
-     * @return 褰撳墠鐧诲綍鐢ㄦ埛
+     * 获取当前登录用户。
+     *
+     * @param request HTTP 请求
+     * @return 当前登录用户
      */
     User getLoginUser(HttpServletRequest request);
 
     /**
-     * 鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛锛屽厑璁告湭鐧诲綍銆?     *
-     * @param request HTTP 璇锋眰
-     * @return 褰撳墠鐧诲綍鐢ㄦ埛锛屾湭鐧诲綍杩斿洖 null
+     * 获取当前登录用户，允许未登录。
+     *
+     * @param request HTTP 请求
+     * @return 当前登录用户，未登录返回 null
      */
     User getLoginUserPermitNull(HttpServletRequest request);
 
     /**
-     * 鍒ゆ柇褰撳墠璇锋眰鐢ㄦ埛鏄惁涓虹鐞嗗憳銆?     *
-     * @param request HTTP 璇锋眰
-     * @return 鏄惁涓虹鐞嗗憳
+     * 判断当前请求用户是否为管理员。
+     *
+     * @param request HTTP 请求
+     * @return 是否为管理员
      */
     boolean isAdmin(HttpServletRequest request);
 
     /**
-     * 鍒ゆ柇鎸囧畾鐢ㄦ埛鏄惁涓虹鐞嗗憳銆?     *
-     * @param user 鐢ㄦ埛
-     * @return 鏄惁涓虹鐞嗗憳
+     * 判断指定用户是否为管理员。
+     *
+     * @param user 用户
+     * @return 是否为管理员
      */
     boolean isAdmin(User user);
 
     /**
-     * 鐢ㄦ埛娉ㄩ攢銆?     *
-     * @param request HTTP 璇锋眰
-     * @return 鏄惁娉ㄩ攢鎴愬姛
+     * 用户注销。
+     *
+     * @param request HTTP 请求
+     * @return 是否注销成功
      */
     boolean userLogout(HttpServletRequest request);
 
     /**
-     * 鑾峰彇鑴辨晱鐨勭櫥褰曠敤鎴蜂俊鎭€?     *
-     * @param user 鐢ㄦ埛瀹炰綋
-     * @return 鐧诲綍鐢ㄦ埛瑙嗗浘
+     * 获取脱敏后的登录用户信息。
+     *
+     * @param user 用户实体
+     * @return 登录用户视图
      */
     LoginUserVO getLoginUserVO(User user);
 }
-
-
-

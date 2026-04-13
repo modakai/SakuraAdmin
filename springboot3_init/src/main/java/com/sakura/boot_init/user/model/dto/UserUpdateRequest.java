@@ -7,39 +7,39 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 鐢ㄦ埛鏇存柊璇锋眰
+ * 用户更新请求
  *
  * @author Sakura
  */
 @Data
 public class UserUpdateRequest implements Serializable {
+
     /**
      * id
      */
-    @NotNull(message = "鐢ㄦ埛 id 涓嶈兘涓虹┖")
-    @Positive(message = "鐢ㄦ埛 id 蹇呴』澶т簬 0")
+    @NotNull(message = "用户 id 不能为空")
+    @Positive(message = "用户 id 必须大于 0")
     private Long id;
 
     /**
-     * 鐢ㄦ埛鏄电О
+     * 用户昵称
      */
     private String userName;
 
     /**
-     * 鐢ㄦ埛澶村儚
+     * 用户头像
      */
     private String userAvatar;
 
     /**
-     * 绠€浠?     */
+     * 简介
+     */
     private String userProfile;
 
     /**
-     * 鐢ㄦ埛瑙掕壊锛歶ser/admin/ban
+     * 用户角色，user/admin/ban
      */
     private String userRole;
 
     private static final long serialVersionUID = 1L;
 }
-
-

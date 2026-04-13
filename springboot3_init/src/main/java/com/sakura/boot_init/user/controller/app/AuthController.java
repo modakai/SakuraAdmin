@@ -1,16 +1,16 @@
 package com.sakura.boot_init.user.controller.app;
 
+import com.sakura.boot_init.support.annotation.NoLoginRequired;
 import com.sakura.boot_init.support.common.BaseResponse;
 import com.sakura.boot_init.support.common.ErrorCode;
 import com.sakura.boot_init.support.common.ResultUtils;
-import com.sakura.boot_init.support.exception.BusinessException;
 import com.sakura.boot_init.support.config.WxOpenConfig;
-import com.sakura.boot_init.user.model.entity.User;
-import com.sakura.boot_init.user.service.AuthService;
-import com.sakura.boot_init.support.annotation.NoLoginRequired;
+import com.sakura.boot_init.support.exception.BusinessException;
 import com.sakura.boot_init.user.model.dto.UserLoginRequest;
 import com.sakura.boot_init.user.model.dto.UserRegisterRequest;
+import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.model.vo.LoginUserVO;
+import com.sakura.boot_init.user.service.AuthService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,8 +30,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 鐢ㄦ埛绔璇佹帴鍙ｃ€? *
- * 浣滆€咃細Sakura
+ * 用户端认证接口
+ * 作者：Sakura
  */
 @RestController
 @RequestMapping("/user")
@@ -46,9 +46,10 @@ public class AuthController {
     private WxOpenConfig wxOpenConfig;
 
     /**
-     * 鐢ㄦ埛娉ㄥ唽銆?     *
-     * @param userRegisterRequest 鐢ㄦ埛娉ㄥ唽璇锋眰
-     * @return 鏂扮敤鎴?id
+     * 用户注册。
+     *
+     * @param userRegisterRequest 用户注册请求
+     * @return 新用户 id
      */
     @PostMapping("/register")
     @NoLoginRequired
@@ -61,10 +62,11 @@ public class AuthController {
     }
 
     /**
-     * 鐢ㄦ埛鐧诲綍銆?     *
-     * @param userLoginRequest 鐢ㄦ埛鐧诲綍璇锋眰
-     * @param request HTTP 璇锋眰
-     * @return 鐧诲綍鐢ㄦ埛淇℃伅鍜?token
+     * 用户登录。
+     *
+     * @param userLoginRequest 用户登录请求
+     * @param request HTTP 请求
+     * @return 登录用户信息和 token
      */
     @PostMapping("/login")
     @NoLoginRequired
@@ -77,16 +79,17 @@ public class AuthController {
     }
 
     /**
-     * 寰俊寮€鏀惧钩鍙扮櫥褰曘€?     *
-     * @param request HTTP 璇锋眰
-     * @param response HTTP 鍝嶅簲
-     * @param code 寰俊鎺堟潈 code
-     * @return 鐧诲綍鐢ㄦ埛淇℃伅鍜?token
+     * 微信开放平台登录。
+     *
+     * @param request HTTP 请求
+     * @param response HTTP 响应
+     * @param code 微信授权 code
+     * @return 登录用户信息和 token
      */
     @GetMapping("/login/wx_open")
     @NoLoginRequired
     public BaseResponse<LoginUserVO> userLoginByWxOpen(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("code") @NotBlank(message = "寰俊鎺堟潈 code 涓嶈兘涓虹┖") String code) {
+            @RequestParam("code") @NotBlank(message = "微信授权 code 不能为空") String code) {
         WxOAuth2AccessToken accessToken;
         try {
             WxMpService wxService = wxOpenConfig.getWxMpService();
@@ -105,9 +108,10 @@ public class AuthController {
     }
 
     /**
-     * 鐢ㄦ埛娉ㄩ攢銆?     *
-     * @param request HTTP 璇锋眰
-     * @return 鏄惁娉ㄩ攢鎴愬姛
+     * 用户注销。
+     *
+     * @param request HTTP 请求
+     * @return 是否注销成功
      */
     @PostMapping("/logout")
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
@@ -116,9 +120,10 @@ public class AuthController {
     }
 
     /**
-     * 鑾峰彇褰撳墠鐧诲綍鐢ㄦ埛銆?     *
-     * @param request HTTP 璇锋眰
-     * @return 褰撳墠鐧诲綍鐢ㄦ埛淇℃伅
+     * 获取当前登录用户。
+     *
+     * @param request HTTP 请求
+     * @return 当前登录用户信息
      */
     @GetMapping("/get/login")
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
@@ -126,6 +131,3 @@ public class AuthController {
         return ResultUtils.success(authService.getLoginUserVO(user));
     }
 }
-
-
-

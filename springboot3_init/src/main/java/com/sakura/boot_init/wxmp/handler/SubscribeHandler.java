@@ -11,23 +11,22 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 /**
- * 鍏虫敞澶勭悊鍣? *
+ * 关注处理器
+ *
  * @author sakura
  * @from sakura
- **/
+ */
 @Component
 public class SubscribeHandler implements WxMpMessageHandler {
 
     @Override
     public WxMpXmlOutMessage handle(WxMpXmlMessage wxMpXmlMessage, Map<String, Object> map,
             WxMpService wxMpService, WxSessionManager wxSessionManager) throws WxErrorException {
-        final String content = "鎰熻阿鍏虫敞";
-        // 璋冪敤鎺ュ彛锛岃繑鍥為獙璇佺爜
+        final String content = "感谢关注";
+        // 调用接口，返回验证码
         return WxMpXmlOutMessage.TEXT().content(content)
                 .fromUser(wxMpXmlMessage.getToUser())
                 .toUser(wxMpXmlMessage.getFromUser())
                 .build();
     }
 }
-
-

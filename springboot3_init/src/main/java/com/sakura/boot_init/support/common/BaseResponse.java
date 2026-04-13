@@ -5,8 +5,9 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 閫氱敤杩斿洖绫? *
- * @param <T>
+ * 通用返回类
+ *
+ * @param <T> 数据类型
  * @author sakura
  * @from sakura
  */
@@ -33,5 +34,3 @@ public class BaseResponse<T> implements Serializable {
         this(errorCode.getCode(), null, errorCode.getMessage());
     }
 }
-
-

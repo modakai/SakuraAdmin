@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 鐢ㄦ埛
+ * 用户
  *
  * @author Sakura
  */
@@ -26,56 +26,57 @@ public class User implements Serializable {
     private Long id;
 
     /**
-     * 鐢ㄦ埛璐﹀彿
+     * 用户账号
      */
     private String userAccount;
 
     /**
-     * 鐢ㄦ埛瀵嗙爜
+     * 用户密码
      */
     private String userPassword;
 
     /**
-     * 寮€鏀惧钩鍙癷d
+     * 开放平台 id
      */
     private String unionId;
 
     /**
-     * 鍏紬鍙穙penId
+     * 公众号 openId
      */
     private String mpOpenId;
 
     /**
-     * 鐢ㄦ埛鏄电О
+     * 用户昵称
      */
     private String userName;
 
     /**
-     * 鐢ㄦ埛澶村儚
+     * 用户头像
      */
     private String userAvatar;
 
     /**
-     * 鐢ㄦ埛绠€浠?     */
+     * 用户简介
+     */
     private String userProfile;
 
     /**
-     * 鐢ㄦ埛瑙掕壊锛歶ser/admin/ban
+     * 用户角色，user/admin/ban
      */
     private String userRole;
 
     /**
-     * 鍒涘缓鏃堕棿
+     * 创建时间
      */
     private Date createTime;
 
     /**
-     * 鏇存柊鏃堕棿
+     * 更新时间
      */
     private Date updateTime;
 
     /**
-     * 鏄惁鍒犻櫎
+     * 是否删除
      */
     @Column(isLogicDelete = true)
     private Integer isDelete;
@@ -83,6 +84,3 @@ public class User implements Serializable {
     @Column(ignore = true)
     private static final long serialVersionUID = 1L;
 }
-
-
-

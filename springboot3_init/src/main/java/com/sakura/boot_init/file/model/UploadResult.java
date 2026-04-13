@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * 涓婁紶杩斿洖浣?
+ * 上传返回体
  *
  * @author sakura
  */
@@ -13,19 +13,17 @@ import lombok.Data;
 public class UploadResult {
 
     /**
-     * 鏂囦欢璺緞
+     * 文件路径
      */
     private String url;
 
     /**
-     * 鏂囦欢鍚?
+     * 文件名
      */
     private String filename;
 
     /**
-     * 宸蹭笂浼犲璞＄殑瀹炰綋鏍囪锛堢敤鏉ユ牎楠屾枃浠讹級
+     * 已上传对象的实体标记，用于校验文件
      */
     private String eTag;
-
 }
-

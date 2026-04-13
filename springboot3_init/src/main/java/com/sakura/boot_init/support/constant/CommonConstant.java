@@ -1,33 +1,31 @@
 package com.sakura.boot_init.support.constant;
 
 /**
- * 閫氱敤甯搁噺
+ * 通用常量
  *
  * @author Sakura
  */
 public interface CommonConstant {
 
     /**
-     * 鍗囧簭
+     * 升序
      */
     String SORT_ORDER_ASC = "ascend";
 
     /**
-     * 闄嶅簭
+     * 降序
      */
     String SORT_ORDER_DESC = " descend";
 
     /**
-     * http璇锋眰
+     * http 请求
      */
     String HTTP = "http://";
 
     /**
-     * https璇锋眰
+     * https 请求
      */
     String HTTPS = "https://";
+
     String SLASH = "/";
 }
-
-
-

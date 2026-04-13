@@ -5,12 +5,12 @@ import com.sakura.boot_init.support.common.BaseResponse;
 import com.sakura.boot_init.support.common.ErrorCode;
 import com.sakura.boot_init.support.common.ResultUtils;
 import com.sakura.boot_init.support.exception.ThrowUtils;
-import com.sakura.boot_init.user.model.entity.User;
-import com.sakura.boot_init.user.service.AuthService;
-import com.sakura.boot_init.user.service.UserService;
 import com.sakura.boot_init.user.model.dto.UserQueryRequest;
 import com.sakura.boot_init.user.model.dto.UserUpdateMyRequest;
+import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.model.vo.UserVO;
+import com.sakura.boot_init.user.service.AuthService;
+import com.sakura.boot_init.user.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 鐢ㄦ埛绔敤鎴锋帴鍙ｃ€? *
- * 浣滆€咃細Sakura
+ * 用户端用户接口
+ * 作者：Sakura
  */
 @RestController
 @RequestMapping("/user")
@@ -42,13 +42,14 @@ public class UserController {
     private AuthService authService;
 
     /**
-     * 鏍规嵁 id 鑾峰彇鐢ㄦ埛鍖呰绫汇€?     *
-     * @param id 鐢ㄦ埛 id
-     * @param request HTTP 璇锋眰
-     * @return 鐢ㄦ埛鍖呰淇℃伅
+     * 根据 id 获取用户包装类。
+     *
+     * @param id 用户 id
+     * @param request HTTP 请求
+     * @return 用户包装信息
      */
     @GetMapping("/get/vo")
-    public BaseResponse<UserVO> getUserVOById(@RequestParam @Positive(message = "鐢ㄦ埛 id 蹇呴』澶т簬 0") long id,
+    public BaseResponse<UserVO> getUserVOById(@RequestParam @Positive(message = "用户 id 必须大于 0") long id,
             HttpServletRequest request) {
         User user = userService.getById(id);
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
@@ -56,17 +57,19 @@ public class UserController {
     }
 
     /**
-     * 鍒嗛〉鑾峰彇鐢ㄦ埛灏佽鍒楄〃銆?     *
-     * @param userQueryRequest 鏌ヨ鍙傛暟
-     * @param request HTTP 璇锋眰
-     * @return 鍒嗛〉缁撴灉
+     * 分页获取用户封装列表。
+     *
+     * @param userQueryRequest 查询参数
+     * @param request HTTP 请求
+     * @return 分页结果
      */
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<UserVO>> listUserVOByPage(@Valid @RequestBody UserQueryRequest userQueryRequest,
             HttpServletRequest request) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
-        // 闄愬埗鐖櫕銆?        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
         Page<User> userPage = userService.page(new Page<>(current, size),
                 userService.getQueryWrapper(userQueryRequest));
         Page<UserVO> userVOPage = new Page<>(current, size, userPage.getTotalRow());
@@ -76,10 +79,11 @@ public class UserController {
     }
 
     /**
-     * 鏇存柊涓汉淇℃伅銆?     *
-     * @param userUpdateMyRequest 涓汉淇℃伅鏇存柊璇锋眰
-     * @param request HTTP 璇锋眰
-     * @return 鏄惁鏇存柊鎴愬姛
+     * 更新个人信息。
+     *
+     * @param userUpdateMyRequest 个人信息更新请求
+     * @param request HTTP 请求
+     * @return 是否更新成功
      */
     @PostMapping("/update/my")
     public BaseResponse<Boolean> updateMyUser(@Valid @RequestBody UserUpdateMyRequest userUpdateMyRequest,
@@ -93,6 +97,3 @@ public class UserController {
         return ResultUtils.success(true);
     }
 }
-
-
-

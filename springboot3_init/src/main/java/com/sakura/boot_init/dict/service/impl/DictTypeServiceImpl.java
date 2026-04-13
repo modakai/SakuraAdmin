@@ -3,19 +3,19 @@ package com.sakura.boot_init.dict.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.sakura.boot_init.dict.model.dto.DictTypeAddRequest;
+import com.sakura.boot_init.dict.model.dto.DictTypeQueryRequest;
+import com.sakura.boot_init.dict.model.dto.DictTypeUpdateRequest;
+import com.sakura.boot_init.dict.model.entity.DictType;
+import com.sakura.boot_init.dict.model.vo.DictTypeVO;
+import com.sakura.boot_init.dict.repository.DictTypeMapper;
+import com.sakura.boot_init.dict.service.DictItemService;
+import com.sakura.boot_init.dict.service.DictTypeService;
 import com.sakura.boot_init.support.common.ErrorCode;
 import com.sakura.boot_init.support.constant.CommonConstant;
 import com.sakura.boot_init.support.exception.BusinessException;
 import com.sakura.boot_init.support.exception.ThrowUtils;
 import com.sakura.boot_init.support.util.SqlUtils;
-import com.sakura.boot_init.dict.repository.DictTypeMapper;
-import com.sakura.boot_init.dict.model.entity.DictType;
-import com.sakura.boot_init.dict.service.DictItemService;
-import com.sakura.boot_init.dict.service.DictTypeService;
-import com.sakura.boot_init.dict.model.dto.DictTypeAddRequest;
-import com.sakura.boot_init.dict.model.dto.DictTypeQueryRequest;
-import com.sakura.boot_init.dict.model.dto.DictTypeUpdateRequest;
-import com.sakura.boot_init.dict.model.vo.DictTypeVO;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * 瀛楀吀绫诲瀷鏈嶅姟瀹炵幇
+ * 字典类型服务实现
  *
  * @author sakura
  */
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class DictTypeServiceImpl extends ServiceImpl<DictTypeMapper, DictType> implements DictTypeService {
 
     /**
-     * 瀛楀吀缂栫爜鍚堟硶鏍煎紡
+     * 字典编码合法格式
      */
     private static final Pattern DICT_CODE_PATTERN = Pattern.compile("^[a-zA-Z][a-zA-Z0-9_]*$");
 
@@ -83,7 +83,7 @@ public class DictTypeServiceImpl extends ServiceImpl<DictTypeMapper, DictType> i
     @Override
     public QueryWrapper getQueryWrapper(DictTypeQueryRequest queryRequest) {
         if (queryRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "璇锋眰鍙傛暟涓虹┖");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
         }
         QueryWrapper queryWrapper = QueryWrapper.create();
         queryWrapper.eq("id", queryRequest.getId(), queryRequest.getId() != null);
@@ -138,23 +138,23 @@ public class DictTypeServiceImpl extends ServiceImpl<DictTypeMapper, DictType> i
     }
 
     /**
-     * 鏍￠獙瀛楀吀绫诲瀷鍙傛暟
+     * 校验字典类型参数
      *
-     * @param dictType 瀛楀吀绫诲瀷瀹炰綋
-     * @param add 鏄惁鏂板
+     * @param dictType 字典类型实体
+     * @param add 是否新增
      */
     private void validDictType(DictType dictType, boolean add) {
         if (dictType == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         if (!add && (dictType.getId() == null || dictType.getId() <= 0)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "瀛楀吀绫诲瀷 id 闈炴硶");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "字典类型 id 非法");
         }
         if (StringUtils.isBlank(dictType.getDictCode()) || !DICT_CODE_PATTERN.matcher(dictType.getDictCode()).matches()) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "字典编码格式错误，仅支持字母、数字和下划线，且必须以字母开头");
         }
         if (StringUtils.isBlank(dictType.getDictName())) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "瀛楀吀鍚嶇О涓嶈兘涓虹┖");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "字典名称不能为空");
         }
         if (dictType.getStatus() == null || (dictType.getStatus() != 0 && dictType.getStatus() != 1)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "字典状态非法");
@@ -163,6 +163,3 @@ public class DictTypeServiceImpl extends ServiceImpl<DictTypeMapper, DictType> i
         ThrowUtils.throwIf(exists, ErrorCode.PARAMS_ERROR, "字典编码已存在");
     }
 }
-
-
-

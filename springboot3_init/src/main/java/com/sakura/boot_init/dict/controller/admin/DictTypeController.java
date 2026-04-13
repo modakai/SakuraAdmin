@@ -29,8 +29,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 鍚庡彴瀛楀吀绫诲瀷鎺ュ彛銆? *
- * 浣滆€咃細Sakura
+ * 后台字典类型接口
+ *
+ * @author Sakura
  */
 @RestController
 @RequestMapping("/dict/type")
@@ -41,10 +42,11 @@ public class DictTypeController {
     private DictTypeService dictTypeService;
 
     /**
-     * 鏂板瀛楀吀绫诲瀷銆?     *
-     * @param request 璇锋眰鍙傛暟
-     * @param httpServletRequest 褰撳墠璇锋眰
-     * @return 鏂板璁板綍 id
+     * 新增字典类型
+     *
+     * @param request 请求参数
+     * @param httpServletRequest 当前请求
+     * @return 新增记录 id
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -54,10 +56,11 @@ public class DictTypeController {
     }
 
     /**
-     * 鏇存柊瀛楀吀绫诲瀷銆?     *
-     * @param request 璇锋眰鍙傛暟
-     * @param httpServletRequest 褰撳墠璇锋眰
-     * @return 鏄惁鎴愬姛
+     * 更新字典类型
+     *
+     * @param request 请求参数
+     * @param httpServletRequest 当前请求
+     * @return 是否成功
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -67,10 +70,11 @@ public class DictTypeController {
     }
 
     /**
-     * 鍒犻櫎瀛楀吀绫诲瀷銆?     *
-     * @param deleteRequest 鍒犻櫎璇锋眰
-     * @param httpServletRequest 褰撳墠璇锋眰
-     * @return 鏄惁鎴愬姛
+     * 删除字典类型
+     *
+     * @param deleteRequest 删除请求
+     * @param httpServletRequest 当前请求
+     * @return 是否成功
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -80,14 +84,15 @@ public class DictTypeController {
     }
 
     /**
-     * 鏍规嵁 id 鑾峰彇瀛楀吀绫诲瀷銆?     *
-     * @param id 绫诲瀷 id
-     * @param httpServletRequest 褰撳墠璇锋眰
-     * @return 瀛楀吀绫诲瀷璇︽儏
+     * 根据 id 获取字典类型
+     *
+     * @param id 类型 id
+     * @param httpServletRequest 当前请求
+     * @return 字典类型详情
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<DictTypeVO> getDictTypeById(@RequestParam @Positive(message = "瀛楀吀绫诲瀷 id 蹇呴』澶т簬 0") long id,
+    public BaseResponse<DictTypeVO> getDictTypeById(@RequestParam @Positive(message = "字典类型 id 必须大于 0") long id,
             HttpServletRequest httpServletRequest) {
         DictType dictType = dictTypeService.getById(id);
         ThrowUtils.throwIf(dictType == null, ErrorCode.NOT_FOUND_ERROR);
@@ -95,10 +100,11 @@ public class DictTypeController {
     }
 
     /**
-     * 鍒嗛〉鑾峰彇瀛楀吀绫诲瀷鍒楄〃銆?     *
-     * @param queryRequest 鏌ヨ璇锋眰
-     * @param httpServletRequest 褰撳墠璇锋眰
-     * @return 鍒嗛〉缁撴灉
+     * 分页获取字典类型列表
+     *
+     * @param queryRequest 查询请求
+     * @param httpServletRequest 当前请求
+     * @return 分页结果
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)

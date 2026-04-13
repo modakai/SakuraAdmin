@@ -5,16 +5,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 
 /**
- * 缃戠粶宸ュ叿绫? *
+ * 网络工具类
+ *
  * @author Sakura
  */
 public class NetUtils {
 
     /**
-     * 鑾峰彇瀹㈡埛绔?IP 鍦板潃
+     * 获取客户端 IP 地址
      *
-     * @param request
-     * @return
+     * @param request 请求对象
+     * @return IP 地址
      */
     public static String getIpAddress(HttpServletRequest request) {
         String ip = request.getHeader("x-forwarded-for");
@@ -27,7 +28,7 @@ public class NetUtils {
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
             if (ip.equals("127.0.0.1")) {
-                // 鏍规嵁缃戝崱鍙栨湰鏈洪厤缃殑 IP
+                // 根据网卡获取本机配置的 IP
                 InetAddress inet = null;
                 try {
                     inet = InetAddress.getLocalHost();
@@ -39,7 +40,7 @@ public class NetUtils {
                 }
             }
         }
-        // 澶氫釜浠ｇ悊鐨勬儏鍐碉紝绗竴涓狪P涓哄鎴风鐪熷疄IP,澶氫釜IP鎸夌収','鍒嗗壊
+        // 多级代理场景下，第一个 IP 为客户端真实 IP，多个 IP 使用逗号分隔
         if (ip != null && ip.length() > 15) {
             if (ip.indexOf(",") > 0) {
                 ip = ip.substring(0, ip.indexOf(","));
@@ -50,8 +51,4 @@ public class NetUtils {
         }
         return ip;
     }
-
 }
-
-
-

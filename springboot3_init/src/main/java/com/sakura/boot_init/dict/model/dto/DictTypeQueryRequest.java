@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
- * 瀛楀吀绫诲瀷鍒嗛〉鏌ヨ璇锋眰
+ * 字典类型分页查询请求
  *
  * @author sakura
  */
@@ -16,26 +16,24 @@ import java.io.Serializable;
 public class DictTypeQueryRequest extends PageRequest implements Serializable {
 
     /**
-     * 涓婚敭 id
+     * 主键 id
      */
     private Long id;
 
     /**
-     * 瀛楀吀缂栫爜
+     * 字典编码
      */
     private String dictCode;
 
     /**
-     * 瀛楀吀鍚嶇О
+     * 字典名称
      */
     private String dictName;
 
     /**
-     * 鐘舵€?     */
+     * 状态
+     */
     private Integer status;
 
     private static final long serialVersionUID = 1L;
 }
-
-
-

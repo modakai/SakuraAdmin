@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * 瀛楀吀鎵归噺鏌ヨ璇锋眰
+ * 字典批量查询请求
  *
  * @author sakura
  */
@@ -16,12 +16,10 @@ import java.util.List;
 public class DictBatchQueryRequest implements Serializable {
 
     /**
-     * 瀛楀吀缂栫爜鍒楄〃
+     * 字典编码列表
      */
-    @NotEmpty(message = "瀛楀吀缂栫爜鍒楄〃涓嶈兘涓虹┖")
-    private List<@NotBlank(message = "瀛楀吀缂栫爜涓嶈兘涓虹┖") String> dictCodes;
+    @NotEmpty(message = "字典编码列表不能为空")
+    private List<@NotBlank(message = "字典编码不能为空") String> dictCodes;
 
     private static final long serialVersionUID = 1L;
 }
-
-

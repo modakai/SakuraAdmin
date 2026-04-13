@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 瀛楀吀鏄庣粏杩斿洖瀵硅薄
+ * 字典明细返回对象
  *
  * @author sakura
  */
@@ -14,58 +14,59 @@ import java.util.Date;
 public class DictItemVO implements Serializable {
 
     /**
-     * 涓婚敭 id
+     * 主键 id
      */
     private Long id;
 
     /**
-     * 瀛楀吀绫诲瀷 id
+     * 字典类型 id
      */
     private Long dictTypeId;
 
     /**
-     * 瀛楀吀鏍囩
+     * 字典标签
      */
     private String dictLabel;
 
     /**
-     * 瀛楀吀鍊?     */
+     * 字典值
+     */
     private String dictValue;
 
     /**
-     * 鎺掑簭鍊?     */
+     * 排序值
+     */
     private Integer sortOrder;
 
     /**
-     * 鐘舵€?     */
+     * 状态
+     */
     private Integer status;
 
     /**
-     * 鏍囩绫诲瀷
+     * 标签类型
      */
     private String tagType;
 
     /**
-     * 澶囨敞
+     * 备注
      */
     private String remark;
 
     /**
-     * 鎵╁睍 JSON
+     * 扩展 JSON
      */
     private String extJson;
 
     /**
-     * 鍒涘缓鏃堕棿
+     * 创建时间
      */
     private Date createTime;
 
     /**
-     * 鏇存柊鏃堕棿
+     * 更新时间
      */
     private Date updateTime;
 
     private static final long serialVersionUID = 1L;
 }
-
-

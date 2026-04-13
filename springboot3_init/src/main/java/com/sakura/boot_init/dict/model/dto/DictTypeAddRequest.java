@@ -7,7 +7,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 鏂板瀛楀吀绫诲瀷璇锋眰
+ * 新增字典类型请求
  *
  * @author sakura
  */
@@ -15,28 +15,27 @@ import java.io.Serializable;
 public class DictTypeAddRequest implements Serializable {
 
     /**
-     * 瀛楀吀缂栫爜
+     * 字典编码
      */
-    @NotBlank(message = "瀛楀吀缂栫爜涓嶈兘涓虹┖")
+    @NotBlank(message = "字典编码不能为空")
     private String dictCode;
 
     /**
-     * 瀛楀吀鍚嶇О
+     * 字典名称
      */
-    @NotBlank(message = "瀛楀吀鍚嶇О涓嶈兘涓虹┖")
+    @NotBlank(message = "字典名称不能为空")
     private String dictName;
 
     /**
-     * 鐘舵€?     */
+     * 状态
+     */
     @NotNull(message = "字典状态不能为空")
     private Integer status;
 
     /**
-     * 澶囨敞
+     * 备注
      */
     private String remark;
 
     private static final long serialVersionUID = 1L;
 }
-
-

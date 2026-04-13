@@ -7,7 +7,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * 涓荤被锛堥」鐩惎鍔ㄥ叆鍙ｏ級
+ * 主类，项目启动入口
  *
  * @author sakura
  * @from sakura
@@ -21,8 +21,4 @@ public class SakuraApplication {
     public static void main(String[] args) {
         SpringApplication.run(SakuraApplication.class, args);
     }
-
 }
-
-
-

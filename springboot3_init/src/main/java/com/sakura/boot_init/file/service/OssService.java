@@ -3,8 +3,8 @@ package com.sakura.boot_init.file.service;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PutObjectRequest;
-import com.sakura.boot_init.support.context.LoginUserContext;
 import com.sakura.boot_init.support.config.OssConfig;
+import com.sakura.boot_init.support.context.LoginUserContext;
 import com.sakura.boot_init.user.model.entity.User;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -31,27 +31,28 @@ public class OssService {
     private OssConfig.OssProperties ossProperties;
 
     /**
-     * 閫氱敤涓婁紶鏂规硶锛氫笂浼犳枃浠跺苟杩斿洖鍙闂殑 URL
-     * @param uploadFile 瑕佷笂浼犵殑鏂囦欢
-     * @param objectName 涓婁紶鍒?OSS 鐨勫璞″悕锛堜緥濡傦細images/2025/10/avatar.png锛?
-     * @return 鍙叕寮€璁块棶鐨?URL锛圚TTPS锛?
+     * 通用上传方法：上传文件并返回可访问的 URL
+     *
+     * @param uploadFile 要上传的文件
+     * @param objectName 上传到 OSS 的对象名，例如 `images/2025/10/avatar.png`
+     * @return 可公开访问的 URL
      */
     public String uploadFile(File uploadFile, String objectName) {
         try {
             PutObjectRequest putObjectRequest = new PutObjectRequest(ossProperties.getBucketName(), objectName, uploadFile);
-            // 鎵ц涓婁紶
+            // 执行上传
             return upload(objectName, putObjectRequest);
         } catch (Exception e) {
-            log.error("OSS 鏂囦欢涓婁紶澶辫触锛宱bjectName: {}, 閿欒: {}", objectName, e.getMessage(), e);
-            throw new RuntimeException("鏂囦欢涓婁紶澶辫触", e);
+            log.error("OSS 文件上传失败，objectName: {}, 错误: {}", objectName, e.getMessage(), e);
+            throw new RuntimeException("文件上传失败", e);
         }
     }
 
     /**
-     * 閫氱敤涓婁紶鏂规硶锛氫笂浼犳枃浠跺苟杩斿洖鍙闂殑 URL
+     * 通用上传方法：上传文件并返回可访问的 URL
      *
-     * @param file       瑕佷笂浼犵殑鏂囦欢锛圫pring 鐨?MultipartFile锛?
-     * @return 鍙叕寮€璁块棶鐨?URL锛圚TTPS锛?
+     * @param file 要上传的文件，Spring 的 MultipartFile
+     * @return 可公开访问的 URL
      */
     public String uploadFile(MultipartFile file) {
         User loginUser = LoginUserContext.getLoginUser();
@@ -60,23 +61,23 @@ public class OssService {
         }
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || originalFilename.isEmpty()) {
-            throw new RuntimeException("鏂囦欢鍚嶄负绌猴細涓婁紶澶辫触");
+            throw new RuntimeException("文件名为空，上传失败");
         }
         String datePath = LocalDate.now().format(DATE_PATH_FORMATTER);
         String objectName = String.format("images/%d/%s/%s", loginUser.getId(), datePath, originalFilename);
         try (InputStream inputStream = file.getInputStream()) {
-            // 鏋勯€犱笂浼犺姹?
+            // 构造上传请求
             PutObjectRequest putObjectRequest = new PutObjectRequest(ossProperties.getBucketName(), objectName, inputStream);
-            // 鎵ц涓婁紶
+            // 执行上传
             return upload(objectName, putObjectRequest);
         } catch (Exception e) {
-            log.error("OSS 鏂囦欢涓婁紶澶辫触锛宱bjectName: {}, 閿欒: {}", objectName, e.getMessage(), e);
-            throw new RuntimeException("鏂囦欢涓婁紶澶辫触", e);
+            log.error("OSS 文件上传失败，objectName: {}, 错误: {}", objectName, e.getMessage(), e);
+            throw new RuntimeException("文件上传失败", e);
         }
     }
 
     /**
-     * 閲嶈浇鏂规硶锛氭敮鎸佺洿鎺ヤ紶鍏?InputStream 鍜?contentType锛堝彲閫夛級
+     * 重载方法：支持直接传入 InputStream 和 contentType
      */
     public String uploadFile(InputStream inputStream, String objectName, String contentType) {
         try {
@@ -88,19 +89,15 @@ public class OssService {
             }
             return upload(objectName, putObjectRequest);
         } catch (Exception e) {
-            log.error("OSS 鏂囦欢涓婁紶澶辫触锛宱bjectName: {}, 閿欒: {}", objectName, e.getMessage(), e);
-            throw new RuntimeException("鏂囦欢涓婁紶澶辫触", e);
+            log.error("OSS 文件上传失败，objectName: {}, 错误: {}", objectName, e.getMessage(), e);
+            throw new RuntimeException("文件上传失败", e);
         }
     }
 
     private String upload(String objectName, PutObjectRequest putObjectRequest) {
         ossClient.putObject(putObjectRequest);
         String url = String.format("https://%s.%s/%s", ossProperties.getBucketName(), ossProperties.getEndpoint(), objectName);
-        log.info("鏂囦欢涓婁紶鎴愬姛锛岃闂湴鍧€: {}", url);
+        log.info("文件上传成功，访问地址: {}", url);
         return url;
     }
 }
-
-
-
-

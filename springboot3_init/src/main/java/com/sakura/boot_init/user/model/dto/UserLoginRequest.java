@@ -7,7 +7,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 鐢ㄦ埛鐧诲綍璇锋眰
+ * 用户登录请求
  *
  * @author Sakura
  */
@@ -17,16 +17,16 @@ public class UserLoginRequest implements Serializable {
     private static final long serialVersionUID = 3191241716373120793L;
 
     /**
-     * 鐢ㄦ埛璐﹀彿銆?     */
-    @NotBlank(message = "鐢ㄦ埛璐﹀彿涓嶈兘涓虹┖")
-    @Size(min = 4, message = "鐢ㄦ埛璐﹀彿闀垮害涓嶈兘灏忎簬 4")
+     * 用户账号
+     */
+    @NotBlank(message = "用户账号不能为空")
+    @Size(min = 4, message = "用户账号长度不能小于 4")
     private String userAccount;
 
     /**
-     * 鐢ㄦ埛瀵嗙爜銆?     */
-    @NotBlank(message = "鐢ㄦ埛瀵嗙爜涓嶈兘涓虹┖")
-    @Size(min = 8, message = "鐢ㄦ埛瀵嗙爜闀垮害涓嶈兘灏忎簬 8")
+     * 用户密码
+     */
+    @NotBlank(message = "用户密码不能为空")
+    @Size(min = 8, message = "用户密码长度不能小于 8")
     private String userPassword;
 }
-
-

@@ -9,7 +9,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * 寰俊寮€鏀惧钩鍙伴厤缃? *
+ * 微信开放平台配置
+ *
  * @author sakura
  * @from sakura
  */
@@ -26,8 +27,9 @@ public class WxOpenConfig {
     private WxMpService wxMpService;
 
     /**
-     * 鍗曚緥妯″紡锛堜笉鐢?@Bean 鏄负浜嗛槻姝㈠拰鍏紬鍙风殑 service 鍐茬獊锛?     *
-     * @return
+     * 单例模式，不使用 `@Bean` 是为了防止和公众号的 service 冲突
+     *
+     * @return 微信服务实例
      */
     public WxMpService getWxMpService() {
         if (wxMpService != null) {
@@ -47,4 +49,3 @@ public class WxOpenConfig {
         }
     }
 }
-

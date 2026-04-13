@@ -1,53 +1,53 @@
 package com.sakura.boot_init.support.common;
 
 /**
- * 杩斿洖宸ュ叿绫? *
+ * 返回工具类
+ *
  * @author sakura
  * @from sakura
  */
 public class ResultUtils {
 
     /**
-     * 鎴愬姛
+     * 成功返回
      *
-     * @param data
-     * @param <T>
-     * @return
+     * @param data 数据
+     * @param <T> 数据类型
+     * @return 响应结果
      */
     public static <T> BaseResponse<T> success(T data) {
         return new BaseResponse<>(0, data, "ok");
     }
 
     /**
-     * 澶辫触
+     * 失败返回
      *
-     * @param errorCode
-     * @return
+     * @param errorCode 错误码
+     * @return 响应结果
      */
     public static BaseResponse error(ErrorCode errorCode) {
         return new BaseResponse<>(errorCode);
     }
 
     /**
-     * 澶辫触
+     * 失败返回
      *
-     * @param code
-     * @param message
-     * @return
+     * @param code 错误码
+     * @param message 错误信息
+     * @return 响应结果
      */
     public static BaseResponse error(int code, String message) {
         return new BaseResponse(code, null, message);
     }
 
     /**
-     * 澶辫触
+     * 失败返回
      *
-     * @param errorCode
-     * @return
+     * @param errorCode 错误码
+     * @param message 错误信息
+     * @return 响应结果
      */
     public static BaseResponse error(ErrorCode errorCode, String message) {
         return new BaseResponse(errorCode.getCode(), null, message);
     }
 }
-
-

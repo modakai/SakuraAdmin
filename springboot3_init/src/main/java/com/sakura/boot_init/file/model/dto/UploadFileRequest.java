@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 鏂囦欢涓婁紶璇锋眰
+ * 文件上传请求
  *
  * @author sakura
  * @from sakura
@@ -14,10 +14,9 @@ import java.io.Serializable;
 public class UploadFileRequest implements Serializable {
 
     /**
-     * 涓氬姟
+     * 业务
      */
     private String biz;
 
     private static final long serialVersionUID = 1L;
 }
-

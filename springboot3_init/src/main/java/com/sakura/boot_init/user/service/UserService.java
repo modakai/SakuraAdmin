@@ -2,14 +2,14 @@ package com.sakura.boot_init.user.service;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
-import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.model.dto.UserQueryRequest;
+import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.model.vo.UserVO;
 
 import java.util.List;
 
 /**
- * 鐢ㄦ埛鏈嶅姟
+ * 用户服务
  *
  * @author sakura
  * @from sakura
@@ -17,28 +17,26 @@ import java.util.List;
 public interface UserService extends IService<User> {
 
     /**
-     * 鑾峰彇鑴辨晱鐨勭敤鎴蜂俊鎭?     *
-     * @param user
-     * @return
+     * 获取脱敏后的用户信息
+     *
+     * @param user 用户
+     * @return 用户视图
      */
     UserVO getUserVO(User user);
 
     /**
-     * 鑾峰彇鑴辨晱鐨勭敤鎴蜂俊鎭?     *
-     * @param userList
-     * @return
+     * 获取脱敏后的用户信息
+     *
+     * @param userList 用户列表
+     * @return 用户视图列表
      */
     List<UserVO> getUserVO(List<User> userList);
 
     /**
-     * 鑾峰彇鏌ヨ鏉′欢
+     * 获取查询条件
      *
-     * @param userQueryRequest
-     * @return
+     * @param userQueryRequest 查询请求
+     * @return 查询条件
      */
     QueryWrapper getQueryWrapper(UserQueryRequest userQueryRequest);
-
 }
-
-
-

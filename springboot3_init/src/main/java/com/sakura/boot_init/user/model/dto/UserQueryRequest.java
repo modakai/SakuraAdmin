@@ -7,44 +7,43 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 /**
- * 鐢ㄦ埛鏌ヨ璇锋眰
+ * 用户查询请求
  *
  * @author Sakura
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class UserQueryRequest extends PageRequest implements Serializable {
+
     /**
      * id
      */
     private Long id;
 
     /**
-     * 寮€鏀惧钩鍙癷d
+     * 开放平台 id
      */
     private String unionId;
 
     /**
-     * 鍏紬鍙穙penId
+     * 公众号 openId
      */
     private String mpOpenId;
 
     /**
-     * 鐢ㄦ埛鏄电О
+     * 用户昵称
      */
     private String userName;
 
     /**
-     * 绠€浠?     */
+     * 简介
+     */
     private String userProfile;
 
     /**
-     * 鐢ㄦ埛瑙掕壊锛歶ser/admin/ban
+     * 用户角色，user/admin/ban
      */
     private String userRole;
 
     private static final long serialVersionUID = 1L;
 }
-
-
-

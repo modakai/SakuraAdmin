@@ -1,22 +1,19 @@
 package com.sakura.boot_init.file.constant;
 
 /**
- * 瀵硅薄瀛樺偍甯搁噺
+ * 对象存储常量
  *
  * @author sakura
  */
 public interface OssConstant {
 
     /**
-     * 浜戞湇鍔″晢
+     * 云服务商
      */
     String[] CLOUD_SERVICE = new String[] {"aliyun", "qcloud", "qiniu", "obs"};
 
     /**
-     * https 鐘舵€?
+     * https 状态
      */
     String IS_HTTPS = "Y";
-
 }
-
-

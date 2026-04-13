@@ -11,22 +11,21 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 /**
- * 娑堟伅澶勭悊鍣? *
+ * 消息处理器
+ *
  * @author sakura
  * @from sakura
- **/
+ */
 @Component
 public class MessageHandler implements WxMpMessageHandler {
 
     @Override
     public WxMpXmlOutMessage handle(WxMpXmlMessage wxMpXmlMessage, Map<String, Object> map,
             WxMpService wxMpService, WxSessionManager wxSessionManager) throws WxErrorException {
-        String content = "鎴戞槸澶嶈鏈猴細" + wxMpXmlMessage.getContent();
+        String content = "我是复读机：" + wxMpXmlMessage.getContent();
         return WxMpXmlOutMessage.TEXT().content(content)
                 .fromUser(wxMpXmlMessage.getToUser())
                 .toUser(wxMpXmlMessage.getFromUser())
                 .build();
     }
 }
-
-

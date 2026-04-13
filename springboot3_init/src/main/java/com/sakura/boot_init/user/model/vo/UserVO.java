@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 鐢ㄦ埛瑙嗗浘锛堣劚鏁忥級
+ * 用户视图，已脱敏
  *
  * @author sakura
  * @from sakura
@@ -20,29 +20,29 @@ public class UserVO implements Serializable {
     private Long id;
 
     /**
-     * 鐢ㄦ埛鏄电О
+     * 用户昵称
      */
     private String userName;
 
     /**
-     * 鐢ㄦ埛澶村儚
+     * 用户头像
      */
     private String userAvatar;
 
     /**
-     * 鐢ㄦ埛绠€浠?     */
+     * 用户简介
+     */
     private String userProfile;
 
     /**
-     * 鐢ㄦ埛瑙掕壊锛歶ser/admin/ban
+     * 用户角色，user/admin/ban
      */
     private String userRole;
 
     /**
-     * 鍒涘缓鏃堕棿
+     * 创建时间
      */
     private Date createTime;
 
     private static final long serialVersionUID = 1L;
 }
-

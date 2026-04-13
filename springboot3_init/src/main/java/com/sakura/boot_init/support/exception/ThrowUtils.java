@@ -3,7 +3,7 @@ package com.sakura.boot_init.support.exception;
 import com.sakura.boot_init.support.common.ErrorCode;
 
 /**
- * 鎶涘紓甯稿伐鍏风被
+ * 抛异常工具类
  *
  * @author sakura
  * @from sakura
@@ -11,10 +11,10 @@ import com.sakura.boot_init.support.common.ErrorCode;
 public class ThrowUtils {
 
     /**
-     * 鏉′欢鎴愮珛鍒欐姏寮傚父
+     * 条件成立则抛异常
      *
-     * @param condition
-     * @param runtimeException
+     * @param condition 条件
+     * @param runtimeException 运行时异常
      */
     public static void throwIf(boolean condition, RuntimeException runtimeException) {
         if (condition) {
@@ -23,26 +23,23 @@ public class ThrowUtils {
     }
 
     /**
-     * 鏉′欢鎴愮珛鍒欐姏寮傚父
+     * 条件成立则抛异常
      *
-     * @param condition
-     * @param errorCode
+     * @param condition 条件
+     * @param errorCode 错误码
      */
     public static void throwIf(boolean condition, ErrorCode errorCode) {
         throwIf(condition, new BusinessException(errorCode));
     }
 
     /**
-     * 鏉′欢鎴愮珛鍒欐姏寮傚父
+     * 条件成立则抛异常
      *
-     * @param condition
-     * @param errorCode
-     * @param message
+     * @param condition 条件
+     * @param errorCode 错误码
+     * @param message 错误信息
      */
     public static void throwIf(boolean condition, ErrorCode errorCode, String message) {
         throwIf(condition, new BusinessException(errorCode, message));
     }
 }
-
-
-

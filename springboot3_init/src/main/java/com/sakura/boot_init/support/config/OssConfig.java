@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 /**
- * OSS 閰嶇疆
+ * OSS 配置
  *
  * @author sakura
  */
@@ -21,11 +21,11 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(value = "oss.enable")
 public class OssConfig {
 
-
     /**
-     * 闃块噷浜慜ss鏈嶅姟
-     * @param aliOssProperties 閰嶇疆绫?
-     * @return Oss
+     * 阿里云 OSS 客户端
+     *
+     * @param aliOssProperties 配置类
+     * @return OSS 客户端
      */
     @Bean(destroyMethod = "shutdown")
     public OSS ossClient(OssProperties aliOssProperties) {
@@ -42,7 +42,7 @@ public class OssConfig {
     }
 
     /**
-     * OSS瀵硅薄瀛樺偍 閰嶇疆灞炴€?
+     * OSS 对象存储配置属性
      *
      * @author sakura
      */
@@ -52,12 +52,12 @@ public class OssConfig {
     @ToString
     public static class OssProperties {
         /**
-         * 璁块棶绔欑偣
+         * 访问端点
          */
         private String endpoint;
 
         /**
-         * 鑷畾涔夊煙鍚?
+         * 自定义域名
          */
         private String domain;
 
@@ -72,30 +72,28 @@ public class OssConfig {
         private String secretKey;
 
         /**
-         * 鍓嶇紑
+         * 前缀
          */
         private String prefix;
 
         /**
-         * 瀛樺偍绌洪棿鍚?
+         * 存储空间名
          */
         private String bucketName;
 
         /**
-         * 瀛樺偍鍖哄煙
+         * 存储区域
          */
         private String region;
 
         /**
-         * 鏄惁https锛圷=鏄?N=鍚︼級
+         * 是否 https，Y 为是，N 为否
          */
         private String isHttps;
 
         /**
-         * 妗舵潈闄愮被鍨?0private 1public 2custom)
+         * 桶权限类型，0 private，1 public，2 custom
          */
         private String accessPolicy;
     }
 }
-
-

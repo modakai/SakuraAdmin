@@ -7,11 +7,11 @@ import com.sakura.boot_init.support.common.ErrorCode;
 import com.sakura.boot_init.support.constant.CommonConstant;
 import com.sakura.boot_init.support.exception.BusinessException;
 import com.sakura.boot_init.support.util.SqlUtils;
-import com.sakura.boot_init.user.repository.UserMapper;
-import com.sakura.boot_init.user.model.entity.User;
-import com.sakura.boot_init.user.service.UserService;
 import com.sakura.boot_init.user.model.dto.UserQueryRequest;
+import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.model.vo.UserVO;
+import com.sakura.boot_init.user.repository.UserMapper;
+import com.sakura.boot_init.user.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 鐢ㄦ埛鏈嶅姟瀹炵幇
+ * 用户服务实现
  *
  * @author sakura
  * @from sakura
@@ -50,7 +50,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public QueryWrapper getQueryWrapper(UserQueryRequest userQueryRequest) {
         if (userQueryRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "璇锋眰鍙傛暟涓虹┖");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
         }
         Long id = userQueryRequest.getId();
         String unionId = userQueryRequest.getUnionId();
@@ -68,11 +68,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.like("user_profile", userProfile, StringUtils.isNotBlank(userProfile));
         queryWrapper.like("user_name", userName, StringUtils.isNotBlank(userName));
         if (SqlUtils.validSortField(sortField)) {
-            // MyBatis-Flex 鐨勬帓搴忔潯浠堕渶瑕佹樉寮忓垽鏂悗鍐嶈拷鍔犮€?            queryWrapper.orderBy(sortField, CommonConstant.SORT_ORDER_ASC.equals(sortOrder));
+            // MyBatis-Flex 的排序条件需要显式判断后再追加
+            queryWrapper.orderBy(sortField, CommonConstant.SORT_ORDER_ASC.equals(sortOrder));
         }
         return queryWrapper;
     }
 }
-
-
-
