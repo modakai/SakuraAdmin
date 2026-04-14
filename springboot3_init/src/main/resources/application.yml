@@ -38,7 +38,7 @@ token:
   header-name: Authorization
   header-prefix: "Bearer "
   expire-duration-seconds: 2592000
-  secret-char-source: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=[]{};:,.?/
+  secret-char-source: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%-+=
   secret-length: 32
   compatibility-header-enabled: true
   compatibility-header-name: "token"
@@ -49,6 +49,10 @@ mybatis-flex:
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    normal-value-of-logic-delete: 0
+    deleted-value-of-logic-delete: 1
+    logic-delete-column: is_delete
   type-aliases-package: com.sakura.boot_init.infra.persistence.entity
 # 微信相关
 wx:
@@ -88,3 +92,8 @@ oss:
   isHttps: N
   # 桶权限类型(0private 1public 2custom)
   accessPolicy: 1
+
+#日志配置
+logging:
+  pattern:
+    dateformat: yyyy-MM-dd HH:mm:ss

@@ -1,5 +1,6 @@
 package com.sakura.boot_init.support.auth;
 
+import cn.hutool.core.util.StrUtil;
 import com.sakura.boot_init.support.util.RedisUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -165,7 +166,7 @@ public class TokenManager {
      * @return 解析后的 token
      */
     private String resolveCompatibilityHeaderToken(HttpServletRequest request) {
-        if (!tokenProperties.getCompatibilityHeaderEnabled()) {
+        if (!StrUtil.isBlank(tokenProperties.getCompatibilityHeaderName())) {
             return null;
         }
         return StringUtils.trimToNull(request.getHeader(tokenProperties.getCompatibilityHeaderName()));
