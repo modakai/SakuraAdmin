@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ChevronsUpDownIcon, PlusIcon } from '@lucide/vue'
+import { useI18n } from 'vue-i18n'
 
 import { useSidebar } from '@/components/ui/sidebar'
 
@@ -10,10 +11,25 @@ const { teams } = defineProps<{
 }>()
 
 const { isMobile, open } = useSidebar()
+const { t } = useI18n()
 
-const activeTeam = ref<Team>(teams[0])
+const activeTeamId = ref<string>(teams[0]?.id ?? '')
+const activeTeam = computed(() => {
+  return teams.find(team => team.id === activeTeamId.value) ?? teams[0]
+})
+
+watch(
+  () => teams,
+  (newTeams) => {
+    if (!newTeams.some(team => team.id === activeTeamId.value)) {
+      activeTeamId.value = newTeams[0]?.id ?? ''
+    }
+  },
+  { immediate: true, deep: true },
+)
+
 function setActiveTeam(team: Team) {
-  activeTeam.value = team
+  activeTeamId.value = team.id
 }
 
 const isOpen = ref(false)
@@ -59,11 +75,11 @@ function handleSelect(command: TComponent) {
             :side-offset="4"
           >
             <UiDropdownMenuLabel class="text-xs text-muted-foreground">
-              Teams
+              {{ t('menu.teams') }}
             </UiDropdownMenuLabel>
             <UiDropdownMenuItem
               v-for="(team, index) in teams"
-              :key="team.name"
+              :key="team.id"
               class="gap-2 p-2"
               @click="setActiveTeam(team)"
             >
@@ -81,7 +97,7 @@ function handleSelect(command: TComponent) {
                   <PlusIcon class="size-4" />
                 </div>
                 <div class="font-medium text-muted-foreground">
-                  Add team
+                  {{ t('menu.addTeam') }}
                 </div>
               </UiDropdownMenuItem>
             </UiDialogTrigger>

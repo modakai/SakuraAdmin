@@ -25,6 +25,22 @@ export function setupAuthGuard(router: Router) {
         return { path: redirectPath }
       }
 
+      // 未登录访问受保护页时先进入 401 页面，由页面提供统一的用户端登录按钮。
+      if (!session.value.isLogin) {
+        return {
+          path: '/errors/401',
+          query: {
+            message: '请先登录后再访问该页面。',
+            redirect: to.fullPath,
+          },
+        }
+      }
+
+      // 已登录但无权限进入后台时，直接进入 403 页面。
+      if (normalizedMeta.requiresAdmin) {
+        return { path: '/errors/403' }
+      }
+
       return {
         path: redirectPath,
         query: { redirect: to.fullPath },

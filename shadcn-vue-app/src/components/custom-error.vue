@@ -1,9 +1,14 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
 defineProps<{
   code: number
   subtitle: string
   error: string
 }>()
+
+// 错误页通用按钮统一走国际化，避免各错误页默认按钮文案不一致。
+const { t } = useI18n()
 </script>
 
 <template>
@@ -22,10 +27,10 @@ defineProps<{
       <slot>
         <div class="flex justify-center gap-2">
           <UiButton variant="outline" @click="$router.back()">
-            Go Back
+            {{ t('errors.actions.goBack') }}
           </UiButton>
           <UiButton @click="$router.push('/')">
-            Back to Home
+            {{ t('errors.actions.backHome') }}
           </UiButton>
         </div>
       </slot>

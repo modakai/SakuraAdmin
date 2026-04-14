@@ -4,6 +4,7 @@ import type { FunctionalComponent } from 'vue'
 type NavIcon = FunctionalComponent<LucideProps, Record<any, any>, any, Record<any, any>>
 
 interface BaseNavItem {
+  id: string
   title: string
   icon?: NavIcon
 }
@@ -19,6 +20,7 @@ export type NavItem
   }
 
 export interface NavGroup {
+  id: string
   title: string
   items: NavItem[]
 }
@@ -30,6 +32,7 @@ export interface User {
 }
 
 export interface Team {
+  id: string
   name: string
   logo: NavIcon
   plan: string

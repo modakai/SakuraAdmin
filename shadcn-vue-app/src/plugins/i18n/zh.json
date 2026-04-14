@@ -41,6 +41,8 @@
   "menu": {
     "main": "主菜单",
     "other": "其他",
+    "teams": "团队",
+    "addTeam": "新增团队",
     "system": {
       "title": "系统管理",
       "users": "用户管理",
@@ -56,9 +58,14 @@
     }
   },
   "errors": {
+    "actions": {
+      "goBack": "返回上一页",
+      "backHome": "返回首页",
+      "goUserLogin": "去用户端登录"
+    },
     "unauthorized": {
       "subtitle": "未授权",
-      "description": "你没有访问当前页面的权限。"
+      "description": "当前登录状态无效或已失效，请先登录后再继续访问。"
     },
     "forbidden": {
       "subtitle": "禁止访问",

@@ -33,10 +33,10 @@ function handleGoBack() {
   <div class="w-full overflow-hidden">
     <!-- Root level: show all groups -->
     <div v-if="navigationPath.length === 0" key="root">
-      <UiSidebarGroup v-for="group in navMain" :key="group.title">
+      <UiSidebarGroup v-for="group in navMain" :key="group.id">
         <UiSidebarGroupLabel>{{ group.title }}</UiSidebarGroupLabel>
         <UiSidebarMenu v-auto-animate>
-          <template v-for="menu in group.items" :key="menu.title">
+          <template v-for="menu in group.items" :key="menu.id">
             <!-- Leaf item -->
             <UiSidebarMenuItem v-if="!menu.items">
               <MenuButton
@@ -86,7 +86,7 @@ function handleGoBack() {
           </UiSidebarMenuItem>
 
           <UiSidebarSeparator class="mx-0" />
-          <template v-for="item in currentMenuItems" :key="item.title">
+          <template v-for="item in currentMenuItems" :key="item.id">
             <!-- Leaf item -->
             <UiSidebarMenuItem v-if="!item.items">
               <MenuButton

@@ -10,6 +10,13 @@ Run `pnpm lint:fix` after code changes.
 
 If the project has tests configured (e.g. a `test` script), run them as well.
 
+## Frontend Test Rules
+
+- 前端正式测试文件优先放在现有 `src/**/__tests__` 目录中。
+- 若只是当前任务的临时验证测试，统一放在 `src/__temp_tests__` 或贴近目标模块的 `src/**/__tests__` 中。
+- 约束：临时测试仅用于当前验证，用完必须删除，避免把测试参考代码提交、上传或作为后续实现参考。
+- 只有具备长期回归价值的前端测试才允许保留在仓库中。
+
 ## Strong Constraints (Required)
 
 - Always run `pnpm build` for any non-trivial change (not just UI text).

@@ -5,6 +5,14 @@ import { Toaster as Sonner } from "vue-sonner"
 import { cn } from "@/lib/utils"
 
 const props = defineProps<ToasterProps>()
+// 默认将提示放在页面中上方，同时保留调用方覆盖能力。
+const sonnerProps = computed(() => {
+  const { position, ...rest } = props
+  return {
+    position: position ?? 'top-center',
+    ...rest,
+  }
+})
 </script>
 
 <template>
@@ -16,7 +24,7 @@ const props = defineProps<ToasterProps>()
       '--normal-border': 'var(--border)',
       '--border-radius': 'var(--radius)',
     }"
-    v-bind="props"
+    v-bind="sonnerProps"
   >
     <template #success-icon>
       <CircleCheckIcon class="size-4" />

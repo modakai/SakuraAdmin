@@ -38,10 +38,10 @@ function isActive(menu: NavItem): boolean {
 </script>
 
 <template>
-  <UiSidebarGroup v-for="group in navMain" :key="group.title">
+  <UiSidebarGroup v-for="group in navMain" :key="group.id">
     <UiSidebarGroupLabel>{{ group.title }}</UiSidebarGroupLabel>
     <UiSidebarMenu>
-      <template v-for="menu in group.items" :key="menu.title">
+      <template v-for="menu in group.items" :key="menu.id">
         <UiSidebarMenuItem v-if="!menu.items">
           <MenuButton
             :is-active="isActive(menu)"
@@ -71,7 +71,7 @@ function isActive(menu: NavItem): boolean {
             </UiSidebarMenuItem>
             <UiCollapsibleContent>
               <UiSidebarMenuSub>
-                <UiSidebarMenuSubItem v-for="subItem in menu.items" :key="subItem.title">
+                <UiSidebarMenuSubItem v-for="subItem in menu.items" :key="subItem.id">
                   <UiSidebarMenuSubButton as-child :is-active="isActive(subItem as NavItem)">
                     <a v-if="isExternalUrl(subItem?.url)" :href="subItem?.url" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2">
                       <component :is="subItem.icon" v-if="subItem.icon" />
@@ -99,7 +99,7 @@ function isActive(menu: NavItem): boolean {
             <UiDropdownMenuContent align="start" side="right">
               <UiDropdownMenuLabel>{{ menu.title }}</UiDropdownMenuLabel>
               <UiDropdownMenuSeparator />
-              <UiDropdownMenuItem v-for="subItem in menu.items" :key="subItem.title" as-child>
+              <UiDropdownMenuItem v-for="subItem in menu.items" :key="subItem.id" as-child>
                 <MenuButton
                   :is-active="isActive(subItem as NavItem)"
                   :tooltip="subItem.title"

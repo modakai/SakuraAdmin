@@ -15,29 +15,32 @@ export function useSidebarData() {
   const { t } = useI18n()
   const { navData } = useSidebar()
 
-  const teams: Team[] = [
+  const teams = computed<Team[]>(() => [
     {
+      id: 'acme-inc',
       name: 'Acme Inc',
       logo: GalleryVerticalEndIcon,
       plan: t('common.plan.enterprise'),
     },
     {
+      id: 'acme-corp',
       name: 'Acme Corp.',
       logo: AudioWaveformIcon,
       plan: t('common.plan.startup'),
     },
     {
+      id: 'evil-corp',
       name: 'Evil Corp.',
       logo: CommandIcon,
       plan: t('common.plan.free'),
     },
-  ]
+  ])
 
-  const sidebarData: SidebarData = {
+  const sidebarData = computed<SidebarData>(() => ({
     user,
-    teams,
-    navMain: navData.value!,
-  }
+    teams: teams.value,
+    navMain: navData.value,
+  }))
 
   return {
     sidebarData,

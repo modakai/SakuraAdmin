@@ -41,6 +41,8 @@
   "menu": {
     "main": "Main Menu",
     "other": "Other",
+    "teams": "Teams",
+    "addTeam": "Add Team",
     "system": {
       "title": "System Management",
       "users": "Users",
@@ -56,9 +58,14 @@
     }
   },
   "errors": {
+    "actions": {
+      "goBack": "Go Back",
+      "backHome": "Back to Home",
+      "goUserLogin": "Go to User Login"
+    },
     "unauthorized": {
       "subtitle": "Unauthorized",
-      "description": "You are not authorized to access this page."
+      "description": "Your login status is invalid or expired. Please sign in before continuing."
     },
     "forbidden": {
       "subtitle": "Forbidden",

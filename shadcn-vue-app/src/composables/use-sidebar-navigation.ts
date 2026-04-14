@@ -11,7 +11,7 @@ import type { NavGroup, NavItem } from '@/components/app-sidebar/types'
 export function useSidebarNavigation(navMain: Readonly<NavGroup[]>) {
   const route = useRoute()
 
-  // Navigation path stack, e.g., ['Pages', 'Auth']
+  // Navigation path stack, e.g., ['system', 'users']
   const navigationPath = ref<string[]>([])
 
   // Session storage key for persisting navigation path
@@ -27,12 +27,12 @@ export function useSidebarNavigation(navMain: Readonly<NavGroup[]>) {
       return null
 
     // First, find the initial item from any NavGroup
-    const firstTitle = path[0]
+    const firstId = path[0]
     let current: any = null
 
     // Search in all NavGroups for the first level item
     for (const group of navMain as NavGroup[]) {
-      const found = group.items.find((item: NavItem) => item.title === firstTitle)
+      const found = group.items.find((item: NavItem) => item.id === firstId)
       if (found) {
         if (path.length === 1)
           return found
@@ -46,11 +46,11 @@ export function useSidebarNavigation(navMain: Readonly<NavGroup[]>) {
 
     // Continue traversing deeper levels
     for (let i = 1; i < path.length; i++) {
-      const title = path[i]
+      const id = path[i]
       if (!current.items)
         return null
 
-      const found = current.items.find((item: NavItem) => item.title === title)
+      const found = current.items.find((item: NavItem) => item.id === id)
       if (!found)
         return null
       if (i === path.length - 1)
@@ -82,7 +82,7 @@ export function useSidebarNavigation(navMain: Readonly<NavGroup[]>) {
     if (navigationPath.value.length === 0) {
       return navMain[0]?.title || ''
     }
-    return navigationPath.value.at(-1) || ''
+    return findItemByPath(navigationPath.value)?.title || navMain[0]?.title || ''
   })
 
   /**
@@ -90,7 +90,7 @@ export function useSidebarNavigation(navMain: Readonly<NavGroup[]>) {
    */
   function enterMenu(item: NavItem) {
     if (item.items && item.items.length > 0) {
-      navigationPath.value.push(item.title)
+      navigationPath.value.push(item.id)
       saveNavigationPath()
     }
   }
@@ -124,7 +124,7 @@ export function useSidebarNavigation(navMain: Readonly<NavGroup[]>) {
     for (let i = 0; i < navigationPath.value.length; i++) {
       const path = navigationPath.value.slice(0, i + 1)
       breadcrumbs.push({
-        title: path.at(-1) ?? '',
+        title: findItemByPath(path)?.title ?? '',
         path,
       })
     }

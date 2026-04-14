@@ -4,6 +4,20 @@ import { RouterPath } from '@/constants/route-path'
  * 需要前端强制回登录页的业务码。
  */
 const AUTH_EXPIRED_CODES = new Set([40100, 40101])
+const DEFAULT_HTTP_ERROR_MESSAGE = '请求失败，请稍后重试。'
+
+export interface HttpErrorRedirectAction {
+  type: 'redirect'
+  path: string
+  query?: Record<string, string>
+}
+
+export interface HttpErrorToastAction {
+  type: 'toast'
+  message: string
+}
+
+export type HttpErrorAction = HttpErrorRedirectAction | HttpErrorToastAction
 
 /**
  * 最小响应约束，只要求具备业务码和消息。
@@ -50,6 +64,47 @@ export function resolveAuthRedirectPath(currentPath: string | undefined): string
   }
 
   return String(RouterPath.USER_LOGIN)
+}
+
+/**
+ * 将 HTTP 状态码映射为前端跳转或提示动作。
+ */
+export function resolveHttpErrorAction(status: number, message?: string, currentPath?: string): HttpErrorAction {
+  // 401 错误页固定提供用户端登录入口，后续统一登录页时只需改这一层规则。
+  if (status === 401) {
+    const query: Record<string, string> = {}
+    if (message) {
+      query.message = message
+    }
+    if (currentPath) {
+      query.redirect = currentPath
+    }
+
+    return {
+      type: 'redirect',
+      path: '/errors/401',
+      query,
+    }
+  }
+
+  if (status === 403) {
+    return {
+      type: 'redirect',
+      path: '/errors/403',
+    }
+  }
+
+  if (status === 404) {
+    return {
+      type: 'redirect',
+      path: '/errors/404',
+    }
+  }
+
+  return {
+    type: 'toast',
+    message: message || DEFAULT_HTTP_ERROR_MESSAGE,
+  }
 }
 
 /**
