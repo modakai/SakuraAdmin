@@ -2,8 +2,6 @@
 # @author sakura
 # @from sakura
 server:
-  address: 0.0.0.0
-  port: 8101
   servlet:
     context-path: /api
 spring:
@@ -24,9 +22,6 @@ spring:
   # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/sakura_boot_init
-    username: root
-    password: root
 
   # 文件上传
   servlet:
@@ -37,9 +32,18 @@ spring:
   data:
     redis:
       database: 1
-      host: localhost
-      port: 6379
       timeout: 5000
+
+token:
+  header-name: Authorization
+  header-prefix: "Bearer "
+  expire-duration-seconds: 2592000
+  secret-char-source: 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=[]{};:,.?/
+  secret-length: 32
+  compatibility-header-enabled: true
+  compatibility-header-name: "token"
+  redis-token-key-prefix: "login:token:"
+  redis-user-key-prefix: "login:user:"
 
 mybatis-flex:
   configuration:

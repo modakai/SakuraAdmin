@@ -17,71 +17,31 @@ import java.util.concurrent.TimeUnit;
 public class TokenManager {
 
     /**
-     * token 到用户 id 的 Redis key 前缀。
-     */
-    public static final String TOKEN_KEY_PREFIX = "login:token:";
-
-    /**
-     * 用户 id 到 token 的 Redis key 前缀。
-     */
-    public static final String USER_KEY_PREFIX = "login:user:";
-
-    /**
-     * token 默认有效期，单位天。
-     */
-    public static final long TOKEN_EXPIRE_DAYS = 30L;
-
-    /**
-     * 自定义 token 请求头。
-     */
-    public static final String TOKEN_HEADER = "token";
-
-    /**
-     * 标准认证请求头。
-     */
-    public static final String AUTHORIZATION_HEADER = "Authorization";
-
-    /**
-     * 数字字符集。
-     */
-    private static final char[] DIGIT_CHARS = "0123456789".toCharArray();
-
-    /**
-     * 字母字符集。
-     */
-    private static final char[] LETTER_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
-
-    /**
-     * 特殊字符集。
-     */
-    private static final char[] SYMBOL_CHARS = "!@#$%^&*()_+[]{};,.?".toCharArray();
-
-    /**
-     * 完整可选字符集。
-     */
-    private static final char[] TOKEN_CHARS =
-            "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+[]{};:,.?/"
-                    .toCharArray();
-
-    /**
      * 安全随机数生成器。
      */
     private static final SecureRandom RANDOM = new SecureRandom();
 
     /**
-     * 生成 32 位随机 token，并保证至少包含数字、字母和特殊字符。
+     * token 相关配置。
+     */
+    private final TokenProperties tokenProperties;
+
+    public TokenManager(TokenProperties tokenProperties) {
+        tokenProperties.validate();
+        this.tokenProperties = tokenProperties;
+    }
+
+    /**
+     * 根据配置生成随机 token。
      *
      * @return token 字符串
      */
     public String generateToken() {
-        char[] tokenChars = new char[32];
-        tokenChars[0] = randomChar(DIGIT_CHARS);
-        tokenChars[1] = randomChar(LETTER_CHARS);
-        tokenChars[2] = randomChar(SYMBOL_CHARS);
-        for (int i = 3; i < tokenChars.length; i++) {
-            tokenChars[i] = randomChar(TOKEN_CHARS);
+        char[] sourceChars = tokenProperties.getSecretCharSource().toCharArray();
+        char[] tokenChars = new char[tokenProperties.getSecretLength()];
+        for (int i = 0; i < tokenChars.length; i++) {
+            tokenChars[i] = randomChar(sourceChars);
         }
-        shuffle(tokenChars);
         return new String(tokenChars);
     }
 
@@ -97,8 +57,9 @@ public class TokenManager {
         if (StringUtils.isNotBlank(oldToken)) {
             RedisUtil.deleteObject(buildTokenKey(oldToken));
         }
-        RedisUtil.setCacheObject(buildTokenKey(token), String.valueOf(userId), (int) TOKEN_EXPIRE_DAYS, TimeUnit.DAYS);
-        RedisUtil.setCacheObject(userKey, token, (int) TOKEN_EXPIRE_DAYS, TimeUnit.DAYS);
+        int expireDurationSeconds = Math.toIntExact(tokenProperties.getExpireDurationSeconds());
+        RedisUtil.setCacheObject(buildTokenKey(token), String.valueOf(userId), expireDurationSeconds, TimeUnit.SECONDS);
+        RedisUtil.setCacheObject(userKey, token, expireDurationSeconds, TimeUnit.SECONDS);
     }
 
     /**
@@ -140,11 +101,11 @@ public class TokenManager {
      * @return token，不存在时返回 null
      */
     public String resolveToken(HttpServletRequest request) {
-        String authorization = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.startsWithIgnoreCase(authorization, "Bearer ")) {
-            return StringUtils.substringAfter(authorization, "Bearer ");
+        String primaryToken = resolveConfiguredHeaderToken(request);
+        if (StringUtils.isNotBlank(primaryToken)) {
+            return primaryToken;
         }
-        return request.getHeader(TOKEN_HEADER);
+        return resolveCompatibilityHeaderToken(request);
     }
 
     /**
@@ -154,7 +115,7 @@ public class TokenManager {
      * @return Redis key
      */
     private String buildTokenKey(String token) {
-        return TOKEN_KEY_PREFIX + token;
+        return tokenProperties.getRedisTokenKeyPrefix() + token;
     }
 
     /**
@@ -164,7 +125,7 @@ public class TokenManager {
      * @return Redis key
      */
     private String buildUserKey(Long userId) {
-        return USER_KEY_PREFIX + userId;
+        return tokenProperties.getRedisUserKeyPrefix() + userId;
     }
 
     /**
@@ -178,16 +139,35 @@ public class TokenManager {
     }
 
     /**
-     * 打乱字符顺序，避免固定位置暴露字符类别。
+     * 解析主请求头中的 token。
      *
-     * @param tokenChars token 字符数组
+     * @param request HTTP 请求
+     * @return 解析后的 token
      */
-    private void shuffle(char[] tokenChars) {
-        for (int i = tokenChars.length - 1; i > 0; i--) {
-            int index = RANDOM.nextInt(i + 1);
-            char temp = tokenChars[index];
-            tokenChars[index] = tokenChars[i];
-            tokenChars[i] = temp;
+    private String resolveConfiguredHeaderToken(HttpServletRequest request) {
+        String tokenHeaderValue = request.getHeader(tokenProperties.getHeaderName());
+        if (StringUtils.isBlank(tokenHeaderValue)) {
+            return null;
         }
+        if (StringUtils.isBlank(tokenProperties.getHeaderPrefix())) {
+            return StringUtils.trim(tokenHeaderValue);
+        }
+        if (StringUtils.startsWithIgnoreCase(tokenHeaderValue, tokenProperties.getHeaderPrefix())) {
+            return StringUtils.trim(StringUtils.substringAfter(tokenHeaderValue, tokenProperties.getHeaderPrefix()));
+        }
+        return null;
+    }
+
+    /**
+     * 解析兼容请求头中的 token。
+     *
+     * @param request HTTP 请求
+     * @return 解析后的 token
+     */
+    private String resolveCompatibilityHeaderToken(HttpServletRequest request) {
+        if (!tokenProperties.getCompatibilityHeaderEnabled()) {
+            return null;
+        }
+        return StringUtils.trimToNull(request.getHeader(tokenProperties.getCompatibilityHeaderName()));
     }
 }

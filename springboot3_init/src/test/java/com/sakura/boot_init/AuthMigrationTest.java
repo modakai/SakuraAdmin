@@ -1,9 +1,12 @@
 package com.sakura.boot_init;
 
+import com.sakura.boot_init.support.auth.TokenProperties;
 import com.sakura.boot_init.support.auth.TokenManager;
 import com.sakura.boot_init.support.util.RedisUtil;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -22,38 +25,81 @@ import static org.mockito.Mockito.*;
 class AuthMigrationTest {
 
     /**
-     * Token 必须是 32 位随机字符串，并且只能包含数字、字母和特殊符号。
+     * 创建默认 token 配置，避免测试依赖 Spring 容器。
+     *
+     * @return token 配置
+     */
+    private TokenProperties createDefaultTokenProperties() {
+        TokenProperties properties = new TokenProperties();
+        properties.setHeaderName("Authorization");
+        properties.setHeaderPrefix("Bearer ");
+        properties.setExpireDurationSeconds(30L * 24 * 60 * 60);
+        properties.setSecretCharSource("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=[]{};:,.?/");
+        properties.setSecretLength(32);
+        properties.setCompatibilityHeaderName("token");
+        properties.setCompatibilityHeaderEnabled(true);
+        properties.setRedisTokenKeyPrefix("login:token:");
+        properties.setRedisUserKeyPrefix("login:user:");
+        return properties;
+    }
+
+    /**
+     * Token 长度和字符集应由配置驱动。
      */
     @Test
-    void shouldGenerateThirtyTwoLengthRandomToken() {
-        TokenManager tokenManager = new TokenManager();
+    @DisplayName("TokenManager 应根据配置生成指定长度和字符集的 token")
+    void shouldGenerateConfiguredLengthRandomToken() {
+        TokenProperties properties = createDefaultTokenProperties();
+        properties.setSecretLength(40);
+        properties.setSecretCharSource("ABC123");
+        TokenManager tokenManager = new TokenManager(properties);
 
         String firstToken = tokenManager.generateToken();
         String secondToken = tokenManager.generateToken();
 
-        assertEquals(32, firstToken.length());
-        assertEquals(32, secondToken.length());
+        assertEquals(40, firstToken.length());
+        assertEquals(40, secondToken.length());
         assertNotEquals(firstToken, secondToken);
-        assertTrue(firstToken.matches("^[0-9A-Za-z!@#$%^&*()_+\\-=\\[\\]{};:,.?/]+$"));
-        assertTrue(firstToken.matches(".*[0-9].*"));
-        assertTrue(firstToken.matches(".*[A-Za-z].*"));
-        assertTrue(firstToken.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};:,.?/].*"));
+        assertTrue(firstToken.matches("^[ABC123]+$"));
+        assertTrue(secondToken.matches("^[ABC123]+$"));
     }
 
     /**
-     * 登录后必须同时保存 token -> userId 和 userId -> token 两个 Redis 映射。
+     * 登录后必须同时保存 token -> userId 和 userId -> token 两个 Redis 映射，并按配置的有效期写入秒级 TTL。
      */
     @Test
+    @DisplayName("TokenManager 应按配置的 Redis 前缀和秒级有效期保存映射")
     void shouldStoreTokenAndUserMappingInRedis() {
-        TokenManager tokenManager = new TokenManager();
+        TokenProperties properties = createDefaultTokenProperties();
+        properties.setExpireDurationSeconds(7200);
+        properties.setRedisTokenKeyPrefix("auth:token:");
+        properties.setRedisUserKeyPrefix("auth:user:");
+        TokenManager tokenManager = new TokenManager(properties);
         try (MockedStatic<RedisUtil> redisUtilMockedStatic = mockStatic(RedisUtil.class)) {
-            redisUtilMockedStatic.when(() -> RedisUtil.getCacheObject("login:user:1001")).thenReturn(null);
+            redisUtilMockedStatic.when(() -> RedisUtil.getCacheObject("auth:user:1001")).thenReturn(null);
 
             tokenManager.storeToken(1001L, "abc123");
 
-            redisUtilMockedStatic.verify(() -> RedisUtil.setCacheObject("login:token:abc123", "1001", 30, TimeUnit.DAYS));
-            redisUtilMockedStatic.verify(() -> RedisUtil.setCacheObject("login:user:1001", "abc123", 30, TimeUnit.DAYS));
+            redisUtilMockedStatic.verify(() -> RedisUtil.setCacheObject("auth:token:abc123", "1001", 7200, TimeUnit.SECONDS));
+            redisUtilMockedStatic.verify(() -> RedisUtil.setCacheObject("auth:user:1001", "abc123", 7200, TimeUnit.SECONDS));
         }
+    }
+
+    /**
+     * 请求头解析应优先读取主请求头，并兼容旧 token 请求头。
+     */
+    @Test
+    @DisplayName("TokenManager 应按配置解析主请求头和兼容请求头")
+    void shouldResolveConfiguredHeaderAndCompatibilityHeader() {
+        TokenManager tokenManager = new TokenManager(createDefaultTokenProperties());
+        MockHttpServletRequest primaryRequest = new MockHttpServletRequest();
+        MockHttpServletRequest compatibilityRequest = new MockHttpServletRequest();
+
+        primaryRequest.addHeader("Authorization", "Bearer main-token");
+        compatibilityRequest.addHeader("token", "legacy-token");
+
+        assertEquals("main-token", tokenManager.resolveToken(primaryRequest));
+        assertEquals("legacy-token", tokenManager.resolveToken(compatibilityRequest));
     }
 
     /**

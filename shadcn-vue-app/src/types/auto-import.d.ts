@@ -8,6 +8,8 @@ export {}
 declare global {
   const API_BASE_URL: typeof import('../constants/app-config').API_BASE_URL
   const API_TIMEOUT: typeof import('../constants/app-config').API_TIMEOUT
+  const COMPATIBILITY_TOKEN_HEADER_ENABLED: typeof import('../constants/app-config').COMPATIBILITY_TOKEN_HEADER_ENABLED
+  const COMPATIBILITY_TOKEN_HEADER_NAME: typeof import('../constants/app-config').COMPATIBILITY_TOKEN_HEADER_NAME
   const CONTENT_LAYOUTS: typeof import('../constants/themes').CONTENT_LAYOUTS
   const DEFAULT_PAGE_SIZE: typeof import('../constants/pagination').DEFAULT_PAGE_SIZE
   const EffectScope: typeof import('vue').EffectScope
@@ -17,6 +19,8 @@ declare global {
   const THEMES: typeof import('../constants/themes').THEMES
   const THEMES_COLOR: typeof import('../constants/themes')['THEMES_COLOR']
   const THEME_PRIMARY_COLORS: typeof import('../constants/themes').THEME_PRIMARY_COLORS
+  const TOKEN_HEADER_NAME: typeof import('../constants/app-config').TOKEN_HEADER_NAME
+  const TOKEN_HEADER_PREFIX: typeof import('../constants/app-config').TOKEN_HEADER_PREFIX
   const computed: typeof import('vue').computed
   const createApp: typeof import('vue').createApp
   const customRef: typeof import('vue').customRef
