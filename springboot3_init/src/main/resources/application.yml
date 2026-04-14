@@ -9,6 +9,9 @@ server:
 spring:
   application:
     name: sakura-boot-init-api
+  messages:
+    basename: messages
+    encoding: UTF-8
   # 默认 dev 环境
   profiles:
     active: dev

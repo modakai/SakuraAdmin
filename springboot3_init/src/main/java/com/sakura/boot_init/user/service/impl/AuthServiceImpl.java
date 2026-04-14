@@ -46,23 +46,23 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.param.blank");
         }
         if (userAccount.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号过短");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.user_account.too_short");
         }
         if (userPassword.length() < 8 || checkPassword.length() < 8) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码过短");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.user_password.too_short");
         }
         if (!userPassword.equals(checkPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.password.not_match");
         }
 
         synchronized (userAccount.intern()) {
             QueryWrapper queryWrapper = QueryWrapper.create().eq("user_account", userAccount);
             long count = userMapper.selectCountByQuery(queryWrapper);
             if (count > 0) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.account.duplicate");
             }
 
             User user = new User();
@@ -70,7 +70,7 @@ public class AuthServiceImpl implements AuthService {
             user.setUserPassword(encryptPassword(userPassword));
             int saveResult = userMapper.insertSelective(user);
             if (saveResult <= 0) {
-                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "auth.register.db_error");
             }
             return user.getId();
         }
@@ -79,13 +79,13 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.param.blank");
         }
         if (userAccount.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号错误");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.account.invalid");
         }
         if (userPassword.length() < 8) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.password.invalid");
         }
 
         QueryWrapper queryWrapper = QueryWrapper.create()
@@ -94,7 +94,7 @@ public class AuthServiceImpl implements AuthService {
         User user = userMapper.selectOneByQuery(queryWrapper);
         if (user == null) {
             log.info("user login failed, userAccount cannot match userPassword");
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.login.invalid");
         }
         return buildLoginUserVOWithToken(user);
     }
@@ -107,7 +107,7 @@ public class AuthServiceImpl implements AuthService {
             QueryWrapper queryWrapper = QueryWrapper.create().eq("union_id", unionId);
             User user = userMapper.selectOneByQuery(queryWrapper);
             if (user != null && UserRoleEnum.BAN.getValue().equals(user.getUserRole())) {
-                throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "该用户已被封禁，禁止登录");
+                throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "auth.user.banned");
             }
             if (user == null) {
                 user = new User();
@@ -117,7 +117,7 @@ public class AuthServiceImpl implements AuthService {
                 user.setUserName(wxOAuth2UserInfo.getNickname());
                 int result = userMapper.insert(user);
                 if (result <= 0) {
-                    throw new BusinessException(ErrorCode.SYSTEM_ERROR, "登录失败");
+                    throw new BusinessException(ErrorCode.SYSTEM_ERROR, "auth.login.fail");
                 }
             }
             return buildLoginUserVOWithToken(user);
@@ -160,7 +160,7 @@ public class AuthServiceImpl implements AuthService {
     public boolean userLogout(HttpServletRequest request) {
         String token = tokenManager.resolveToken(request);
         if (tokenManager.getUserId(token) == null) {
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "未登录");
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "auth.logout.not_login");
         }
         tokenManager.removeToken(token);
         LoginUserContext.clear();

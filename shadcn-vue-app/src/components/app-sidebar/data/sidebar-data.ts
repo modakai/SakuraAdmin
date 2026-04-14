@@ -1,4 +1,5 @@
 import { AudioWaveformIcon, CommandIcon, GalleryVerticalEndIcon } from '@lucide/vue'
+import { useI18n } from 'vue-i18n'
 
 import { useSidebar } from '@/composables/use-sidebar'
 
@@ -10,28 +11,35 @@ const user: User = {
   avatar: '/avatars/shadcn.jpg',
 }
 
-const teams: Team[] = [
-  {
-    name: 'Acme Inc',
-    logo: GalleryVerticalEndIcon,
-    plan: 'Enterprise',
-  },
-  {
-    name: 'Acme Corp.',
-    logo: AudioWaveformIcon,
-    plan: 'Startup',
-  },
-  {
-    name: 'Evil Corp.',
-    logo: CommandIcon,
-    plan: 'Free',
-  },
-]
+export function useSidebarData() {
+  const { t } = useI18n()
+  const { navData } = useSidebar()
 
-const { navData } = useSidebar()
+  const teams: Team[] = [
+    {
+      name: 'Acme Inc',
+      logo: GalleryVerticalEndIcon,
+      plan: t('common.plan.enterprise'),
+    },
+    {
+      name: 'Acme Corp.',
+      logo: AudioWaveformIcon,
+      plan: t('common.plan.startup'),
+    },
+    {
+      name: 'Evil Corp.',
+      logo: CommandIcon,
+      plan: t('common.plan.free'),
+    },
+  ]
 
-export const sidebarData: SidebarData = {
-  user,
-  teams,
-  navMain: navData.value!,
+  const sidebarData: SidebarData = {
+    user,
+    teams,
+    navMain: navData.value!,
+  }
+
+  return {
+    sidebarData,
+  }
 }

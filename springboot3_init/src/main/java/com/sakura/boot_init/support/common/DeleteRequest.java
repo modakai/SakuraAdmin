@@ -18,8 +18,8 @@ public class DeleteRequest implements Serializable {
     /**
      * id
      */
-    @NotNull(message = "id 不能为空")
-    @Positive(message = "id 必须大于 0")
+    @NotNull(message = "{validation.common.id.not_null}")
+    @Positive(message = "{validation.common.id.positive}")
     private Long id;
 
     private static final long serialVersionUID = 1L;

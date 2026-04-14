@@ -3,6 +3,7 @@ import type { Row } from '@tanstack/vue-table'
 import type { Component } from 'vue'
 
 import { EllipsisIcon } from '@lucide/vue'
+import { useI18n } from 'vue-i18n'
 
 import { Modal, ModalContent } from '@/components/prop-ui/modal'
 
@@ -17,6 +18,7 @@ const isOpen = ref(false)
 
 const showComponent = shallowRef<Component | null>(null)
 type TCommand = 'edit' | 'delete'
+const { t } = useI18n()
 
 const componentLoader: Record<TCommand, () => Promise<{ default: Component }>> = {
   edit: () => import('./user-resource.vue'),
@@ -44,16 +46,16 @@ async function handleSelect(command: TCommand) {
           class="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
         >
           <EllipsisIcon class="size-4" />
-          <span class="sr-only">Open menu</span>
+          <span class="sr-only">{{ t('actions.openMenu') }}</span>
         </UiButton>
       </UiDropdownMenuTrigger>
       <UiDropdownMenuContent align="end" class="w-[160px]">
         <UiDropdownMenuItem @click.stop="handleSelect('edit')">
-          Edit
+          {{ t('actions.edit') }}
         </UiDropdownMenuItem>
 
         <UiDropdownMenuItem @click.stop="handleSelect('delete')">
-          Delete
+          {{ t('actions.delete') }}
           <UiDropdownMenuShortcut>⌘⌫</UiDropdownMenuShortcut>
         </UiDropdownMenuItem>
       </UiDropdownMenuContent>

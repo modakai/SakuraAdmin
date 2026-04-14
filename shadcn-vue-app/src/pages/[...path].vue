@@ -1,13 +1,17 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
 import Error from '@/components/custom-error.vue'
+
+const { t } = useI18n()
 </script>
 
 <template>
   <div class="flex items-center justify-center h-screen">
     <Error
       :code="404"
-      subtitle="Page Not Found"
-      error="The page you are looking for might have been removed, had its name changed, or is temporarily unavailable."
+      :subtitle="t('errors.notFound.subtitle')"
+      :error="t('errors.notFound.description')"
     />
   </div>
 </template>

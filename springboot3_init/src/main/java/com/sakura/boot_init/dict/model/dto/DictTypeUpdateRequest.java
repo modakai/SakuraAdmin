@@ -18,26 +18,26 @@ public class DictTypeUpdateRequest implements Serializable {
     /**
      * 主键 id
      */
-    @NotNull(message = "字典类型 id 不能为空")
+    @NotNull(message = "{validation.dict.type_id.not_null}")
     @Positive(message = "字典类型 id 必须大于 0")
     private Long id;
 
     /**
      * 字典编码
      */
-    @NotBlank(message = "字典编码不能为空")
+    @NotBlank(message = "{validation.dict.code.not_blank}")
     private String dictCode;
 
     /**
      * 字典名称
      */
-    @NotBlank(message = "字典名称不能为空")
+    @NotBlank(message = "{validation.dict.name.not_blank}")
     private String dictName;
 
     /**
      * 状态
      */
-    @NotNull(message = "字典状态不能为空")
+    @NotNull(message = "{validation.dict.status.not_null}")
     private Integer status;
 
     /**

@@ -1,10 +1,29 @@
 <script setup lang="ts">
-import { ArrowRightIcon, ShieldCheckIcon } from '@lucide/vue'
+import { ArrowRightIcon, CircleUserRoundIcon, ShieldCheckIcon, SparklesIcon } from '@lucide/vue'
+import { useI18n } from 'vue-i18n'
 
 import { useAuth } from '@/composables/use-auth'
-import { userFeatures, userHighlights, userMetrics } from '@/constants/user-portal'
 
 const { hasAdminAccess, isLogin } = useAuth()
+const { t } = useI18n()
+
+const userMetrics = computed(() => [
+  { title: t('pages.home.metrics.today'), value: '48', hint: t('pages.home.metrics.todayHint') },
+  { title: t('pages.home.metrics.accuracy'), value: '89%', hint: t('pages.home.metrics.accuracyHint') },
+  { title: t('pages.home.metrics.streak'), value: '16', hint: t('pages.home.metrics.streakHint') },
+])
+
+const userFeatures = computed(() => [
+  { title: t('pages.home.features.practiceTitle'), description: t('pages.home.features.practiceDesc'), icon: SparklesIcon },
+  { title: t('pages.home.features.trackTitle'), description: t('pages.home.features.trackDesc'), icon: CircleUserRoundIcon },
+  { title: t('pages.home.features.adminTitle'), description: t('pages.home.features.adminDesc'), icon: ShieldCheckIcon },
+])
+
+const userHighlights = computed(() => [
+  { title: t('pages.home.highlights.algTitle'), content: t('pages.home.highlights.algContent'), time: t('pages.home.highlights.algTime') },
+  { title: t('pages.home.highlights.reportTitle'), content: t('pages.home.highlights.reportContent'), time: t('pages.home.highlights.reportTime') },
+  { title: t('pages.home.highlights.auditTitle'), content: t('pages.home.highlights.auditContent'), time: t('pages.home.highlights.auditTime') },
+])
 </script>
 
 <template>
@@ -13,20 +32,20 @@ const { hasAdminAccess, isLogin } = useAuth()
       <UiCard class="border-none bg-gradient-to-br from-sky-500 to-cyan-500 text-white shadow-xl">
         <UiCardHeader class="space-y-5">
           <UiBadge variant="secondary" class="w-fit bg-white/15 text-white hover:bg-white/15">
-            用户端首页
+            {{ t('pages.home.badge') }}
           </UiBadge>
           <div class="space-y-3">
             <UiCardTitle class="text-4xl leading-tight md:text-5xl">
-              一套模板，同时覆盖用户端与后台管理。
+              {{ t('pages.home.title') }}
             </UiCardTitle>
             <UiCardDescription class="max-w-2xl text-sky-50">
-              这里承载用户端首页、刷题、学习记录和个人中心；后台则保留现成的管理页面与工作台。
+              {{ t('pages.home.description') }}
             </UiCardDescription>
           </div>
         </UiCardHeader>
         <UiCardContent class="flex flex-wrap gap-3">
           <UiButton variant="secondary" @click="$router.push('/practice')">
-            开始刷题
+            {{ t('pages.home.startPractice') }}
             <ArrowRightIcon class="size-4" />
           </UiButton>
           <UiButton
@@ -36,7 +55,7 @@ const { hasAdminAccess, isLogin } = useAuth()
             @click="$router.push('/dashboard')"
           >
             <ShieldCheckIcon class="mr-1 size-4" />
-            进入后台
+            {{ t('pages.home.enterAdmin') }}
           </UiButton>
           <UiButton
             v-else-if="!isLogin"
@@ -44,7 +63,7 @@ const { hasAdminAccess, isLogin } = useAuth()
             class="border-white/30 bg-white/10 text-white hover:bg-white/15"
             @click="$router.push('/login')"
           >
-            用户登录
+            {{ t('pages.login.enterUser') }}
           </UiButton>
         </UiCardContent>
       </UiCard>
@@ -79,19 +98,19 @@ const { hasAdminAccess, isLogin } = useAuth()
     <section class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
       <UiCard>
         <UiCardHeader>
-          <UiCardTitle>用户端说明</UiCardTitle>
-          <UiCardDescription>首版模板已补齐用户端首页、登录页、刷题中心、学习记录和个人中心。</UiCardDescription>
+          <UiCardTitle>{{ t('pages.home.guideTitle') }}</UiCardTitle>
+          <UiCardDescription>{{ t('pages.home.guideDesc') }}</UiCardDescription>
         </UiCardHeader>
         <UiCardContent class="space-y-3 text-sm text-muted-foreground">
-          <p>用户端登录入口：`/login`</p>
-          <p>后台登录入口：`/auth/sign-in`</p>
-          <p>统一认证返回后，是否允许进入后台由角色决定。</p>
+          <p>{{ t('pages.home.userLoginPath') }}</p>
+          <p>{{ t('pages.home.adminLoginPath') }}</p>
+          <p>{{ t('pages.home.accessNote') }}</p>
         </UiCardContent>
       </UiCard>
 
       <UiCard>
         <UiCardHeader>
-          <UiCardTitle>近期动态</UiCardTitle>
+          <UiCardTitle>{{ t('pages.home.recentTitle') }}</UiCardTitle>
         </UiCardHeader>
         <UiCardContent class="space-y-4">
           <div v-for="item in userHighlights" :key="item.title" class="rounded-lg border p-4">

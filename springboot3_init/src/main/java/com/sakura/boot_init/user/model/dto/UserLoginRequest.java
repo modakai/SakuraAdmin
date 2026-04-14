@@ -19,14 +19,14 @@ public class UserLoginRequest implements Serializable {
     /**
      * 用户账号
      */
-    @NotBlank(message = "用户账号不能为空")
-    @Size(min = 4, message = "用户账号长度不能小于 4")
+    @NotBlank(message = "{validation.user.account.not_blank}")
+    @Size(min = 4, message = "{validation.user.account.min}")
     private String userAccount;
 
     /**
      * 用户密码
      */
-    @NotBlank(message = "用户密码不能为空")
-    @Size(min = 8, message = "用户密码长度不能小于 8")
+    @NotBlank(message = "{validation.user.password.not_blank}")
+    @Size(min = 8, message = "{validation.user.password.min}")
     private String userPassword;
 }

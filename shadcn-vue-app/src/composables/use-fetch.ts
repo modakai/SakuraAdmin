@@ -4,6 +4,7 @@
 import { ofetch } from 'ofetch'
 
 import { API_BASE_URL, API_TIMEOUT } from '@/constants/app-config'
+import { appLocale } from '@/plugins/i18n'
 import pinia from '@/plugins/pinia/setup'
 import { useAuthStore } from '@/stores/auth'
 import {
@@ -12,6 +13,7 @@ import {
   isAuthExpiredCode,
   resolveAuthRedirectPath,
 } from '@/utils/api-response'
+import { buildApiRequestHeaders } from '@/utils/request-locale'
 
 /**
  * 统一处理登录失效，清空本地登录态后跳回对应登录页。
@@ -35,14 +37,15 @@ const apiFetch = ofetch.create({
   onRequest: ({ options }) => {
     const authStore = useAuthStore(pinia)
     const token = authStore.session.token
+    const headers = buildApiRequestHeaders(appLocale.value, token ?? undefined)
 
-    if (!token) {
-      return
+    // 保留调用方显式传入的请求头，再补充统一鉴权和语言信息。
+    if (options.headers) {
+      const customHeaders = new Headers(options.headers)
+      customHeaders.forEach((value, key) => headers.set(key, value))
     }
 
-    options.headers = new Headers(options.headers)
-    options.headers.set('Authorization', `Bearer ${token}`)
-    options.headers.set('token', token)
+    options.headers = headers
   },
   onRequestError: (_error) => {},
   onResponse: ({ response }) => {

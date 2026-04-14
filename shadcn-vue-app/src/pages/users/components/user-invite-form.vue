@@ -2,6 +2,7 @@
 import { SendIcon } from '@lucide/vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
+import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 
 import Button from '@/components/ui/button/Button.vue'
@@ -15,6 +16,7 @@ import type { UserInviteValidator } from '../validators/user-invite.validator'
 import { userInviteValidator } from '../validators/user-invite.validator'
 
 const roles = ['superadmin', 'admin', 'cashier', 'manager'] as const
+const { t } = useI18n()
 
 const initialValues = reactive<UserInviteValidator>({
   email: '',
@@ -28,7 +30,7 @@ const { handleSubmit } = useForm({
 })
 
 const onSubmit = handleSubmit((values) => {
-  toast('You submitted the following values:', {
+  toast(t('pages.users.submitToast'), {
     description: h(
       'pre',
       { class: 'mt-2 w-[340px] rounded-md bg-slate-950 p-4' },
@@ -42,7 +44,7 @@ const onSubmit = handleSubmit((values) => {
   <form class="space-y-8" @submit="onSubmit">
     <FormField v-slot="{ componentField }" name="email">
       <FormItem>
-        <FormLabel>Email address</FormLabel>
+        <FormLabel>{{ t('pages.users.form.email') }}</FormLabel>
         <FormControl>
           <Input type="text" v-bind="componentField" />
         </FormControl>
@@ -53,20 +55,20 @@ const onSubmit = handleSubmit((values) => {
     <FormField v-slot="{ componentField }" name="role">
       <FormItem>
         <FormLabel>
-          Role
+          {{ t('pages.users.columns.role') }}
           <span class="text-destructive"> *</span>
         </FormLabel>
         <FormControl>
           <Select v-bind="componentField">
             <FormControl>
               <SelectTrigger class="w-full">
-                <SelectValue placeholder="Select a role" />
+                <SelectValue :placeholder="t('pages.users.form.selectRole')" />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
               <SelectGroup>
                 <SelectItem v-for="role in roles" :key="role" :value="role">
-                  {{ role }}
+                  {{ t(`pages.users.roles.${role}`) }}
                 </SelectItem>
               </SelectGroup>
             </SelectContent>
@@ -78,7 +80,7 @@ const onSubmit = handleSubmit((values) => {
 
     <FormField v-slot="{ componentField }" name="description">
       <FormItem>
-        <FormLabel>Description(Optional)</FormLabel>
+        <FormLabel>{{ t('pages.users.form.descriptionOptional') }}</FormLabel>
         <FormControl>
           <Textarea v-bind="componentField" />
         </FormControl>
@@ -87,7 +89,7 @@ const onSubmit = handleSubmit((values) => {
     </FormField>
 
     <Button type="submit" class="w-full">
-      Invite
+      {{ t('actions.invite') }}
       <SendIcon />
     </Button>
   </form>

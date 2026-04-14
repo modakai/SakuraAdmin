@@ -22,8 +22,8 @@ public class UserAddRequest implements Serializable {
     /**
      * 账号
      */
-    @NotBlank(message = "用户账号不能为空")
-    @Size(min = 4, message = "用户账号长度不能小于 4")
+    @NotBlank(message = "{validation.user.account.not_blank}")
+    @Size(min = 4, message = "{validation.user.account.min}")
     private String userAccount;
 
     /**

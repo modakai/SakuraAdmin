@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
 import { BasicPage } from '@/components/global-layout'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
@@ -8,22 +10,23 @@ interface ISocialMediaAccount {
   url: string
 }
 
-const socialMediaAccounts = ref<ISocialMediaAccount[]>([
-  { title: 'GitHub', desc: ' The source code of Shadcn UI is publicly available on GitHub.', url: 'https://github.com/Whbbit1999/shadcn-vue-admin' },
-  { title: 'Discord', desc: 'Join our Discord server to ask questions, share your projects, and get involved in the community.', url: '' },
-  { title: 'Bilibili', desc: '在哔哩哔哩上找到我们', url: 'https://space.bilibili.com/104376935' },
+const { t } = useI18n()
+const socialMediaAccounts = computed<ISocialMediaAccount[]>(() => [
+  { title: 'GitHub', desc: t('pages.help.accounts.github'), url: 'https://github.com/Whbbit1999/shadcn-vue-admin' },
+  { title: 'Discord', desc: t('pages.help.accounts.discord'), url: '' },
+  { title: 'Bilibili', desc: t('pages.help.accounts.bilibili'), url: 'https://space.bilibili.com/104376935' },
 ])
 </script>
 
 <template>
   <BasicPage
-    title="Help Center"
-    description="Help Center description"
+    :title="t('pages.help.title')"
+    :description="t('pages.help.description')"
   >
     <Alert>
-      <AlertTitle>Heads up!</AlertTitle>
+      <AlertTitle>{{ t('pages.help.alertTitle') }}</AlertTitle>
       <AlertDescription>
-        You can find answers to your questions in our help center.
+        {{ t('pages.help.alertDesc') }}
       </AlertDescription>
     </Alert>
 

@@ -57,7 +57,9 @@ public class GlobalExceptionHandler {
         String message = e.getConstraintViolations().stream()
                 .findFirst()
                 .map(constraintViolation -> constraintViolation.getMessage())
-                .orElse("请求参数错误");
+                .orElse(com.sakura.boot_init.support.util.I18nUtils.getMessage(
+                        ErrorCode.PARAMS_ERROR.getMessageKey(),
+                        ErrorCode.PARAMS_ERROR.getDefaultMessage()));
         return ResultUtils.error(ErrorCode.PARAMS_ERROR, message);
     }
 
@@ -70,7 +72,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public BaseResponse<?> runtimeExceptionHandler(RuntimeException e) {
         log.error("RuntimeException", e);
-        return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "系统错误");
+        return ResultUtils.error(ErrorCode.SYSTEM_ERROR);
     }
 
     /**
@@ -81,7 +83,9 @@ public class GlobalExceptionHandler {
      */
     private String extractBindingErrorMessage(FieldError fieldError) {
         if (fieldError == null) {
-            return "请求参数错误";
+            return com.sakura.boot_init.support.util.I18nUtils.getMessage(
+                    ErrorCode.PARAMS_ERROR.getMessageKey(),
+                    ErrorCode.PARAMS_ERROR.getDefaultMessage());
         }
         return fieldError.getDefaultMessage();
     }

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
+import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 
 import { Button } from '@/components/ui/button'
@@ -20,6 +21,7 @@ const { user } = defineProps<{
 const emits = defineEmits<{
   (e: 'close'): void
 }>()
+const { t } = useI18n()
 
 const roles = ['superadmin', 'admin', 'cashier', 'manager'] as const
 const status = ['active', 'inactive', 'invited', 'suspended'] as const
@@ -45,7 +47,7 @@ const onSubmit = handleSubmit((values) => {
   if (user) {
     submitUser.id = user.id
   }
-  toast('You submitted the following values:', {
+  toast(t('pages.users.submitToast'), {
     description: h(
       'pre',
       { class: 'mt-2 w-[340px] rounded-md bg-slate-950 p-4' },
@@ -62,7 +64,7 @@ const onSubmit = handleSubmit((values) => {
     <form class="space-y-8" @submit="onSubmit">
       <FormField v-slot="{ componentField }" name="firstName">
         <FormItem>
-          <FormLabel>First Name</FormLabel>
+          <FormLabel>{{ t('pages.users.form.firstName') }}</FormLabel>
           <FormControl>
             <Input type="text" v-bind="componentField" />
           </FormControl>
@@ -71,7 +73,7 @@ const onSubmit = handleSubmit((values) => {
       </FormField>
       <FormField v-slot="{ componentField }" name="lastName">
         <FormItem>
-          <FormLabel>Last Name</FormLabel>
+          <FormLabel>{{ t('pages.users.form.lastName') }}</FormLabel>
           <FormControl>
             <Input type="text" v-bind="componentField" />
           </FormControl>
@@ -80,7 +82,7 @@ const onSubmit = handleSubmit((values) => {
       </FormField>
       <FormField v-slot="{ componentField }" name="username">
         <FormItem>
-          <FormLabel>User Name</FormLabel>
+          <FormLabel>{{ t('pages.users.form.username') }}</FormLabel>
           <FormControl>
             <Input type="text" v-bind="componentField" />
           </FormControl>
@@ -90,7 +92,7 @@ const onSubmit = handleSubmit((values) => {
 
       <FormField v-slot="{ componentField }" name="email">
         <FormItem>
-          <FormLabel>Email address</FormLabel>
+          <FormLabel>{{ t('pages.users.form.email') }}</FormLabel>
           <FormControl>
             <Input type="text" v-bind="componentField" />
           </FormControl>
@@ -100,7 +102,7 @@ const onSubmit = handleSubmit((values) => {
 
       <FormField v-slot="{ componentField }" name="phoneNumber">
         <FormItem>
-          <FormLabel>Phone Number</FormLabel>
+          <FormLabel>{{ t('pages.users.form.phoneNumber') }}</FormLabel>
           <FormControl>
             <Input type="text" v-bind="componentField" />
           </FormControl>
@@ -110,18 +112,18 @@ const onSubmit = handleSubmit((values) => {
 
       <FormField v-slot="{ componentField }" name="status">
         <FormItem>
-          <FormLabel>Status</FormLabel>
+          <FormLabel>{{ t('pages.users.columns.status') }}</FormLabel>
           <FormControl>
             <Select v-bind="componentField">
               <FormControl>
                 <SelectTrigger class="w-full">
-                  <SelectValue placeholder="Select a status" />
+                  <SelectValue :placeholder="t('pages.users.form.selectStatus')" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
                 <SelectGroup>
                   <SelectItem v-for="state in status" :key="state" :value="state">
-                    {{ state }}
+                    {{ t(`pages.users.status.${state}`) }}
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>
@@ -132,18 +134,18 @@ const onSubmit = handleSubmit((values) => {
       </FormField>
       <FormField v-slot="{ componentField }" name="role">
         <FormItem>
-          <FormLabel>Role</FormLabel>
+          <FormLabel>{{ t('pages.users.columns.role') }}</FormLabel>
           <FormControl>
             <Select v-bind="componentField">
               <FormControl>
                 <SelectTrigger class="w-full">
-                  <SelectValue placeholder="Select a role" />
+                  <SelectValue :placeholder="t('pages.users.form.selectRole')" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
                 <SelectGroup>
                   <SelectItem v-for="role in roles" :key="role" :value="role">
-                    {{ role }}
+                    {{ t(`pages.users.roles.${role}`) }}
                   </SelectItem>
                 </SelectGroup>
               </SelectContent>
@@ -154,7 +156,7 @@ const onSubmit = handleSubmit((values) => {
       </FormField>
 
       <Button type="submit" class="w-full">
-        SaveChanges
+        {{ t('actions.saveChanges') }}
       </Button>
     </form>
   </div>

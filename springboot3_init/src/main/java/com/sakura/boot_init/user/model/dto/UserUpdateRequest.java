@@ -17,8 +17,8 @@ public class UserUpdateRequest implements Serializable {
     /**
      * id
      */
-    @NotNull(message = "用户 id 不能为空")
-    @Positive(message = "用户 id 必须大于 0")
+    @NotNull(message = "{validation.user.id.not_null}")
+    @Positive(message = "{validation.user.id.positive}")
     private Long id;
 
     /**

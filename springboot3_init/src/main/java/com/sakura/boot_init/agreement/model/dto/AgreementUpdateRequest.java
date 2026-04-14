@@ -19,8 +19,8 @@ public class AgreementUpdateRequest extends AgreementAddRequest implements Seria
     /**
      * 协议 id。
      */
-    @NotNull(message = "协议 id 不能为空")
-    @Positive(message = "协议 id 必须大于 0")
+    @NotNull(message = "{validation.agreement.id.not_null}")
+    @Positive(message = "{validation.agreement.id.positive}")
     private Long id;
 
     private static final long serialVersionUID = 1L;
