@@ -31,11 +31,11 @@ function handleLocaleChange(val: AcceptableValue) {
     <UiDropdownMenuTrigger as-child>
       <UiButton variant="outline">
         <Icon icon="mdi:translate" class="mr-2" />
-        {{ $t('language') }}
+        {{ $t(`language.current.${locale}`) }}
       </UiButton>
     </UiDropdownMenuTrigger>
     <UiDropdownMenuContent>
-      <UiDropdownMenuLabel>{{ $t('changeLanguage') }}</UiDropdownMenuLabel>
+      <UiDropdownMenuLabel>{{ $t('language.change') }}</UiDropdownMenuLabel>
       <UiDropdownMenuSeparator />
       <UiDropdownMenuRadioGroup
         v-model="locale"
@@ -43,11 +43,11 @@ function handleLocaleChange(val: AcceptableValue) {
       >
         <UiDropdownMenuRadioItem value="en">
           <Icon icon="flag:us-4x3" />
-          <span class="ml-2">English</span>
+          <span class="ml-2">{{ $t('language.option.en') }}</span>
         </UiDropdownMenuRadioItem>
         <UiDropdownMenuRadioItem value="zh">
           <Icon icon="flag:cn-4x3" />
-          <span class="ml-2">中文</span>
+          <span class="ml-2">{{ $t('language.option.zh') }}</span>
         </UiDropdownMenuRadioItem>
       </UiDropdownMenuRadioGroup>
     </UiDropdownMenuContent>

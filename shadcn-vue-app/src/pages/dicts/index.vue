@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { BookMarkedIcon } from '@lucide/vue'
+import { useI18n } from 'vue-i18n'
 
 import { BasicPage } from '@/components/global-layout'
 
@@ -7,28 +8,29 @@ import { BasicPage } from '@/components/global-layout'
  * 字典管理占位页。
  * 先提供统一入口，后续可在这里继续扩展字典列表、编辑和状态管理能力。
  */
-const placeholderFeatures = [
-  '字典类型维护',
-  '字典数据维护',
-  '启用状态控制',
-]
+const { t } = useI18n()
+const placeholderFeatures = computed(() => [
+  t('pages.dicts.featureType'),
+  t('pages.dicts.featureItem'),
+  t('pages.dicts.featureStatus'),
+])
 </script>
 
 <template>
-  <BasicPage title="字典管理" description="维护系统字典类型与字典数据的基础信息。" sticky>
+  <BasicPage :title="t('pages.dicts.title')" :description="t('pages.dicts.description')" sticky>
     <UiCard>
       <UiCardHeader>
         <UiCardTitle class="flex items-center gap-2">
           <BookMarkedIcon class="size-5" />
-          功能建设中
+          {{ t('pages.dicts.buildingTitle') }}
         </UiCardTitle>
         <UiCardDescription>
-          当前页面为占位页，已挂载到后台“系统管理”菜单下，方便后续继续扩展真实业务功能。
+          {{ t('pages.dicts.buildingDesc') }}
         </UiCardDescription>
       </UiCardHeader>
       <UiCardContent class="space-y-3">
         <div class="rounded-lg border border-dashed bg-muted/30 p-4 text-sm text-muted-foreground">
-          后续可以在这里接入字典分页查询、表单编辑、状态切换和缓存刷新等能力。
+          {{ t('pages.dicts.todo') }}
         </div>
 
         <div class="flex flex-wrap gap-2">

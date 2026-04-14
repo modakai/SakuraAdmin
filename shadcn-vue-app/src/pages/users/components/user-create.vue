@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import { UserRoundPlusIcon } from '@lucide/vue'
+import { useI18n } from 'vue-i18n'
 
 import { Modal, ModalContent, ModalTrigger } from '@/components/prop-ui/modal'
 
 import UserResource from './user-resource.vue'
 
 const isOpen = ref(false)
+const { t } = useI18n()
 </script>
 
 <template>
@@ -13,7 +15,7 @@ const isOpen = ref(false)
     <ModalTrigger as-child>
       <UiButton>
         <UserRoundPlusIcon />
-        Create User
+        {{ t('pages.users.createUser') }}
       </UiButton>
     </ModalTrigger>
 

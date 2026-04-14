@@ -1,4 +1,227 @@
 {
+  "common": {
+    "email": "Email",
+    "password": "Password",
+    "emptyDash": "-",
+    "previousPage": "Previous",
+    "nextPage": "Next",
+    "plan": {
+      "enterprise": "Enterprise",
+      "startup": "Startup",
+      "free": "Free"
+    },
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    }
+  },
+  "actions": {
+    "refresh": "Refresh",
+    "search": "Search",
+    "reset": "Reset",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "invite": "Invite",
+    "saveChanges": "Save changes",
+    "action": "Action",
+    "openMenu": "Open menu"
+  },
+  "language": {
+    "change": "Change language",
+    "option": {
+      "en": "English",
+      "zh": "Chinese"
+    },
+    "current": {
+      "en": "English",
+      "zh": "中文"
+    }
+  },
+  "menu": {
+    "main": "Main Menu",
+    "other": "Other",
+    "system": {
+      "title": "System Management",
+      "users": "Users",
+      "dicts": "Dictionaries",
+      "agreements": "Agreements"
+    },
+    "settings": {
+      "profile": "Profile",
+      "account": "Account",
+      "appearance": "Appearance",
+      "notifications": "Notifications",
+      "display": "Display"
+    }
+  },
+  "errors": {
+    "unauthorized": {
+      "subtitle": "Unauthorized",
+      "description": "You are not authorized to access this page."
+    },
+    "forbidden": {
+      "subtitle": "Forbidden",
+      "description": "You are not authorized to access this page."
+    },
+    "notFound": {
+      "subtitle": "Page Not Found",
+      "description": "The page you are looking for might have been removed, renamed, or is temporarily unavailable."
+    },
+    "serverError": {
+      "subtitle": "Internal Server Error",
+      "description": "The server encountered an unexpected condition which prevented it from fulfilling the request."
+    },
+    "serviceUnavailable": {
+      "subtitle": "Service Unavailable",
+      "description": "The server is currently unable to handle the request because of temporary overload or maintenance."
+    }
+  },
+  "pages": {
+    "billing": {
+      "title": "Plans & Billing",
+      "upgrade": "Upgrade to Pro"
+    },
+    "users": {
+      "title": "Users",
+      "description": "Manage team members, invitations, statuses, and roles.",
+      "mockLoading": "Mock Loading",
+      "profile": "Profile",
+      "account": "Account",
+      "notifications": "Notifications",
+      "createUser": "Create User",
+      "inviteUser": "Invite User",
+      "inviteDescription": "Invite a new user to your team by email and assign an access role.",
+      "submitToast": "You submitted the following values:",
+      "deleteToast": "The following user has been deleted:",
+      "deleteTitle": "Delete this user: {username}?",
+      "deleteDescription": "You are about to delete user ID {id}. This action cannot be undone.",
+      "filterPlaceholder": "Filter users by username...",
+      "columns": {
+        "username": "Username",
+        "email": "Email",
+        "phoneNumber": "Phone Number",
+        "status": "Status",
+        "role": "Role"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "invited": "Invited",
+        "suspended": "Suspended"
+      },
+      "roles": {
+        "superadmin": "Superadmin",
+        "admin": "Admin",
+        "manager": "Manager",
+        "cashier": "Cashier"
+      },
+      "form": {
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "username": "User Name",
+        "email": "Email Address",
+        "phoneNumber": "Phone Number",
+        "selectStatus": "Select a status",
+        "selectRole": "Select a role",
+        "descriptionOptional": "Description (Optional)"
+      }
+    },
+    "home": {
+      "badge": "User Portal",
+      "title": "One template covering both the user portal and admin console.",
+      "description": "This workspace includes the user homepage, practice center, study records, and profile, while preserving the admin dashboard.",
+      "startPractice": "Start Practice",
+      "enterAdmin": "Go to Admin",
+      "guideTitle": "User Portal Guide",
+      "guideDesc": "The first template release already includes the user homepage, login, practice center, study records, and profile.",
+      "userLoginPath": "User login entry: `/login`",
+      "adminLoginPath": "Admin login entry: `/auth/sign-in`",
+      "accessNote": "After unified authentication, role permissions determine whether admin access is allowed.",
+      "recentTitle": "Recent Updates",
+      "metrics": {
+        "today": "Completed Today",
+        "todayHint": "+6 compared with yesterday",
+        "accuracy": "Accuracy",
+        "accuracyHint": "Steady improvement over the last 7 days",
+        "streak": "Learning Streak",
+        "streakHint": "Keep your daily momentum"
+      },
+      "features": {
+        "practiceTitle": "Targeted Practice",
+        "practiceDesc": "Build focused training plans by topic, question type, and difficulty.",
+        "trackTitle": "Learning Tracking",
+        "trackDesc": "Keep personal records, stage results, and review suggestions in one place.",
+        "adminTitle": "Admin Collaboration",
+        "adminDesc": "Users with admin roles can jump directly into the console to manage content."
+      },
+      "highlights": {
+        "algTitle": "Algorithm drills updated",
+        "algContent": "Added 30 new tree and graph questions.",
+        "algTime": "10 minutes ago",
+        "reportTitle": "Weekly study report generated",
+        "reportContent": "Check your latest practice summary in the profile center.",
+        "reportTime": "Today 09:20",
+        "auditTitle": "Admin review tasks pending",
+        "auditContent": "Administrators can review pending questions in the backend.",
+        "auditTime": "Today 08:00"
+      }
+    },
+    "login": {
+      "title": "User Login",
+      "description": "After login you will enter the user portal by default. Accounts with admin roles can switch to the admin console.",
+      "failedTitle": "Login Failed",
+      "failedRetry": "Login failed, please try again later.",
+      "emailPlaceholder": "student@example.com",
+      "passwordPlaceholder": "12345678",
+      "enterUser": "Enter User Portal",
+      "demoTip": "The sample password must satisfy the backend minimum length of 8, for example: `student@example.com / 12345678`"
+    },
+    "dicts": {
+      "title": "Dictionary Management",
+      "description": "Maintain core information for dictionary types and dictionary items.",
+      "buildingTitle": "Feature in Progress",
+      "buildingDesc": "This page currently acts as a placeholder under the system management menu and is ready for further business expansion.",
+      "todo": "You can extend this page with paginated queries, form editing, status toggling, and cache refresh capabilities later.",
+      "featureType": "Dictionary type maintenance",
+      "featureItem": "Dictionary item maintenance",
+      "featureStatus": "Status control"
+    },
+    "agreements": {
+      "title": "Agreement Management",
+      "description": "Maintain rich-text content such as user agreements and privacy policies.",
+      "filterTitle": "Filters",
+      "type": "Agreement Type",
+      "allTypes": "All Types",
+      "titleLabel": "Agreement Title",
+      "titlePlaceholder": "Enter agreement title",
+      "status": "Status",
+      "allStatus": "All Statuses",
+      "listTitle": "Agreement List",
+      "total": "Total {total} agreement records.",
+      "loading": "Loading agreements...",
+      "sortOrder": "Sort Order",
+      "updatedAt": "Updated At",
+      "empty": "No agreement data",
+      "page": "Page {page} / {totalPages}",
+      "deleteTitle": "Confirm agreement deletion",
+      "deleteDesc": "The agreement content cannot be restored after deletion. Please confirm whether to continue.",
+      "confirmDelete": "Confirm Delete",
+      "deleteSuccess": "Agreement deleted successfully",
+      "deleteFailed": "Delete failed"
+    },
+    "help": {
+      "title": "Help Center",
+      "description": "Find help resources and community channels.",
+      "alertTitle": "Heads up!",
+      "alertDesc": "You can find answers to common questions in our help center.",
+      "accounts": {
+        "github": "The source code of Shadcn UI is publicly available on GitHub.",
+        "discord": "Join our Discord server to ask questions, share projects, and get involved in the community.",
+        "bilibili": "Find us on Bilibili."
+      }
+    }
+  },
   "premium": {
     "premium": "premium",
     "UpgradeNow": "Upgrade Now"
@@ -96,20 +319,5 @@
       "title": "Setup",
       "subtitle": "Just 3 minutes to start using"
     }
-  },
-  "login": "Login",
-  "email": "Email",
-  "password": "Password",
-  "download": "Download",
-  "logout": "Log out",
-  "forgotPassword": "Forgot password?",
-  "register": "Register",
-  "language": "English",
-  "forgotPasswordPage": {
-    "continue": "continue"
-  },
-  "homePage": {
-    "searchKeyWords": "Search Menu"
-  },
-  "changeLanguage": "Change Language"
+  }
 }

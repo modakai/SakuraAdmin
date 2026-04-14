@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { LoaderIcon } from '@lucide/vue'
+import { useI18n } from 'vue-i18n'
 
 import { BasicPage } from '@/components/global-layout'
 
-import { columns } from './components/columns'
+import { getColumns } from './components/columns'
 import DataTable from './components/data-table.vue'
 import UserCreate from './components/user-create.vue'
 import UserInvite from './components/user-invite.vue'
 import { users } from './data/users'
 
 const loading = ref(false)
+const { t } = useI18n()
+const columns = computed(() => getColumns())
 
 function mockLoading() {
   loading.value = true
@@ -21,15 +24,15 @@ function mockLoading() {
 
 <template>
   <BasicPage
-    title="Users"
-    description="Users description"
+    :title="t('pages.users.title')"
+    :description="t('pages.users.description')"
     sticky
   >
     <template #actions>
       <UserInvite />
       <UserCreate />
       <UiButton variant="outline" @click="mockLoading">
-        <LoaderIcon />Mock Loading
+        <LoaderIcon />{{ t('pages.users.mockLoading') }}
       </UiButton>
     </template>
     <div class="overflow-x-auto">

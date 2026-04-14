@@ -14,13 +14,13 @@ public class SystemConfigAddRequest implements Serializable {
     /**
      * 配置键。
      */
-    @NotBlank(message = "配置键不能为空")
+    @NotBlank(message = "{validation.system.key.not_blank}")
     private String key;
 
     /**
      * 配置值，使用 JSON 字符串保存。
      */
-    @NotBlank(message = "配置值不能为空")
+    @NotBlank(message = "{validation.system.value.not_blank}")
     private String value;
 
     /**

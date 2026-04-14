@@ -81,7 +81,7 @@ public class AgreementServiceImpl extends ServiceImpl<AgreementMapper, Agreement
     @Override
     public QueryWrapper getQueryWrapper(AgreementQueryRequest queryRequest) {
         if (queryRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数不能为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "agreement.param.null");
         }
         QueryWrapper queryWrapper = QueryWrapper.create();
         queryWrapper.eq("id", queryRequest.getId(), queryRequest.getId() != null);
@@ -120,9 +120,9 @@ public class AgreementServiceImpl extends ServiceImpl<AgreementMapper, Agreement
     @Override
     public Agreement getEnabledAgreementByType(String agreementType) {
         Agreement agreement = getByAgreementType(agreementType);
-        ThrowUtils.throwIf(agreement == null, ErrorCode.NOT_FOUND_ERROR, "协议不存在");
+        ThrowUtils.throwIf(agreement == null, ErrorCode.NOT_FOUND_ERROR, "agreement.not_found");
         ThrowUtils.throwIf(agreement.getStatus() == null || agreement.getStatus() != 1,
-                ErrorCode.NOT_FOUND_ERROR, "协议不存在");
+                ErrorCode.NOT_FOUND_ERROR, "agreement.not_found");
         return agreement;
     }
 
@@ -168,26 +168,26 @@ public class AgreementServiceImpl extends ServiceImpl<AgreementMapper, Agreement
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         if (!add && (agreement.getId() == null || agreement.getId() <= 0)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "协议 id 非法");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "agreement.id.invalid");
         }
         if (StringUtils.isBlank(agreement.getAgreementType())) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "协议类型不能为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "agreement.type.blank");
         }
         if (StringUtils.isBlank(agreement.getTitle())) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "协议标题不能为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "agreement.title.blank");
         }
         if (StringUtils.isBlank(agreement.getContent())) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "协议内容不能为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "agreement.content.blank");
         }
         if (agreement.getStatus() == null || (agreement.getStatus() != 0 && agreement.getStatus() != 1)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "协议状态非法");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "agreement.status.invalid");
         }
         if (agreement.getSortOrder() == null) {
             agreement.setSortOrder(0);
         }
         validateAgreementType(agreement.getAgreementType());
         boolean exists = existsByAgreementType(agreement.getAgreementType(), add ? null : agreement.getId());
-        ThrowUtils.throwIf(exists, ErrorCode.PARAMS_ERROR, "同一协议类型已存在，请改为编辑");
+        ThrowUtils.throwIf(exists, ErrorCode.PARAMS_ERROR, "agreement.exists");
     }
 
     /**
@@ -197,10 +197,10 @@ public class AgreementServiceImpl extends ServiceImpl<AgreementMapper, Agreement
      */
     private void validateAgreementType(String agreementType) {
         DictType dictType = dictTypeService.getByDictCode(AGREEMENT_TYPE_DICT_CODE);
-        ThrowUtils.throwIf(dictType == null, ErrorCode.NOT_FOUND_ERROR, "协议类型字典不存在");
+        ThrowUtils.throwIf(dictType == null, ErrorCode.NOT_FOUND_ERROR, "agreement.type.dict_not_found");
         List<DictItem> dictItemList = dictItemService.listEnabledByTypeId(dictType.getId());
         boolean exists = dictItemList.stream()
                 .anyMatch(item -> StringUtils.equals(item.getDictValue(), agreementType));
-        ThrowUtils.throwIf(!exists, ErrorCode.PARAMS_ERROR, "协议类型不存在");
+        ThrowUtils.throwIf(!exists, ErrorCode.PARAMS_ERROR, "agreement.type.not_found");
     }
 }

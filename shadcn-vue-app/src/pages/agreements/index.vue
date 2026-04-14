@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { LoaderCircleIcon, RefreshCwIcon, Trash2Icon } from '@lucide/vue'
+import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 
 import type { AgreementQuery } from '@/services/types/agreement.type'
@@ -27,6 +28,7 @@ const query = reactive<AgreementQuery>({
 const { data, isFetching, refetch } = useGetAgreementPageQuery(query)
 const { data: typeOptionsData } = useGetAgreementTypeOptionsQuery()
 const { mutateAsync: deleteAgreement, isPending: isDeleting } = useDeleteAgreementMutation()
+const { t } = useI18n()
 
 /**
  * 统一读取协议列表。
@@ -59,7 +61,7 @@ const agreementTypeFilter = computed({
  * 状态文案映射。
  */
 function getStatusText(status: number) {
-  return status === 1 ? '启用' : '禁用'
+  return status === 1 ? t('common.status.enabled') : t('common.status.disabled')
 }
 
 /**
@@ -74,7 +76,7 @@ function getStatusVariant(status: number) {
  */
 function formatTime(value?: string) {
   if (!value) {
-    return '-'
+    return t('common.emptyDash')
   }
   return new Date(value).toLocaleString()
 }
@@ -116,42 +118,42 @@ async function handleDelete() {
   }
   try {
     await deleteAgreement(deletingId.value)
-    toast.success('协议删除成功')
+    toast.success(t('pages.agreements.deleteSuccess'))
     deletingId.value = null
     refetch()
   }
   catch (error: any) {
-    const message = error?.data?.message ?? error?.message ?? '删除失败'
+    const message = error?.data?.message ?? error?.message ?? t('pages.agreements.deleteFailed')
     toast.error(message)
   }
 }
 </script>
 
 <template>
-  <BasicPage title="协议管理" description="维护用户协议、隐私协议等富文本内容。" sticky>
+  <BasicPage :title="t('pages.agreements.title')" :description="t('pages.agreements.description')" sticky>
     <template #actions>
       <AgreementFormDialog @success="refetch()" />
       <UiButton variant="outline" :disabled="isFetching" @click="refetch()">
         <RefreshCwIcon class="mr-1 size-4" :class="{ 'animate-spin': isFetching }" />
-        刷新
+        {{ t('actions.refresh') }}
       </UiButton>
     </template>
 
     <div class="space-y-4">
       <UiCard>
         <UiCardHeader>
-          <UiCardTitle>筛选条件</UiCardTitle>
+          <UiCardTitle>{{ t('pages.agreements.filterTitle') }}</UiCardTitle>
         </UiCardHeader>
         <UiCardContent class="grid gap-4 md:grid-cols-4">
           <div class="space-y-2">
-            <UiLabel>协议类型</UiLabel>
+            <UiLabel>{{ t('pages.agreements.type') }}</UiLabel>
             <UiSelect v-model="agreementTypeFilter">
               <UiSelectTrigger class="w-full">
-                <UiSelectValue placeholder="全部类型" />
+                <UiSelectValue :placeholder="t('pages.agreements.allTypes')" />
               </UiSelectTrigger>
               <UiSelectContent>
                 <UiSelectItem value="all">
-                  全部类型
+                  {{ t('pages.agreements.allTypes') }}
                 </UiSelectItem>
                 <UiSelectItem v-for="item in typeOptions" :key="item.value" :value="item.value">
                   {{ item.label }}
@@ -161,25 +163,25 @@ async function handleDelete() {
           </div>
 
           <div class="space-y-2">
-            <UiLabel>协议标题</UiLabel>
-            <UiInput v-model="query.title" placeholder="请输入协议标题" />
+            <UiLabel>{{ t('pages.agreements.titleLabel') }}</UiLabel>
+            <UiInput v-model="query.title" :placeholder="t('pages.agreements.titlePlaceholder')" />
           </div>
 
           <div class="space-y-2">
-            <UiLabel>状态</UiLabel>
+            <UiLabel>{{ t('pages.agreements.status') }}</UiLabel>
             <UiSelect v-model="statusFilter">
               <UiSelectTrigger class="w-full">
-                <UiSelectValue placeholder="全部状态" />
+                <UiSelectValue :placeholder="t('pages.agreements.allStatus')" />
               </UiSelectTrigger>
               <UiSelectContent>
                 <UiSelectItem value="all">
-                  全部状态
+                  {{ t('pages.agreements.allStatus') }}
                 </UiSelectItem>
                 <UiSelectItem value="1">
-                  启用
+                  {{ t('common.status.enabled') }}
                 </UiSelectItem>
                 <UiSelectItem value="0">
-                  禁用
+                  {{ t('common.status.disabled') }}
                 </UiSelectItem>
               </UiSelectContent>
             </UiSelect>
@@ -187,10 +189,10 @@ async function handleDelete() {
 
           <div class="flex items-end gap-2">
             <UiButton class="flex-1" @click="handleSearch">
-              查询
+              {{ t('actions.search') }}
             </UiButton>
             <UiButton variant="outline" class="flex-1" @click="handleReset">
-              重置
+              {{ t('actions.reset') }}
             </UiButton>
           </div>
         </UiCardContent>
@@ -199,16 +201,16 @@ async function handleDelete() {
       <UiCard>
         <UiCardHeader class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
-            <UiCardTitle>协议列表</UiCardTitle>
+            <UiCardTitle>{{ t('pages.agreements.listTitle') }}</UiCardTitle>
             <UiCardDescription>
-              当前共 {{ total }} 条协议记录。
+              {{ t('pages.agreements.total', { total }) }}
             </UiCardDescription>
           </div>
         </UiCardHeader>
         <UiCardContent>
           <div v-if="isFetching" class="flex items-center justify-center py-12 text-sm text-muted-foreground">
             <LoaderCircleIcon class="mr-2 size-4 animate-spin" />
-            正在加载协议数据...
+            {{ t('pages.agreements.loading') }}
           </div>
 
           <div v-else class="overflow-x-auto rounded-lg border">
@@ -216,22 +218,22 @@ async function handleDelete() {
               <thead class="bg-muted/50">
                 <tr class="border-b text-left">
                   <th class="px-4 py-3 font-medium">
-                    协议标题
+                    {{ t('pages.agreements.titleLabel') }}
                   </th>
                   <th class="px-4 py-3 font-medium">
-                    协议类型
+                    {{ t('pages.agreements.type') }}
                   </th>
                   <th class="px-4 py-3 font-medium">
-                    状态
+                    {{ t('pages.agreements.status') }}
                   </th>
                   <th class="px-4 py-3 font-medium">
-                    排序值
+                    {{ t('pages.agreements.sortOrder') }}
                   </th>
                   <th class="px-4 py-3 font-medium">
-                    更新时间
+                    {{ t('pages.agreements.updatedAt') }}
                   </th>
                   <th class="px-4 py-3 font-medium text-right">
-                    操作
+                    {{ t('actions.action') }}
                   </th>
                 </tr>
               </thead>
@@ -264,14 +266,14 @@ async function handleDelete() {
                       <AgreementFormDialog :agreement-id="item.id" @success="refetch()" />
                       <UiButton variant="outline" size="sm" :disabled="isDeleting" @click="deletingId = item.id">
                         <Trash2Icon class="mr-1 size-4" />
-                        删除
+                        {{ t('actions.delete') }}
                       </UiButton>
                     </div>
                   </td>
                 </tr>
                 <tr v-if="agreementList.length === 0">
                   <td colspan="6" class="px-4 py-10 text-center text-muted-foreground">
-                    暂无协议数据
+                    {{ t('pages.agreements.empty') }}
                   </td>
                 </tr>
               </tbody>
@@ -279,13 +281,13 @@ async function handleDelete() {
           </div>
 
           <div class="mt-4 flex items-center justify-between text-sm text-muted-foreground">
-            <span>第 {{ query.page }} / {{ totalPages }} 页</span>
+            <span>{{ t('pages.agreements.page', { page: query.page, totalPages }) }}</span>
             <div class="flex gap-2">
               <UiButton variant="outline" size="sm" :disabled="query.page <= 1" @click="changePage(query.page - 1)">
-                上一页
+                {{ t('common.previousPage') }}
               </UiButton>
               <UiButton variant="outline" size="sm" :disabled="query.page >= totalPages" @click="changePage(query.page + 1)">
-                下一页
+                {{ t('common.nextPage') }}
               </UiButton>
             </div>
           </div>
@@ -296,17 +298,17 @@ async function handleDelete() {
     <UiAlertDialog :open="deletingId !== null" @update:open="value => !value ? deletingId = null : undefined">
       <UiAlertDialogContent>
         <UiAlertDialogHeader>
-          <UiAlertDialogTitle>确认删除协议</UiAlertDialogTitle>
+          <UiAlertDialogTitle>{{ t('pages.agreements.deleteTitle') }}</UiAlertDialogTitle>
           <UiAlertDialogDescription>
-            删除后当前协议内容将不可恢复，请确认是否继续。
+            {{ t('pages.agreements.deleteDesc') }}
           </UiAlertDialogDescription>
         </UiAlertDialogHeader>
         <UiAlertDialogFooter>
           <UiAlertDialogCancel @click="deletingId = null">
-            取消
+            {{ t('actions.cancel') }}
           </UiAlertDialogCancel>
           <UiAlertDialogAction :disabled="isDeleting" @click="handleDelete">
-            确认删除
+            {{ t('pages.agreements.confirmDelete') }}
           </UiAlertDialogAction>
         </UiAlertDialogFooter>
       </UiAlertDialogContent>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { MailPlusIcon } from '@lucide/vue'
+import { useI18n } from 'vue-i18n'
 
 import { Modal, ModalClose, ModalContent, ModalDescription, ModalFooter, ModalHeader, ModalTitle, ModalTrigger, useModal } from '@/components/prop-ui/modal'
 import { Button } from '@/components/ui/button'
@@ -8,6 +9,7 @@ import UserInviteForm from './user-invite-form.vue'
 
 const { isDesktop } = useModal()
 const isOpen = ref(false)
+const { t } = useI18n()
 </script>
 
 <template>
@@ -15,7 +17,7 @@ const isOpen = ref(false)
     <ModalTrigger as-child>
       <Button variant="outline">
         <MailPlusIcon />
-        Invite User
+        {{ t('pages.users.inviteUser') }}
       </Button>
     </ModalTrigger>
 
@@ -24,11 +26,11 @@ const isOpen = ref(false)
         <ModalTitle as-child>
           <div class="flex items-center gap-2">
             <MailPlusIcon />
-            <span>Invite User</span>
+            <span>{{ t('pages.users.inviteUser') }}</span>
           </div>
         </ModalTitle>
         <ModalDescription>
-          Invite new user to join your team by sending them an email invitation. Assign a role to define their access level.
+          {{ t('pages.users.inviteDescription') }}
         </ModalDescription>
       </ModalHeader>
 
@@ -37,7 +39,7 @@ const isOpen = ref(false)
       <ModalFooter v-if="!isDesktop" class="pt-2">
         <ModalClose as-child>
           <Button variant="outline">
-            Cancel
+            {{ t('actions.cancel') }}
           </Button>
         </ModalClose>
       </ModalFooter>

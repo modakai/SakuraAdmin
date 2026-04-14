@@ -42,4 +42,16 @@ public class ThrowUtils {
     public static void throwIf(boolean condition, ErrorCode errorCode, String message) {
         throwIf(condition, new BusinessException(errorCode, message));
     }
+
+    /**
+     * 条件成立则按国际化 key 抛异常。
+     *
+     * @param condition 条件
+     * @param errorCode 错误码
+     * @param messageKey 消息 key
+     * @param args 国际化参数
+     */
+    public static void throwIf(boolean condition, ErrorCode errorCode, String messageKey, Object... args) {
+        throwIf(condition, new BusinessException(errorCode, messageKey, args));
+    }
 }

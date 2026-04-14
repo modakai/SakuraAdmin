@@ -18,12 +18,12 @@ public class OssException extends RuntimeException {
     }
 
     public OssException(ErrorCode errorCode) {
-        super(errorCode.getMessage());
+        super(com.sakura.boot_init.support.util.I18nUtils.getMessage(errorCode.getMessageKey(), errorCode.getDefaultMessage()));
         this.code = errorCode.getCode();
     }
 
     public OssException(ErrorCode errorCode, String message) {
-        super(message);
+        super(com.sakura.boot_init.support.util.I18nUtils.resolveMessage(message));
         this.code = errorCode.getCode();
     }
 

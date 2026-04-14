@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { BadgeCheckIcon, BellIcon, ChevronsUpDownIcon, CreditCardIcon, LogOutIcon, SparklesIcon, UserRoundCogIcon } from '@lucide/vue'
+import { useI18n } from 'vue-i18n'
 
 import { useSidebar } from '@/components/ui/sidebar'
 
@@ -11,6 +12,7 @@ const { user } = defineProps<
 
 const { logout } = useAuth()
 const { isMobile, open } = useSidebar()
+const { t } = useI18n()
 </script>
 
 <template>
@@ -60,7 +62,7 @@ const { isMobile, open } = useSidebar()
           <UiDropdownMenuGroup>
             <UiDropdownMenuItem @click="$router.push('/billing/')">
               <SparklesIcon />
-              Upgrade to Pro
+              {{ t('pages.billing.upgrade') }}
             </UiDropdownMenuItem>
           </UiDropdownMenuGroup>
 
@@ -68,7 +70,7 @@ const { isMobile, open } = useSidebar()
           <UiDropdownMenuGroup>
             <UiDropdownMenuItem @click="$router.push('/billing?type=billing')">
               <CreditCardIcon />
-              Billing
+              {{ t('pages.billing.title') }}
             </UiDropdownMenuItem>
           </UiDropdownMenuGroup>
 
@@ -76,15 +78,15 @@ const { isMobile, open } = useSidebar()
           <UiDropdownMenuGroup>
             <UiDropdownMenuItem @click="$router.push('/settings/')">
               <UserRoundCogIcon />
-              Profile
+              {{ t('pages.users.profile') }}
             </UiDropdownMenuItem>
             <UiDropdownMenuItem @click="$router.push('/settings/account')">
               <BadgeCheckIcon />
-              Account
+              {{ t('pages.users.account') }}
             </UiDropdownMenuItem>
             <UiDropdownMenuItem @click="$router.push('/settings/notifications')">
               <BellIcon />
-              Notifications
+              {{ t('pages.users.notifications') }}
             </UiDropdownMenuItem>
           </UiDropdownMenuGroup>
 

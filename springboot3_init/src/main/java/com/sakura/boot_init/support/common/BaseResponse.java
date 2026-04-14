@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
+import com.sakura.boot_init.support.util.I18nUtils;
+
 /**
  * 通用返回类
  *
@@ -45,6 +47,6 @@ public class BaseResponse<T> implements Serializable {
     }
 
     public BaseResponse(ErrorCode errorCode) {
-        this(errorCode.getCode(), null, errorCode.getMessage());
+        this(errorCode.getCode(), null, I18nUtils.getMessage(errorCode.getMessageKey(), errorCode.getDefaultMessage()));
     }
 }
