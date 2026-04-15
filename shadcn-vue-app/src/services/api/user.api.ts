@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 
-import type { IResponse } from '@/services/types/response.type'
+import type { IPageResponse, IResponse } from '@/services/types/response.type'
 import type {
   UserAddForm,
   UserItem,
@@ -10,16 +10,7 @@ import type {
 } from '@/services/types/user.type'
 
 import { useApiFetch } from '@/composables/use-fetch'
-
-/**
- * 通用分页响应。
- */
-interface PageResponse<T> {
-  records: T[]
-  totalRow: number
-  pageSize: number
-  pageNumber: number
-}
+import { normalizeUserQuery } from '@/services/api/admin-query'
 
 /**
  * 获取后台用户分页列表。
@@ -27,11 +18,17 @@ interface PageResponse<T> {
 export function useGetUserPageQuery(query: UserQuery) {
   const { apiFetch } = useApiFetch()
 
-  return useQuery<IResponse<PageResponse<UserItem>>, Error>({
-    queryKey: ['user-page', query.page, query.pageSize, query.userName, query.userRole],
-    queryFn: async () => await apiFetch<IResponse<PageResponse<UserItem>>>('/user/list/page', {
+  return useQuery<IResponse<IPageResponse<UserItem>>, Error>({
+    queryKey: ['user-page', query.page, query.pageSize, query.userName, query.userRole, query.status],
+    queryFn: async () => await apiFetch<IResponse<IPageResponse<UserItem>>>('/user/list/page', {
       method: 'post',
-      body: query,
+      body: normalizeUserQuery({
+        page: query.page ?? 1,
+        pageSize: query.pageSize ?? 10,
+        userName: query.userName,
+        userRole: query.userRole,
+        status: query.status ?? '',
+      }),
     }),
   })
 }
@@ -111,6 +108,25 @@ export function useDeleteUserMutation() {
 }
 
 /**
+ * 管理员重置用户密码。
+ */
+export function useResetUserPasswordMutation() {
+  const { apiFetch } = useApiFetch()
+  const queryClient = useQueryClient()
+
+  return useMutation<IResponse<boolean>, Error, number>({
+    mutationKey: ['user-reset-password'],
+    mutationFn: async id => await apiFetch<IResponse<boolean>>('/user/reset/password', {
+      method: 'post',
+      body: { id },
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-page'] })
+    },
+  })
+}
+
+/**
  * 获取公开用户详情。
  */
 export function useGetUserVOQuery(id: number | null | undefined) {
@@ -132,11 +148,17 @@ export function useGetUserVOQuery(id: number | null | undefined) {
 export function useGetUserVOPageQuery(query: UserQuery) {
   const { apiFetch } = useApiFetch()
 
-  return useQuery<IResponse<PageResponse<UserItem>>, Error>({
-    queryKey: ['user-vo-page', query.page, query.pageSize, query.userName],
-    queryFn: async () => await apiFetch<IResponse<PageResponse<UserItem>>>('/user/list/page/vo', {
+  return useQuery<IResponse<IPageResponse<UserItem>>, Error>({
+    queryKey: ['user-vo-page', query.page, query.pageSize, query.userName, query.status],
+    queryFn: async () => await apiFetch<IResponse<IPageResponse<UserItem>>>('/user/list/page/vo', {
       method: 'post',
-      body: query,
+      body: normalizeUserQuery({
+        page: query.page ?? 1,
+        pageSize: query.pageSize ?? 10,
+        userName: query.userName,
+        userRole: query.userRole,
+        status: query.status ?? '',
+      }),
     }),
   })
 }

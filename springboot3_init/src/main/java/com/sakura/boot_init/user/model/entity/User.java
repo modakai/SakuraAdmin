@@ -66,6 +66,11 @@ public class User implements Serializable {
     private String userRole;
 
     /**
+     * 状态：1 启用，0 禁用
+     */
+    private Integer status;
+
+    /**
      * 创建时间
      */
     private Date createTime;

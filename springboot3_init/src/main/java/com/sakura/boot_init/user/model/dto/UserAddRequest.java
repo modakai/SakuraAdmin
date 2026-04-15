@@ -1,6 +1,7 @@
 package com.sakura.boot_init.user.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -35,6 +36,17 @@ public class UserAddRequest implements Serializable {
      * 用户角色：user, admin
      */
     private String userRole;
+
+    /**
+     * 用户简介
+     */
+    private String userProfile;
+
+    /**
+     * 状态：1 启用，0 禁用
+     */
+    @NotNull(message = "{validation.user.status.not_null}")
+    private Integer status;
 
     private static final long serialVersionUID = 1L;
 }

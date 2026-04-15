@@ -39,4 +39,12 @@ public interface UserService extends IService<User> {
      * @return 查询条件
      */
     QueryWrapper getQueryWrapper(UserQueryRequest userQueryRequest);
+
+    /**
+     * 将指定用户密码重置为系统默认密码。
+     *
+     * @param id 用户 id
+     * @return 是否重置成功
+     */
+    boolean resetPassword(Long id);
 }

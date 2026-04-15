@@ -10,6 +10,7 @@ export interface UserItem {
   userAvatar?: string
   userProfile?: string
   userRole?: string
+  status?: number
   createTime?: string
   updateTime?: string
 }
@@ -24,6 +25,7 @@ export interface UserQuery extends IPaginationRequestQuery {
   userName?: string
   userProfile?: string
   userRole?: string
+  status?: number | ''
 }
 
 /**
@@ -35,13 +37,19 @@ export interface UserAddForm {
   userAvatar?: string
   userProfile?: string
   userRole?: string
+  status: number
 }
 
 /**
  * 更新用户请求。
  */
-export interface UserUpdateForm extends UserAddForm {
+export interface UserUpdateForm {
   id: number
+  userName?: string
+  userAvatar?: string
+  userProfile?: string
+  userRole?: string
+  status: number
 }
 
 /**
@@ -51,4 +59,13 @@ export interface UserUpdateMyForm {
   userName?: string
   userAvatar?: string
   userProfile?: string
+}
+
+/**
+ * 用户状态选项。
+ */
+export interface UserStatusOption {
+  label: string
+  value: number
+  variant: 'default' | 'secondary' | 'destructive' | 'outline'
 }

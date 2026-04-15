@@ -6,6 +6,16 @@ export interface IResponse<T, E = Record<string, any>> {
   success: boolean
 }
 
+/**
+ * 通用分页响应结构。
+ */
+export interface IPageResponse<T> {
+  records: T[]
+  totalRow: number
+  pageSize: number
+  pageNumber: number
+}
+
 export interface IPaginationRequestQuery {
   page?: number
   pageSize?: number

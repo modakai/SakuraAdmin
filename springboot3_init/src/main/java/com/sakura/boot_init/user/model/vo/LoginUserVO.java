@@ -44,6 +44,11 @@ public class LoginUserVO implements Serializable {
     private String userRole;
 
     /**
+     * 状态：1 启用，0 禁用
+     */
+    private Integer status;
+
+    /**
      * 登录 token，后续请求需要携带该值。
      */
     private String token;

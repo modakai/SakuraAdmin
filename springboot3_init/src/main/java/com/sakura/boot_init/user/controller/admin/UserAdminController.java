@@ -54,7 +54,7 @@ public class UserAdminController {
         BeanUtils.copyProperties(userAddRequest, user);
 
         // 后台创建用户时，初始化默认密码。
-        String defaultPassword = "12345678";
+        String defaultPassword = UserConstant.DEFAULT_PASSWORD;
         String encryptPassword = DigestUtils.md5DigestAsHex((UserConstant.PASSWORD_SALT + defaultPassword).getBytes());
         user.setUserPassword(encryptPassword);
 
@@ -127,5 +127,21 @@ public class UserAdminController {
         Page<User> userPage = userService.page(new Page<>(current, size),
                 userService.getQueryWrapper(userQueryRequest));
         return ResultUtils.success(userPage);
+    }
+
+    /**
+     * 管理员重置用户密码。
+     *
+     * @param deleteRequest 重置请求，仅使用用户 id
+     * @param request HTTP 请求
+     * @return 是否重置成功
+     */
+    @PostMapping("/reset/password")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> resetUserPassword(@Valid @RequestBody DeleteRequest deleteRequest,
+            HttpServletRequest request) {
+        boolean result = userService.resetPassword(deleteRequest.getId());
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
     }
 }

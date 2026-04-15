@@ -166,7 +166,7 @@ public class TokenManager {
      * @return 解析后的 token
      */
     private String resolveCompatibilityHeaderToken(HttpServletRequest request) {
-        if (!StrUtil.isBlank(tokenProperties.getCompatibilityHeaderName())) {
+        if (!tokenProperties.isCompatibilityHeaderEnabled() || StrUtil.isBlank(tokenProperties.getCompatibilityHeaderName())) {
             return null;
         }
         return StringUtils.trimToNull(request.getHeader(tokenProperties.getCompatibilityHeaderName()));

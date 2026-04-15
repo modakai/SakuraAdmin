@@ -25,6 +25,11 @@ public class UserVO implements Serializable {
     private String userName;
 
     /**
+     * 用户账号
+     */
+    private String userAccount;
+
+    /**
      * 用户头像
      */
     private String userAvatar;
@@ -38,6 +43,11 @@ public class UserVO implements Serializable {
      * 用户角色，user/admin/ban
      */
     private String userRole;
+
+    /**
+     * 状态：1 启用，0 禁用
+     */
+    private Integer status;
 
     /**
      * 创建时间

@@ -1,0 +1,275 @@
+<script setup lang="ts">
+import { LoaderCircleIcon, PlusIcon, SquarePenIcon } from '@lucide/vue'
+import { useI18n } from 'vue-i18n'
+import { toast } from 'vue-sonner'
+
+import type { DictEntityId, DictItemForm } from '@/services/types/dict.type'
+
+import {
+  useCreateDictItemMutation,
+  useGetDictItemDetailQuery,
+  useUpdateDictItemMutation,
+} from '@/services/api/dict.api'
+
+const props = defineProps<{
+  dictTypeId: DictEntityId
+  dictItemId?: DictEntityId
+  disabled?: boolean
+}>()
+
+const emit = defineEmits<{
+  success: []
+}>()
+
+const { t } = useI18n()
+const open = ref(false)
+const isEdit = computed(() => !!props.dictItemId)
+const form = reactive<DictItemForm>({
+  id: undefined,
+  dictTypeId: props.dictTypeId,
+  dictLabel: '',
+  dictValue: '',
+  sortOrder: 0,
+  status: 1,
+  tagType: '',
+  remark: '',
+  extJson: '',
+})
+
+const { data: detailData, isFetching: isFetchingDetail, refetch: refetchDetail } = useGetDictItemDetailQuery(props.dictItemId)
+const { mutateAsync: createDictItem, isPending: isCreating } = useCreateDictItemMutation()
+const { mutateAsync: updateDictItem, isPending: isUpdating } = useUpdateDictItemMutation()
+
+const statusValue = computed({
+  get: () => String(form.status),
+  set: value => form.status = Number(value),
+})
+const isSubmitting = computed(() => isCreating.value || isUpdating.value)
+const previewTagVariant = computed<'default' | 'secondary' | 'destructive' | 'outline'>(() => {
+  const value = form.tagType?.trim()
+  if (value === 'secondary' || value === 'destructive' || value === 'outline') {
+    return value
+  }
+  return 'default'
+})
+const tagTypeValue = computed({
+  get: () => form.tagType?.trim() || 'none',
+  set: value => form.tagType = value === 'none' ? '' : value,
+})
+const tagTypeOptions = computed(() => [
+  { label: t('pages.dicts.itemForm.tagTypeNone'), value: 'none' },
+  { label: 'default', value: 'default' },
+  { label: 'secondary', value: 'secondary' },
+  { label: 'destructive', value: 'destructive' },
+  { label: 'outline', value: 'outline' },
+])
+
+watch(() => props.dictTypeId, (value) => {
+  form.dictTypeId = value
+})
+
+watch(open, async (value) => {
+  if (!value) {
+    return
+  }
+  if (!isEdit.value) {
+    resetForm()
+    return
+  }
+  const detailResult = await refetchDetail()
+  if (detailResult.data?.data) {
+    // 显式回填详情，避免缓存命中时仅靠 watch 导致表单显示默认值。
+    form.id = detailResult.data.data.id
+    form.dictTypeId = detailResult.data.data.dictTypeId
+    form.dictLabel = detailResult.data.data.dictLabel
+    form.dictValue = detailResult.data.data.dictValue
+    form.sortOrder = detailResult.data.data.sortOrder ?? 0
+    form.status = detailResult.data.data.status
+    form.tagType = detailResult.data.data.tagType ?? ''
+    form.remark = detailResult.data.data.remark ?? ''
+    form.extJson = detailResult.data.data.extJson ?? ''
+  }
+})
+
+watch(detailData, (value) => {
+  if (!open.value || !value?.data) {
+    return
+  }
+  form.id = value.data.id
+  form.dictTypeId = value.data.dictTypeId
+  form.dictLabel = value.data.dictLabel
+  form.dictValue = value.data.dictValue
+  form.sortOrder = value.data.sortOrder ?? 0
+  form.status = value.data.status
+  form.tagType = value.data.tagType ?? ''
+  form.remark = value.data.remark ?? ''
+  form.extJson = value.data.extJson ?? ''
+}, { immediate: true })
+
+/**
+ * 切换类型后要重置默认表单并继续绑定当前选中的类型 id。
+ */
+function resetForm() {
+  form.id = undefined
+  form.dictTypeId = props.dictTypeId
+  form.dictLabel = ''
+  form.dictValue = ''
+  form.sortOrder = 0
+  form.status = 1
+  form.tagType = ''
+  form.remark = ''
+  form.extJson = ''
+}
+
+/**
+ * 提交字典明细。
+ */
+async function handleSubmit() {
+  if (!form.dictTypeId) {
+    toast.error(t('pages.dicts.itemForm.typeRequired'))
+    return
+  }
+  if (!form.dictLabel.trim()) {
+    toast.error(t('pages.dicts.itemForm.labelRequired'))
+    return
+  }
+  if (!form.dictValue.trim()) {
+    toast.error(t('pages.dicts.itemForm.valueRequired'))
+    return
+  }
+
+  try {
+    const payload: DictItemForm = {
+      id: form.id,
+      dictTypeId: form.dictTypeId,
+      dictLabel: form.dictLabel.trim(),
+      dictValue: form.dictValue.trim(),
+      sortOrder: Number(form.sortOrder ?? 0),
+      status: form.status,
+      tagType: form.tagType?.trim() || undefined,
+      remark: form.remark?.trim() || undefined,
+      extJson: form.extJson?.trim() || undefined,
+    }
+
+    if (isEdit.value && payload.id) {
+      await updateDictItem(payload)
+      toast.success(t('pages.dicts.itemUpdateSuccess'))
+    }
+    else {
+      await createDictItem(payload)
+      toast.success(t('pages.dicts.itemCreateSuccess'))
+    }
+    open.value = false
+    emit('success')
+    resetForm()
+  }
+  catch (error: any) {
+    const message = error?.data?.message ?? error?.message ?? t('pages.dicts.itemSaveFailed')
+    toast.error(message)
+  }
+}
+</script>
+
+<template>
+  <UiDialog v-model:open="open">
+    <UiDialogTrigger as-child>
+      <UiButton :variant="isEdit ? 'outline' : 'default'" size="sm" :disabled="disabled">
+        <component :is="isEdit ? SquarePenIcon : PlusIcon" class="mr-1 size-4" />
+        {{ isEdit ? t('actions.edit') : t('pages.dicts.createItem') }}
+      </UiButton>
+    </UiDialogTrigger>
+
+    <UiDialogContent class="max-w-2xl">
+      <UiDialogHeader>
+        <UiDialogTitle>
+          {{ isEdit ? t('pages.dicts.editItemTitle') : t('pages.dicts.createItemTitle') }}
+        </UiDialogTitle>
+        <UiDialogDescription>
+          {{ t('pages.dicts.itemForm.description') }}
+        </UiDialogDescription>
+      </UiDialogHeader>
+
+      <div v-if="isEdit && isFetchingDetail" class="flex items-center justify-center py-10 text-sm text-muted-foreground">
+        <LoaderCircleIcon class="mr-2 size-4 animate-spin" />
+        {{ t('pages.dicts.loadingItemDetail') }}
+      </div>
+
+      <div v-else class="grid gap-4 py-2 md:grid-cols-2">
+        <div class="space-y-2">
+          <UiLabel>{{ t('pages.dicts.columns.dictLabel') }}</UiLabel>
+          <UiInput v-model="form.dictLabel" :placeholder="t('pages.dicts.itemForm.labelPlaceholder')" />
+        </div>
+
+        <div class="space-y-2">
+          <UiLabel>{{ t('pages.dicts.columns.dictValue') }}</UiLabel>
+          <UiInput v-model="form.dictValue" :placeholder="t('pages.dicts.itemForm.valuePlaceholder')" />
+        </div>
+
+        <div class="space-y-2">
+          <UiLabel>{{ t('pages.dicts.columns.sortOrder') }}</UiLabel>
+          <UiInput v-model.number="form.sortOrder" type="number" min="0" placeholder="0" />
+        </div>
+
+        <div class="space-y-2">
+          <UiLabel>{{ t('pages.dicts.columns.status') }}</UiLabel>
+          <UiSelect v-model="statusValue">
+            <UiSelectTrigger class="w-full">
+              <UiSelectValue :placeholder="t('pages.dicts.itemForm.statusPlaceholder')" />
+            </UiSelectTrigger>
+            <UiSelectContent>
+              <UiSelectItem value="1">
+                {{ t('common.status.enabled') }}
+              </UiSelectItem>
+              <UiSelectItem value="0">
+                {{ t('common.status.disabled') }}
+              </UiSelectItem>
+            </UiSelectContent>
+          </UiSelect>
+        </div>
+
+        <div class="space-y-2">
+          <UiLabel>{{ t('pages.dicts.columns.tagType') }}</UiLabel>
+          <UiSelect v-model="tagTypeValue">
+            <UiSelectTrigger class="w-full">
+              <UiSelectValue :placeholder="t('pages.dicts.itemForm.tagTypePlaceholder')" />
+            </UiSelectTrigger>
+            <UiSelectContent>
+              <UiSelectItem v-for="item in tagTypeOptions" :key="item.value" :value="item.value">
+                {{ item.label }}
+              </UiSelectItem>
+            </UiSelectContent>
+          </UiSelect>
+        </div>
+
+        <div class="space-y-2">
+          <UiLabel>{{ t('pages.dicts.columns.remark') }}</UiLabel>
+          <UiInput v-model="form.remark" :placeholder="t('pages.dicts.itemForm.remarkPlaceholder')" />
+        </div>
+
+        <div class="space-y-2 md:col-span-2">
+          <UiLabel>{{ t('pages.dicts.itemForm.tagPreview') }}</UiLabel>
+          <div class="rounded-lg border border-dashed px-3 py-4">
+            <UiBadge :variant="previewTagVariant">
+              {{ form.dictLabel || t('pages.dicts.itemForm.tagPreviewText') }}
+            </UiBadge>
+          </div>
+        </div>
+
+        <div class="space-y-2 md:col-span-2">
+          <UiLabel>{{ t('pages.dicts.columns.extJson') }}</UiLabel>
+          <UiTextarea v-model="form.extJson" :placeholder="t('pages.dicts.itemForm.extJsonPlaceholder')" />
+        </div>
+      </div>
+
+      <UiDialogFooter>
+        <UiButton variant="outline" @click="open = false">
+          {{ t('actions.cancel') }}
+        </UiButton>
+        <UiButton :disabled="isSubmitting" @click="handleSubmit">
+          <LoaderCircleIcon v-if="isSubmitting" class="mr-2 size-4 animate-spin" />
+          {{ t('actions.saveChanges') }}
+        </UiButton>
+      </UiDialogFooter>
+    </UiDialogContent>
+  </UiDialog>
+</template>

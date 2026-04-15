@@ -20,6 +20,7 @@ create table if not exists user
     user_avatar   varchar(1024)                          null comment '用户头像',
     user_profile  varchar(512)                           null comment '用户简介',
     user_role     varchar(256) default 'user'            not null comment '用户角色：user/admin/ban',
+    status        tinyint      default 1                 not null comment '状态：1启用 0禁用',
     create_time   datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
     is_delete     tinyint      default 0                 not null comment '是否删除',

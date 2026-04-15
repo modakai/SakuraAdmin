@@ -41,5 +41,11 @@ public class UserUpdateRequest implements Serializable {
      */
     private String userRole;
 
+    /**
+     * 状态：1 启用，0 禁用
+     */
+    @NotNull(message = "{validation.user.status.not_null}")
+    private Integer status;
+
     private static final long serialVersionUID = 1L;
 }

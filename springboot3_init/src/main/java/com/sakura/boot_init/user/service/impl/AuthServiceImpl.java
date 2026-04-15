@@ -68,6 +68,7 @@ public class AuthServiceImpl implements AuthService {
             User user = new User();
             user.setUserAccount(userAccount);
             user.setUserPassword(encryptPassword(userPassword));
+            user.setStatus(UserConstant.STATUS_ENABLED);
             int saveResult = userMapper.insertSelective(user);
             if (saveResult <= 0) {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "auth.register.db_error");
@@ -96,6 +97,7 @@ public class AuthServiceImpl implements AuthService {
             log.info("user login failed, userAccount cannot match userPassword");
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.login.invalid");
         }
+        validateUserLoginStatus(user);
         return buildLoginUserVOWithToken(user);
     }
 
@@ -106,8 +108,8 @@ public class AuthServiceImpl implements AuthService {
         synchronized (unionId.intern()) {
             QueryWrapper queryWrapper = QueryWrapper.create().eq("union_id", unionId);
             User user = userMapper.selectOneByQuery(queryWrapper);
-            if (user != null && UserRoleEnum.BAN.getValue().equals(user.getUserRole())) {
-                throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "auth.user.banned");
+            if (user != null) {
+                validateUserLoginStatus(user);
             }
             if (user == null) {
                 user = new User();
@@ -115,6 +117,7 @@ public class AuthServiceImpl implements AuthService {
                 user.setMpOpenId(mpOpenId);
                 user.setUserAvatar(wxOAuth2UserInfo.getHeadImgUrl());
                 user.setUserName(wxOAuth2UserInfo.getNickname());
+                user.setStatus(UserConstant.STATUS_ENABLED);
                 int result = userMapper.insert(user);
                 if (result <= 0) {
                     throw new BusinessException(ErrorCode.SYSTEM_ERROR, "auth.login.fail");
@@ -134,6 +137,7 @@ public class AuthServiceImpl implements AuthService {
         if (user == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
+        validateUserLoginStatus(user);
         return user;
     }
 
@@ -143,7 +147,12 @@ public class AuthServiceImpl implements AuthService {
         if (currentUser == null || currentUser.getId() == null) {
             return null;
         }
-        return userMapper.selectOneById(currentUser.getId());
+        User user = userMapper.selectOneById(currentUser.getId());
+        if (user == null) {
+            return null;
+        }
+        validateUserLoginStatus(user);
+        return user;
     }
 
     @Override
@@ -199,5 +208,22 @@ public class AuthServiceImpl implements AuthService {
         LoginUserVO loginUserVO = getLoginUserVO(user);
         loginUserVO.setToken(token);
         return loginUserVO;
+    }
+
+    /**
+     * 校验用户是否允许登录或继续访问。
+     *
+     * @param user 用户实体
+     */
+    private void validateUserLoginStatus(User user) {
+        if (user == null) {
+            return;
+        }
+        if (UserRoleEnum.BAN.getValue().equals(user.getUserRole())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "auth.user.banned");
+        }
+        if (UserConstant.STATUS_DISABLED.equals(user.getStatus())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "auth.user.disabled");
+        }
     }
 }

@@ -5,7 +5,9 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.sakura.boot_init.support.common.ErrorCode;
 import com.sakura.boot_init.support.constant.CommonConstant;
+import com.sakura.boot_init.support.constant.UserConstant;
 import com.sakura.boot_init.support.exception.BusinessException;
+import com.sakura.boot_init.support.exception.ThrowUtils;
 import com.sakura.boot_init.support.util.SqlUtils;
 import com.sakura.boot_init.user.model.dto.UserQueryRequest;
 import com.sakura.boot_init.user.model.entity.User;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.util.DigestUtils;
 
 /**
  * 用户服务实现
@@ -58,6 +62,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String userName = userQueryRequest.getUserName();
         String userProfile = userQueryRequest.getUserProfile();
         String userRole = userQueryRequest.getUserRole();
+        Integer status = userQueryRequest.getStatus();
         String sortField = userQueryRequest.getSortField();
         String sortOrder = userQueryRequest.getSortOrder();
         QueryWrapper queryWrapper = QueryWrapper.create();
@@ -65,6 +70,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.eq("union_id", unionId, StringUtils.isNotBlank(unionId));
         queryWrapper.eq("mp_open_id", mpOpenId, StringUtils.isNotBlank(mpOpenId));
         queryWrapper.eq("user_role", userRole, StringUtils.isNotBlank(userRole));
+        queryWrapper.eq("status", status, status != null);
         queryWrapper.like("user_profile", userProfile, StringUtils.isNotBlank(userProfile));
         queryWrapper.like("user_name", userName, StringUtils.isNotBlank(userName));
         if (SqlUtils.validSortField(sortField)) {
@@ -72,5 +78,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             queryWrapper.orderBy(sortField, CommonConstant.SORT_ORDER_ASC.equals(sortOrder));
         }
         return queryWrapper;
+    }
+
+    @Override
+    public boolean resetPassword(Long id) {
+        if (id == null || id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户 id 非法");
+        }
+        User oldUser = this.getById(id);
+        ThrowUtils.throwIf(oldUser == null, ErrorCode.NOT_FOUND_ERROR);
+
+        User user = new User();
+        user.setId(id);
+        // 管理员重置密码时统一恢复到系统默认密码。
+        user.setUserPassword(DigestUtils.md5DigestAsHex(
+                (UserConstant.PASSWORD_SALT + UserConstant.DEFAULT_PASSWORD).getBytes()));
+        return this.updateById(user);
     }
 }
