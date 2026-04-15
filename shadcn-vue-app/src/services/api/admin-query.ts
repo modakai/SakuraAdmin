@@ -40,6 +40,13 @@ export function normalizeEntityId(id: string | number) {
 }
 
 /**
+ * 仅当存在有效主键且页面明确允许时，才启用详情查询。
+ */
+export function isDetailQueryEnabled(id?: string | number | null, enabled = true) {
+  return Boolean(id) && enabled
+}
+
+/**
  * 将空字符串筛选值转换为 undefined，避免后端按空值误筛。
  */
 export function normalizeUserQuery(query: UserQueryLike) {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BookMarkedIcon, LoaderCircleIcon, RefreshCwIcon, Trash2Icon } from '@lucide/vue'
+import { BookMarkedIcon, LoaderCircleIcon, RefreshCwIcon, SquarePenIcon, Trash2Icon } from '@lucide/vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 
@@ -65,6 +65,10 @@ const deletingType = ref<DictTypeItem | null>(null)
 const deletingItem = ref<DictItemItem | null>(null)
 const isDeleteTypeDialogOpen = ref(false)
 const isDeleteItemDialogOpen = ref(false)
+const editingTypeId = ref<DictEntityId | null>(null)
+const editingItemId = ref<DictEntityId | null>(null)
+const isEditTypeDialogOpen = ref(false)
+const isEditItemDialogOpen = ref(false)
 
 watch(typeList, (list) => {
   if (list.length === 0) {
@@ -82,6 +86,18 @@ watch(selectedTypeId, (value) => {
   itemQuery.dictTypeId = value ?? undefined
   if (value) {
     refetchItems()
+  }
+})
+
+watch(isEditTypeDialogOpen, (value) => {
+  if (!value) {
+    editingTypeId.value = null
+  }
+})
+
+watch(isEditItemDialogOpen, (value) => {
+  if (!value) {
+    editingItemId.value = null
   }
 })
 
@@ -140,6 +156,38 @@ function handleResetItem() {
   itemQuery.dictValue = ''
   itemQuery.status = ''
   refetchItems()
+}
+
+/**
+ * 打开字典类型编辑弹窗，只在用户点击时加载详情。
+ */
+function openEditTypeDialog(id: DictEntityId) {
+  editingTypeId.value = id
+  isEditTypeDialogOpen.value = true
+}
+
+/**
+ * 关闭字典类型编辑弹窗，并清理当前编辑上下文。
+ */
+function closeEditTypeDialog() {
+  isEditTypeDialogOpen.value = false
+  editingTypeId.value = null
+}
+
+/**
+ * 打开字典明细编辑弹窗，只在用户点击时加载详情。
+ */
+function openEditItemDialog(id: DictEntityId) {
+  editingItemId.value = id
+  isEditItemDialogOpen.value = true
+}
+
+/**
+ * 关闭字典明细编辑弹窗，并清理当前编辑上下文。
+ */
+function closeEditItemDialog() {
+  isEditItemDialogOpen.value = false
+  editingItemId.value = null
 }
 
 /**
@@ -306,7 +354,10 @@ async function handleDeleteItem() {
                   </div>
                 </div>
                 <div class="flex shrink-0 gap-2">
-                  <DictTypeFormDialog :dict-type-id="item.id" @success="refetchTypes()" />
+                  <UiButton variant="outline" size="sm" @click.stop="openEditTypeDialog(item.id)">
+                    <SquarePenIcon class="mr-1 size-4" />
+                    {{ t('actions.edit') }}
+                  </UiButton>
                   <UiButton variant="outline" size="sm" :disabled="isDeletingType" @click.stop="openDeleteTypeDialog(item)">
                     <Trash2Icon class="mr-1 size-4" />
                     {{ t('actions.delete') }}
@@ -363,7 +414,10 @@ async function handleDeleteItem() {
               </div>
             </div>
             <div class="flex flex-wrap gap-2">
-              <DictTypeFormDialog v-if="selectedTypeId" :dict-type-id="selectedTypeId" @success="refetchTypes()" />
+              <UiButton v-if="selectedTypeId" variant="outline" size="sm" @click="openEditTypeDialog(selectedTypeId)">
+                <SquarePenIcon class="mr-1 size-4" />
+                {{ t('actions.edit') }}
+              </UiButton>
               <DictItemFormDialog :dict-type-id="selectedTypeId ?? 0" :disabled="!selectedTypeId" @success="refetchItems()" />
             </div>
           </UiCardContent>
@@ -479,7 +533,10 @@ async function handleDeleteItem() {
                     </td>
                     <td class="px-4 py-3">
                       <div class="flex justify-end gap-2">
-                        <DictItemFormDialog :dict-type-id="selectedTypeId ?? 0" :dict-item-id="item.id" @success="refetchItems()" />
+                        <UiButton variant="outline" size="sm" @click="openEditItemDialog(item.id)">
+                          <SquarePenIcon class="mr-1 size-4" />
+                          {{ t('actions.edit') }}
+                        </UiButton>
                         <UiButton variant="outline" size="sm" :disabled="isDeletingItem" @click.stop="openDeleteItemDialog(item)">
                           <Trash2Icon class="mr-1 size-4" />
                           {{ t('actions.delete') }}
@@ -511,6 +568,22 @@ async function handleDeleteItem() {
         </UiCard>
       </div>
     </div>
+
+    <DictTypeFormDialog
+      v-if="editingTypeId"
+      v-model:open="isEditTypeDialogOpen"
+      :dict-type-id="editingTypeId"
+      :hide-trigger="true"
+      @success="() => { closeEditTypeDialog(); refetchTypes() }"
+    />
+    <DictItemFormDialog
+      v-if="editingItemId && selectedTypeId"
+      v-model:open="isEditItemDialogOpen"
+      :dict-type-id="selectedTypeId"
+      :dict-item-id="editingItemId"
+      :hide-trigger="true"
+      @success="() => { closeEditItemDialog(); refetchItems() }"
+    />
 
     <UiAlertDialog :open="isDeleteTypeDialogOpen" @update:open="value => isDeleteTypeDialogOpen = value">
       <UiAlertDialogContent>

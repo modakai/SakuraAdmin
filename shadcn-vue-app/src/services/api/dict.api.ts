@@ -14,6 +14,7 @@ import type { IPageResponse, IResponse } from '@/services/types/response.type'
 
 import { useApiFetch } from '@/composables/use-fetch'
 import {
+  isDetailQueryEnabled,
   normalizeDictItemQuery,
   normalizeDictTypeQuery,
   normalizeEntityId,
@@ -84,12 +85,12 @@ export function useGetDictTypePageQuery(query: DictTypeQuery) {
 /**
  * 获取字典类型详情。
  */
-export function useGetDictTypeDetailQuery(id: DictEntityId | null | undefined) {
+export function useGetDictTypeDetailQuery(id: DictEntityId | null | undefined, enabled = true) {
   const { apiFetch } = useApiFetch()
 
   return useQuery<IResponse<DictTypeItem>, Error>({
     queryKey: ['dict-type-detail', id],
-    enabled: computed(() => Boolean(id)),
+    enabled: computed(() => isDetailQueryEnabled(id, enabled)),
     queryFn: async () => await apiFetch<IResponse<DictTypeItem>>('/dict/type/get', {
       method: 'get',
       query: { id: normalizeEntityId(id!) },
@@ -175,12 +176,12 @@ export function useGetDictItemPageQuery(query: DictItemQuery) {
 /**
  * 获取字典明细详情。
  */
-export function useGetDictItemDetailQuery(id: DictEntityId | null | undefined) {
+export function useGetDictItemDetailQuery(id: DictEntityId | null | undefined, enabled = true) {
   const { apiFetch } = useApiFetch()
 
   return useQuery<IResponse<DictItemItem>, Error>({
     queryKey: ['dict-item-detail', id],
-    enabled: computed(() => Boolean(id)),
+    enabled: computed(() => isDetailQueryEnabled(id, enabled)),
     queryFn: async () => await apiFetch<IResponse<DictItemItem>>('/dict/item/get', {
       method: 'get',
       query: { id: normalizeEntityId(id!) },

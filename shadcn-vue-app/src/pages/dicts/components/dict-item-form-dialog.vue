@@ -15,6 +15,7 @@ const props = defineProps<{
   dictTypeId: DictEntityId
   dictItemId?: DictEntityId
   disabled?: boolean
+  hideTrigger?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -22,7 +23,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const open = ref(false)
+const open = defineModel<boolean>('open', { default: false })
 const isEdit = computed(() => !!props.dictItemId)
 const form = reactive<DictItemForm>({
   id: undefined,
@@ -36,7 +37,10 @@ const form = reactive<DictItemForm>({
   extJson: '',
 })
 
-const { data: detailData, isFetching: isFetchingDetail, refetch: refetchDetail } = useGetDictItemDetailQuery(props.dictItemId)
+const { data: detailData, isFetching: isFetchingDetail, refetch: refetchDetail } = useGetDictItemDetailQuery(
+  props.dictItemId,
+  false,
+)
 const { mutateAsync: createDictItem, isPending: isCreating } = useCreateDictItemMutation()
 const { mutateAsync: updateDictItem, isPending: isUpdating } = useUpdateDictItemMutation()
 
@@ -172,7 +176,7 @@ async function handleSubmit() {
 
 <template>
   <UiDialog v-model:open="open">
-    <UiDialogTrigger as-child>
+    <UiDialogTrigger v-if="!props.hideTrigger" as-child>
       <UiButton :variant="isEdit ? 'outline' : 'default'" size="sm" :disabled="disabled">
         <component :is="isEdit ? SquarePenIcon : PlusIcon" class="mr-1 size-4" />
         {{ isEdit ? t('actions.edit') : t('pages.dicts.createItem') }}

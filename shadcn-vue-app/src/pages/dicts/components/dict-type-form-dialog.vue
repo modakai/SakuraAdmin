@@ -13,6 +13,7 @@ import {
 
 const props = defineProps<{
   dictTypeId?: DictEntityId
+  hideTrigger?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -20,7 +21,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const open = ref(false)
+const open = defineModel<boolean>('open', { default: false })
 const isEdit = computed(() => !!props.dictTypeId)
 const form = reactive<DictTypeForm>({
   id: undefined,
@@ -30,7 +31,10 @@ const form = reactive<DictTypeForm>({
   remark: '',
 })
 
-const { data: detailData, isFetching: isFetchingDetail, refetch: refetchDetail } = useGetDictTypeDetailQuery(props.dictTypeId)
+const { data: detailData, isFetching: isFetchingDetail, refetch: refetchDetail } = useGetDictTypeDetailQuery(
+  props.dictTypeId,
+  false,
+)
 const { mutateAsync: createDictType, isPending: isCreating } = useCreateDictTypeMutation()
 const { mutateAsync: updateDictType, isPending: isUpdating } = useUpdateDictTypeMutation()
 
@@ -124,7 +128,7 @@ async function handleSubmit() {
 
 <template>
   <UiDialog v-model:open="open">
-    <UiDialogTrigger as-child>
+    <UiDialogTrigger v-if="!props.hideTrigger" as-child>
       <UiButton :variant="isEdit ? 'outline' : 'default'" size="sm">
         <component :is="isEdit ? SquarePenIcon : PlusIcon" class="mr-1 size-4" />
         {{ isEdit ? t('actions.edit') : t('pages.dicts.createType') }}

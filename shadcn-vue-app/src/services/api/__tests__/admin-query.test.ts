@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  isDetailQueryEnabled,
   normalizeDictItemQuery,
   normalizeDictTypeQuery,
   normalizeUserQuery,
@@ -55,5 +56,11 @@ describe('admin-query', () => {
       dictValue: undefined,
       status: undefined,
     })
+  })
+
+  it('should only enable detail query when both id and dialog state are ready', () => {
+    expect(isDetailQueryEnabled('95681430025000134', true)).toBe(true)
+    expect(isDetailQueryEnabled('95681430025000134', false)).toBe(false)
+    expect(isDetailQueryEnabled(undefined, true)).toBe(false)
   })
 })
