@@ -64,7 +64,7 @@ public class OssService {
             throw new RuntimeException("文件名为空，上传失败");
         }
         String datePath = LocalDate.now().format(DATE_PATH_FORMATTER);
-        String objectName = String.format("images/%d/%s/%s", loginUser.getId(), datePath, originalFilename);
+        String objectName = String.format( ossProperties.getPrefix() + "/%d/%s/%s", loginUser.getId(), datePath, originalFilename);
         try (InputStream inputStream = file.getInputStream()) {
             // 构造上传请求
             PutObjectRequest putObjectRequest = new PutObjectRequest(ossProperties.getBucketName(), objectName, inputStream);
