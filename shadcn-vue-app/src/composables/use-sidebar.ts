@@ -1,7 +1,19 @@
-import { BellDotIcon, CreditCardIcon, FileTextIcon, PaletteIcon, PictureInPicture2Icon, SettingsIcon, UserIcon, UsersIcon, WrenchIcon } from '@lucide/vue'
+import { BellDotIcon, CreditCardIcon, FileTextIcon, PaletteIcon, SettingsIcon, UserIcon, UsersIcon, WrenchIcon } from '@lucide/vue'
 import { useI18n } from 'vue-i18n'
 
 import type { NavGroup } from '@/components/app-sidebar/types'
+
+/**
+ * 构建设置页导航，方便在测试中复用。
+ */
+export function buildSettingsNavItems(t: (key: string) => string) {
+  return [
+    { id: 'profile', title: t('menu.settings.profile'), url: '/settings/', icon: UserIcon },
+    { id: 'account', title: t('menu.settings.account'), url: '/settings/account', icon: WrenchIcon },
+    { id: 'appearance', title: t('menu.settings.appearance'), url: '/settings/appearance', icon: PaletteIcon },
+    { id: 'notifications', title: t('menu.settings.notifications'), url: '/settings/notifications', icon: BellDotIcon },
+  ]
+}
 
 export function useSidebar() {
   const { t } = useI18n()
@@ -19,13 +31,7 @@ export function useSidebar() {
   /**
    * 设置页导航仍然保留给设置模块内部复用。
    */
-  const settingsNavItems = computed(() => [
-    { id: 'profile', title: t('menu.settings.profile'), url: '/settings/', icon: UserIcon },
-    { id: 'account', title: t('menu.settings.account'), url: '/settings/account', icon: WrenchIcon },
-    { id: 'appearance', title: t('menu.settings.appearance'), url: '/settings/appearance', icon: PaletteIcon },
-    { id: 'notifications', title: t('menu.settings.notifications'), url: '/settings/notifications', icon: BellDotIcon },
-    { id: 'display', title: t('menu.settings.display'), url: '/settings/display', icon: PictureInPicture2Icon },
-  ])
+  const settingsNavItems = computed(() => buildSettingsNavItems(t))
 
   const navData = computed<NavGroup[]>(() => [
     {

@@ -33,7 +33,11 @@ export function useAuth() {
    */
   async function refreshLoginUser() {
     const response = await getLoginUserRequest()
-    authStore.setSession(buildAuthSessionFromLoginUser(response.data, authStore.session.loginEntry))
+    authStore.setSession(buildAuthSessionFromLoginUser(
+      response.data,
+      authStore.session.loginEntry,
+      authStore.session.token,
+    ))
     return response.data
   }
 

@@ -1,13 +1,16 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
 import { BasicPage, TwoColAside, TwoColLayout } from '@/components/global-layout'
 
+const { t } = useI18n()
 const { settingsNavItems } = useSidebar()
 </script>
 
 <template>
   <BasicPage
-    title="Settings"
-    description="Manage your store settings."
+    :title="t('pages.settings.title')"
+    :description="t('pages.settings.description')"
   >
     <TwoColLayout>
       <template #aside>

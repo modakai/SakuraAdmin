@@ -7,6 +7,7 @@ import com.sakura.boot_init.support.common.ResultUtils;
 import com.sakura.boot_init.support.exception.ThrowUtils;
 import com.sakura.boot_init.user.model.dto.UserQueryRequest;
 import com.sakura.boot_init.user.model.dto.UserUpdateMyRequest;
+import com.sakura.boot_init.user.model.dto.UserUpdatePasswordRequest;
 import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.model.vo.UserVO;
 import com.sakura.boot_init.user.service.AuthService;
@@ -93,6 +94,23 @@ public class UserController {
         BeanUtils.copyProperties(userUpdateMyRequest, user);
         user.setId(loginUser.getId());
         boolean result = userService.updateById(user);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    /**
+     * 修改当前登录用户密码。
+     *
+     * @param userUpdatePasswordRequest 修改密码请求
+     * @param request HTTP 请求
+     * @return 是否修改成功
+     */
+    @PostMapping("/password/update")
+    public BaseResponse<Boolean> updateMyPassword(@Valid @RequestBody UserUpdatePasswordRequest userUpdatePasswordRequest,
+            HttpServletRequest request) {
+        User loginUser = authService.getLoginUser(request);
+        boolean result = userService.updateMyPassword(loginUser, userUpdatePasswordRequest.getOldPassword(),
+                userUpdatePasswordRequest.getNewPassword(), userUpdatePasswordRequest.getCheckPassword());
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
     }

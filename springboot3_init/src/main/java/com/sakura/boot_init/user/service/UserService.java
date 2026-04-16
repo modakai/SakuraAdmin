@@ -41,6 +41,17 @@ public interface UserService extends IService<User> {
     QueryWrapper getQueryWrapper(UserQueryRequest userQueryRequest);
 
     /**
+     * 当前登录用户修改密码。
+     *
+     * @param loginUser 当前登录用户
+     * @param oldPassword 旧密码
+     * @param newPassword 新密码
+     * @param checkPassword 确认密码
+     * @return 是否修改成功
+     */
+    boolean updateMyPassword(User loginUser, String oldPassword, String newPassword, String checkPassword);
+
+    /**
      * 将指定用户密码重置为系统默认密码。
      *
      * @param id 用户 id

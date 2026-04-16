@@ -81,6 +81,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
+    public boolean updateMyPassword(User loginUser, String oldPassword, String newPassword, String checkPassword) {
+        ThrowUtils.throwIf(loginUser == null || loginUser.getId() == null, ErrorCode.NOT_LOGIN_ERROR);
+        ThrowUtils.throwIf(StringUtils.isAnyBlank(oldPassword, newPassword, checkPassword), ErrorCode.PARAMS_ERROR,
+                "auth.param.blank");
+        ThrowUtils.throwIf(oldPassword.equals(newPassword), ErrorCode.PARAMS_ERROR, "auth.password.same");
+        ThrowUtils.throwIf(!newPassword.equals(checkPassword), ErrorCode.PARAMS_ERROR, "auth.password.not_match");
+
+        String encryptedOldPassword = DigestUtils
+                .md5DigestAsHex((UserConstant.PASSWORD_SALT + oldPassword).getBytes());
+        ThrowUtils.throwIf(!encryptedOldPassword.equals(loginUser.getUserPassword()), ErrorCode.PARAMS_ERROR,
+                "auth.password.old.invalid");
+
+        User user = new User();
+        user.setId(loginUser.getId());
+        user.setUserPassword(DigestUtils.md5DigestAsHex((UserConstant.PASSWORD_SALT + newPassword).getBytes()));
+        return this.updateById(user);
+    }
+
+    @Override
     public boolean resetPassword(Long id) {
         if (id == null || id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户 id 非法");

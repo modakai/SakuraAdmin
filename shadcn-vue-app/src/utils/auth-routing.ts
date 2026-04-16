@@ -8,6 +8,7 @@ export interface AuthUserInfo {
   email: string
   avatar?: string
   profile?: string
+  role?: UserRole | string
   roles: UserRole[]
 }
 

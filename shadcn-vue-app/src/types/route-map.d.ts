@@ -275,13 +275,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/settings/display': RouteRecordInfo<
-      '/settings/display',
-      '/settings/display',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/settings/notifications': RouteRecordInfo<
       '/settings/notifications',
       '/settings/notifications',
@@ -529,12 +522,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/settings/appearance.vue': {
       routes:
         | '/settings/appearance'
-      views:
-        | never
-    }
-    'src/pages/settings/display.vue': {
-      routes:
-        | '/settings/display'
       views:
         | never
     }

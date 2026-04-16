@@ -53,8 +53,7 @@
       "profile": "Profile",
       "account": "Account",
       "appearance": "Appearance",
-      "notifications": "Notifications",
-      "display": "Display"
+      "notifications": "Notifications"
     }
   },
   "errors": {
@@ -88,6 +87,46 @@
     "billing": {
       "title": "Plans & Billing",
       "upgrade": "Upgrade to Pro"
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Manage admin preferences, theme, and notification options.",
+      "profile": {
+        "title": "Profile",
+        "description": "Maintain the current admin account avatar and nickname.",
+        "basicTitle": "Basic Profile",
+        "basicDescription": "Changes are synchronized to the current session and sidebar user info immediately.",
+        "avatar": "Avatar",
+        "avatarTips": "Supports jpeg, jpg, svg, png, webp. Max 1MB per image.",
+        "userName": "Nickname",
+        "userNamePlaceholder": "Enter nickname",
+        "account": "Login Account",
+        "role": "Role",
+        "save": "Save Profile",
+        "saveSuccess": "Profile updated successfully",
+        "saveFailed": "Failed to update profile"
+      },
+      "account": {
+        "title": "Account Settings",
+        "description": "Manage the default language and sign-in password for the admin account.",
+        "languageTitle": "Default Language",
+        "languageDescription": "The language preference is stored in this browser and reused the next time you sign in.",
+        "languageLabel": "Interface Language",
+        "languagePlaceholder": "Select a default language",
+        "saveLanguage": "Save Language",
+        "languageSaved": "Default language saved",
+        "passwordTitle": "Change Password",
+        "passwordDescription": "Enter the current password and set a new sign-in password.",
+        "oldPassword": "Current Password",
+        "oldPasswordPlaceholder": "Enter current password",
+        "newPassword": "New Password",
+        "newPasswordPlaceholder": "Enter new password",
+        "checkPassword": "Confirm New Password",
+        "checkPasswordPlaceholder": "Re-enter new password",
+        "savePassword": "Save Password",
+        "passwordSaved": "Password updated successfully",
+        "passwordSaveFailed": "Failed to update password"
+      }
     },
     "users": {
       "title": "User Management",

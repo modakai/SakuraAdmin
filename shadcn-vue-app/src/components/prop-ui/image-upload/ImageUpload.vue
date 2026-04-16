@@ -22,6 +22,7 @@ interface Props {
   disabled?: boolean
   accept?: string
   tips?: string
+  variant?: 'grid' | 'avatar'
   class?: HTMLAttributes['class']
 }
 
@@ -31,6 +32,7 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   accept: '.jpeg,.jpg,.svg,.png,.webp',
   tips: '支持 jpeg、jpg、svg、png、webp 格式，单张不超过 1MB',
+  variant: 'grid',
 })
 
 const emit = defineEmits<{
@@ -67,6 +69,11 @@ const successCount = computed(() => innerItems.value.filter(item => item.status 
  * 是否存在上传中的图片。
  */
 const isUploading = computed(() => innerItems.value.some(item => item.status === 'uploading'))
+
+/**
+ * 头像模式只关心第一张图，避免沿用通用网格导致个人资料页出现大块空白。
+ */
+const avatarItem = computed(() => innerItems.value[0])
 
 /**
  * 是否还允许继续展示上传入口。
@@ -237,7 +244,69 @@ onBeforeUnmount(() => {
       @change="onFileChange"
     >
 
-    <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    <div v-if="props.variant === 'avatar'" class="space-y-3">
+      <div class="flex items-center justify-center gap-4">
+        <button
+          type="button"
+          class="group relative size-28 shrink-0 overflow-hidden rounded-full border bg-background shadow-sm ring-4 ring-muted transition hover:ring-primary/30 disabled:pointer-events-none disabled:opacity-60"
+          :disabled="props.disabled || isUploading"
+          @click="openFilePicker"
+        >
+          <span class="sr-only">{{ avatarItem?.url ? '更换头像' : '上传头像' }}</span>
+          <div class="size-full">
+            <img
+              v-if="avatarItem?.url"
+              :src="avatarItem.url"
+              :alt="avatarItem.name"
+              class="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+            >
+            <div
+              v-else
+              class="flex size-full items-center justify-center bg-muted text-muted-foreground"
+            >
+              <ImagePlusIcon class="size-8" />
+            </div>
+          </div>
+
+          <div
+            class="absolute inset-0 flex items-center justify-center rounded-full bg-black/0 text-white opacity-0 transition group-hover:bg-black/35 group-hover:opacity-100"
+          >
+            <div class="flex flex-col items-center gap-1 text-xs font-medium">
+              <ImagePlusIcon class="size-5" />
+              <span>{{ avatarItem?.url ? '更换' : '上传' }}</span>
+            </div>
+          </div>
+
+          <div
+            v-if="avatarItem?.status === 'uploading'"
+            class="absolute inset-0 flex items-center justify-center rounded-full bg-background/70 backdrop-blur-sm"
+          >
+            <LoaderCircleIcon class="size-6 animate-spin text-primary" />
+          </div>
+        </button>
+
+        <Button
+          v-if="avatarItem?.url"
+          type="button"
+          size="icon-sm"
+          variant="outline"
+          class="rounded-full"
+          :disabled="props.disabled || avatarItem.status === 'uploading'"
+          @click="removeItem(avatarItem.uid)"
+        >
+          <Trash2Icon class="size-4" />
+        </Button>
+      </div>
+
+      <div class="rounded-lg border bg-muted/20 px-3 py-2 text-xs leading-5 text-muted-foreground">
+        <div class="flex items-start gap-2">
+          <ImagePlusIcon class="mt-0.5 size-4 shrink-0" />
+          <span>{{ props.tips }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div v-else class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       <div
         v-for="item in innerItems"
         :key="item.uid"
@@ -301,7 +370,7 @@ onBeforeUnmount(() => {
       </button>
     </div>
 
-    <div class="rounded-lg border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
+    <div v-if="props.variant === 'grid'" class="rounded-lg border bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
       <div class="flex items-center gap-2">
         <ImagePlusIcon class="size-4" />
         <span>{{ props.tips }}</span>

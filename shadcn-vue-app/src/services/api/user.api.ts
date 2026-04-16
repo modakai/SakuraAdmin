@@ -7,6 +7,7 @@ import type {
   UserQuery,
   UserUpdateForm,
   UserUpdateMyForm,
+  UserUpdatePasswordForm,
 } from '@/services/types/user.type'
 
 import { useApiFetch } from '@/composables/use-fetch'
@@ -172,6 +173,21 @@ export function useUpdateMyUserMutation() {
   return useMutation<IResponse<boolean>, Error, UserUpdateMyForm>({
     mutationKey: ['user-update-my'],
     mutationFn: async data => await apiFetch<IResponse<boolean>>('/user/update/my', {
+      method: 'post',
+      body: data,
+    }),
+  })
+}
+
+/**
+ * 更新当前登录用户密码。
+ */
+export function useUpdateMyPasswordMutation() {
+  const { apiFetch } = useApiFetch()
+
+  return useMutation<IResponse<boolean>, Error, UserUpdatePasswordForm>({
+    mutationKey: ['user-update-my-password'],
+    mutationFn: async data => await apiFetch<IResponse<boolean>>('/user/password/update', {
       method: 'post',
       body: data,
     }),

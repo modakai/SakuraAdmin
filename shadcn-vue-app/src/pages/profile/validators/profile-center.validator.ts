@@ -1,18 +1,21 @@
 import { z } from 'zod'
 
 /**
- * 账户偏好设置校验器。
+ * 个人资料更新校验器。
  */
-export const accountPreferenceValidator = z.object({
-  language: z
+export const profileUpdateValidator = z.object({
+  userName: z
     .string()
-    .min(1, '请选择默认语言'),
+    .trim()
+    .min(1, '请输入昵称')
+    .max(20, '昵称长度不能超过 20 个字符'),
+  userAvatar: z.string().optional(),
 })
 
 /**
- * 账户密码设置校验器。
+ * 个人密码更新校验器。
  */
-export const accountPasswordValidator = z.object({
+export const profilePasswordValidator = z.object({
   oldPassword: z.string().min(8, '旧密码长度不能小于 8 位'),
   newPassword: z.string().min(8, '新密码长度不能小于 8 位'),
   checkPassword: z.string().min(8, '确认密码长度不能小于 8 位'),
@@ -34,5 +37,5 @@ export const accountPasswordValidator = z.object({
   }
 })
 
-export type AccountPreferenceValidator = z.infer<typeof accountPreferenceValidator>
-export type AccountPasswordValidator = z.infer<typeof accountPasswordValidator>
+export type ProfileUpdateValidator = z.infer<typeof profileUpdateValidator>
+export type ProfilePasswordValidator = z.infer<typeof profilePasswordValidator>

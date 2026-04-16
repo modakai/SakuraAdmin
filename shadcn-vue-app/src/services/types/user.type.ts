@@ -62,6 +62,15 @@ export interface UserUpdateMyForm {
 }
 
 /**
+ * 更新个人密码请求。
+ */
+export interface UserUpdatePasswordForm {
+  oldPassword: string
+  newPassword: string
+  checkPassword: string
+}
+
+/**
  * 用户状态选项。
  */
 export interface UserStatusOption {

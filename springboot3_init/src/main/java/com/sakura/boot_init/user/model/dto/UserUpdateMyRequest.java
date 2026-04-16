@@ -1,5 +1,7 @@
 package com.sakura.boot_init.user.model.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -15,6 +17,8 @@ public class UserUpdateMyRequest implements Serializable {
     /**
      * 用户昵称
      */
+    @NotBlank(message = "{validation.user.name.not_blank}")
+    @Size(max = 20, message = "{validation.user.name.max}")
     private String userName;
 
     /**

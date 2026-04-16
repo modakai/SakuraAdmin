@@ -53,8 +53,7 @@
       "profile": "个人资料",
       "account": "账户设置",
       "appearance": "外观设置",
-      "notifications": "通知设置",
-      "display": "显示设置"
+      "notifications": "通知设置"
     }
   },
   "errors": {
@@ -88,6 +87,46 @@
     "billing": {
       "title": "套餐与账单",
       "upgrade": "升级到专业版"
+    },
+    "settings": {
+      "title": "系统设置",
+      "description": "管理后台账号偏好、界面主题和通知选项。",
+      "profile": {
+        "title": "个人资料",
+        "description": "维护当前后台账号的头像和昵称。",
+        "basicTitle": "基础资料",
+        "basicDescription": "保存后会立即同步到当前登录态和侧边栏用户信息。",
+        "avatar": "头像",
+        "avatarTips": "支持 jpeg、jpg、svg、png、webp，单张不超过 1MB",
+        "userName": "昵称",
+        "userNamePlaceholder": "请输入昵称",
+        "account": "登录账号",
+        "role": "角色",
+        "save": "保存资料",
+        "saveSuccess": "个人资料已更新",
+        "saveFailed": "个人资料更新失败"
+      },
+      "account": {
+        "title": "账户设置",
+        "description": "管理后台账号的默认语言和登录密码。",
+        "languageTitle": "默认语言",
+        "languageDescription": "语言偏好会保存在当前浏览器，下次登录时默认继续使用。",
+        "languageLabel": "界面语言",
+        "languagePlaceholder": "请选择默认语言",
+        "saveLanguage": "保存语言设置",
+        "languageSaved": "默认语言已保存",
+        "passwordTitle": "修改密码",
+        "passwordDescription": "请输入当前密码，并设置新的后台登录密码。",
+        "oldPassword": "旧密码",
+        "oldPasswordPlaceholder": "请输入旧密码",
+        "newPassword": "新密码",
+        "newPasswordPlaceholder": "请输入新密码",
+        "checkPassword": "确认新密码",
+        "checkPasswordPlaceholder": "请再次输入新密码",
+        "savePassword": "保存新密码",
+        "passwordSaved": "密码修改成功",
+        "passwordSaveFailed": "密码修改失败"
+      }
     },
     "users": {
       "title": "用户管理",
