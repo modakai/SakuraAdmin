@@ -45,12 +45,13 @@ export function useAuth() {
 
       authStore.setSession(nextSession)
       const redirect = router.currentRoute.value.query.redirect as string | undefined
-      if (redirect && !redirect.startsWith('//')) {
+      // 登录页统一后，避免普通用户因后台 redirect 被送进无权限页面。
+      if (redirect && !redirect.startsWith('//') && (!redirect.startsWith('/dashboard') || canAccessAdmin(nextSession))) {
         await router.push(redirect)
         return
       }
 
-      await router.push(getDefaultRedirectPath(payload.entry, canAccessAdmin(nextSession)))
+      await router.push(getDefaultRedirectPath(nextSession))
     }
     finally {
       loading.value = false

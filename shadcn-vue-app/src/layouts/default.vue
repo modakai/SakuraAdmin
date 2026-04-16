@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ArrowUpRightIcon } from '@lucide/vue'
 import { useCookies } from '@vueuse/integrations/useCookies'
 import { storeToRefs } from 'pinia'
 
@@ -28,6 +29,13 @@ const { contentLayout } = storeToRefs(themeStore)
         <CommandMenuPanel />
         <div class="flex-1" />
         <div class="ml-auto flex items-center space-x-4">
+          <!-- 在后台顶部提供回到前台的快捷入口，方便双端切换。 -->
+          <UiButton variant="outline" size="sm" as-child>
+            <RouterLink to="/">
+              去前台
+              <ArrowUpRightIcon class="ml-1 size-4" />
+            </RouterLink>
+          </UiButton>
           <LanguageChange />
           <ToggleTheme />
           <ThemePopover />

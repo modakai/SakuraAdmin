@@ -4,5 +4,5 @@ export const RouterPath: Record<string, RouteLocationRaw> = {
   HOME: '/',
   USER_LOGIN: '/login',
   ADMIN_HOME: '/dashboard',
-  ADMIN_LOGIN: '/auth/sign-in',
+  ADMIN_LOGIN: '/login',
 } as const

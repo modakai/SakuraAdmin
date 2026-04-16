@@ -1,5 +1,6 @@
 {
   "common": {
+    "account": "account",
     "email": "Email",
     "password": "Password",
     "emptyDash": "-",
@@ -164,7 +165,7 @@
       "guideTitle": "User Portal Guide",
       "guideDesc": "The first template release already includes the user homepage, login, practice center, study records, and profile.",
       "userLoginPath": "User login entry: `/login`",
-      "adminLoginPath": "Admin login entry: `/auth/sign-in`",
+      "adminLoginPath": "Unified login entry: `/login`",
       "accessNote": "After unified authentication, role permissions determine whether admin access is allowed.",
       "recentTitle": "Recent Updates",
       "metrics": {
@@ -197,13 +198,41 @@
     },
     "login": {
       "title": "User Login",
-      "description": "After login you will enter the user portal by default. Accounts with admin roles can switch to the admin console.",
+      "description": "A unified login entry for quickly building full-stack Web applications with role-based redirects.",
       "failedTitle": "Login Failed",
       "failedRetry": "Login failed, please try again later.",
-      "emailPlaceholder": "student@example.com",
+      "emailPlaceholder": "Enter your login account",
       "passwordPlaceholder": "12345678",
       "enterUser": "Enter User Portal",
-      "demoTip": "The sample password must satisfy the backend minimum length of 8, for example: `student@example.com / 12345678`"
+      "demoTip": "The sample password must satisfy the backend minimum length of 8. Demo accounts are shown in the login form."
+    },
+    "authPortal": {
+      "user": {
+        "badge": "WEB APP STARTER",
+        "title": "Sign in to the Platform",
+        "description": "Enter your account and password to continue. The platform routes each user by account role.",
+        "submit": "Enter Platform",
+        "heroTitle": "An integrated starter platform for quickly building Web applications.",
+        "heroDescription": "Unified login, role-based routing, frontend/backend switching, and baseline management modules are already built in so new business apps can start faster.",
+        "features": {
+          "practice": "A ready-to-use frontend entry for business homepages, user centers, and workspaces.",
+          "record": "Built-in admin modules cover common capabilities such as users, dictionaries, and agreements.",
+          "switchAdmin": "Unified authentication and role routing are wired in, so new apps can extend their own permission rules."
+        }
+      },
+      "admin": {
+        "badge": "ADMIN CONSOLE",
+        "title": "Sign in to the Platform",
+        "description": "Enter your account and password to continue. The platform routes each user by account role.",
+        "submit": "Enter Admin Console",
+        "heroTitle": "Start with unified authentication and build full-stack Web apps faster.",
+        "heroDescription": "The platform provides login, permission-based routing, admin layout, and baseline business modules to reduce repeated setup work.",
+        "features": {
+          "dashboard": "Admin users land on the backend dashboard for baseline management and business configuration.",
+          "permission": "Backend access is still controlled by user roles, so unifying the page does not weaken permission boundaries.",
+          "switchUser": "The admin header keeps a frontend shortcut for quick switching between the console and app frontend."
+        }
+      }
     },
     "dicts": {
       "title": "Dictionary Management",

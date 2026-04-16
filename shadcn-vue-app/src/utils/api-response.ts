@@ -58,11 +58,8 @@ export function isAuthExpiredCode(code: number): boolean {
 /**
  * 根据当前路径推断应该跳转到哪个登录页。
  */
-export function resolveAuthRedirectPath(currentPath: string | undefined): string {
-  if (currentPath?.startsWith('/dashboard')) {
-    return String(RouterPath.ADMIN_LOGIN)
-  }
-
+export function resolveAuthRedirectPath(_currentPath: string | undefined): string {
+  // 登录入口已统一，具体落点由登录后的角色权限决定。
   return String(RouterPath.USER_LOGIN)
 }
 
