@@ -1,5 +1,6 @@
 {
   "common": {
+    "account": "账户",
     "email": "邮箱",
     "password": "密码",
     "emptyDash": "-",
@@ -203,7 +204,7 @@
       "guideTitle": "用户端说明",
       "guideDesc": "首版模板已补齐用户端首页、登录页、刷题中心、学习记录和个人中心。",
       "userLoginPath": "用户端登录入口：`/login`",
-      "adminLoginPath": "后台登录入口：`/auth/sign-in`",
+      "adminLoginPath": "统一登录入口：`/login`",
       "accessNote": "统一认证返回后，是否允许进入后台由角色权限决定。",
       "recentTitle": "近期动态",
       "metrics": {
@@ -236,13 +237,41 @@
     },
     "login": {
       "title": "用户端登录",
-      "description": "登录后默认进入用户端首页。如账号具备后台角色，可从用户端进入后台。",
+      "description": "统一登录后根据账号角色自动跳转，适合快速开发 Web 应用的前后台一体化模板。",
       "failedTitle": "登录失败",
       "failedRetry": "登录失败，请稍后重试。",
-      "emailPlaceholder": "student@example.com",
+      "emailPlaceholder": "请输入登录账号",
       "passwordPlaceholder": "12345678",
       "enterUser": "进入用户端",
-      "demoTip": "默认密码需满足后端最小 8 位要求，例如：`student@example.com / 12345678`"
+      "demoTip": "默认密码需满足后端最小 8 位要求，示例账号会显示在登录表单中。"
+    },
+    "authPortal": {
+      "user": {
+        "badge": "WEB APP STARTER",
+        "title": "登录应用平台",
+        "description": "输入账户和密码进入平台，系统会根据账号角色自动分流到前台应用或后台管理端。",
+        "submit": "进入平台",
+        "heroTitle": "为快速开发 Web 应用准备的一体化启动平台。",
+        "heroDescription": "统一登录、角色分流、前后台切换和基础管理能力已经内置，你可以在此基础上快速搭建业务系统。",
+        "features": {
+          "practice": "开箱即用的前台入口，可承载业务首页、用户中心、工作台等应用场景。",
+          "record": "内置后台基础模块，覆盖用户、字典、协议等常见管理能力。",
+          "switchAdmin": "统一认证和角色分流已接入，后续业务只需扩展自己的权限规则。"
+        }
+      },
+      "admin": {
+        "badge": "ADMIN CONSOLE",
+        "title": "登录应用平台",
+        "description": "输入账户和密码进入平台，系统会根据账号角色自动分流到前台应用或后台管理端。",
+        "submit": "进入后台",
+        "heroTitle": "从统一认证开始，快速搭建前后台一体的 Web 应用。",
+        "heroDescription": "平台提供登录、权限分流、后台布局和基础业务管理模块，减少重复搭建成本。",
+        "features": {
+          "dashboard": "管理员登录成功后默认进入后台工作台，适合继续处理基础管理与业务配置。",
+          "permission": "是否允许进入后台仍由账号角色决定，统一认证不会放宽原有权限边界。",
+          "switchUser": "后台顶部保留“去前台”按钮，方便在管理端和前台应用之间快速切换。"
+        }
+      }
     },
     "dicts": {
       "title": "字典管理",

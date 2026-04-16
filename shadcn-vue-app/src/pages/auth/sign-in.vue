@@ -1,19 +1,16 @@
 <script setup lang="ts">
-import AuthTitle from './components/auth-title.vue'
-import LoginForm from './components/login-form.vue'
+const router = useRouter()
+
+// 兼容历史后台登录地址，实际登录入口统一收敛到 /login。
+router.replace('/login')
 </script>
 
 <template>
-  <div class="flex items-center justify-center min-h-screen p-4 min-w-screen">
-    <main class="flex flex-col gap-4">
-      <AuthTitle />
-      <LoginForm entry="admin" />
-    </main>
-  </div>
+  <div />
 </template>
 
 <route lang="yaml">
 meta:
+  layout: false
   guestOnly: true
-  authEntry: admin
 </route>

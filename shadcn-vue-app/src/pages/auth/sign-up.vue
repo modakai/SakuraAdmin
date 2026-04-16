@@ -20,7 +20,7 @@ import TermsOfServiceButton from './components/terms-of-service-button.vue'
             Already have an account?
             <UiButton
               variant="link" class="px-0 text-muted-foreground"
-              @click="$router.push('/auth/sign-in')"
+              @click="$router.push('/login')"
             >
               Sign In
             </UiButton>

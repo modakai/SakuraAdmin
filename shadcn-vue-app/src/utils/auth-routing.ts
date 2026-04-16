@@ -42,23 +42,24 @@ export function canAccessAdmin(session: AuthSession): boolean {
   return session.isLogin && Boolean(session.user?.roles.includes('admin'))
 }
 
-// 双入口登录成功后的默认落点。
-export function getDefaultRedirectPath(entry: AuthEntry, hasAdminAccess: boolean): string {
-  if (entry === 'admin' && hasAdminAccess) {
+// 登录成功后的默认落点只由实际角色决定，不再依赖用户从哪个登录入口进入。
+export function getDefaultRedirectPath(session: AuthSession): string {
+  if (canAccessAdmin(session)) {
     return '/dashboard'
   }
 
   return '/'
 }
 
-export function getLoginRoute(section: 'user' | 'admin' = 'user'): string {
-  return section === 'admin' ? '/auth/sign-in' : '/login'
+export function getLoginRoute(_section: 'user' | 'admin' = 'user'): string {
+  // 前台与后台统一使用同一个登录路由，登录后再按角色分流。
+  return '/login'
 }
 
 // 用纯函数统一表达守卫跳转规则，便于测试和路由复用。
 export function resolveProtectedRedirect(meta: GuardMeta, session: AuthSession): string | null {
   if (meta.guestOnly && session.isLogin) {
-    return getDefaultRedirectPath(meta.authEntry ?? session.loginEntry, canAccessAdmin(session))
+    return getDefaultRedirectPath(session)
   }
 
   if (meta.auth && !session.isLogin) {
