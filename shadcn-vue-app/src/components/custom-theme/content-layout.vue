@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 
 import { CONTENT_LAYOUTS } from '@/constants/themes'
 import { useThemeStore } from '@/stores/theme'
@@ -7,12 +8,13 @@ import { useThemeStore } from '@/stores/theme'
 const themeStore = useThemeStore()
 const { setContentLayout } = themeStore
 const { contentLayout } = storeToRefs(themeStore)
+const { t } = useI18n()
 </script>
 
 <template>
   <div class="space-y-1.5 pt-6">
     <UiLabel for="radius" class="text-xs">
-      Content Layout
+      {{ t('pages.settings.appearancePreferences.contentLayout') }}
     </UiLabel>
     <div class="grid grid-cols-2 gap-2 py-1.5">
       <UiButton
@@ -23,7 +25,7 @@ const { contentLayout } = storeToRefs(themeStore)
         @click="setContentLayout(layout.value)"
       >
         <component :is="layout.icon" />
-        {{ layout.label }}
+        {{ t(`pages.settings.appearancePreferences.contentLayouts.${layout.value}`) }}
       </UiButton>
     </div>
   </div>

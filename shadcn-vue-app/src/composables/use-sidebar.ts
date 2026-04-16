@@ -26,6 +26,8 @@ export function useSidebar() {
     { id: 'users', title: t('menu.system.users'), url: '/users', icon: UsersIcon },
     { id: 'dicts', title: t('menu.system.dicts'), url: '/dicts', icon: WrenchIcon },
     { id: 'agreements', title: t('menu.system.agreements'), url: '/agreements', icon: FileTextIcon },
+    // 外观偏好属于后台管理端体验配置，放在系统管理入口下更容易发现。
+    { id: 'appearance-preferences', title: t('menu.settings.appearance'), url: '/settings/appearance', icon: PaletteIcon },
   ])
 
   /**

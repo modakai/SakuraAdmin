@@ -6,18 +6,29 @@
 // biome-ignore lint: disable
 export {}
 declare global {
+  const ADMIN_CONTENT_LAYOUTS: typeof import('../constants/admin-appearance').ADMIN_CONTENT_LAYOUTS
+  const ADMIN_DENSITIES: typeof import('../constants/admin-appearance').ADMIN_DENSITIES
+  const ADMIN_DENSITY_OPTIONS: typeof import('../constants/admin-appearance').ADMIN_DENSITY_OPTIONS
+  const ADMIN_FONTS: typeof import('../constants/admin-appearance').ADMIN_FONTS
+  const ADMIN_FONT_OPTIONS: typeof import('../constants/admin-appearance').ADMIN_FONT_OPTIONS
+  const ADMIN_RADIUS: typeof import('../constants/admin-appearance').ADMIN_RADIUS
+  const ADMIN_SIDEBAR_STATES: typeof import('../constants/admin-appearance').ADMIN_SIDEBAR_STATES
+  const ADMIN_SIDEBAR_STATE_OPTIONS: typeof import('../constants/admin-appearance').ADMIN_SIDEBAR_STATE_OPTIONS
+  const ADMIN_THEMES: typeof import('../constants/admin-appearance').ADMIN_THEMES
+  const ADMIN_THEME_PRIMARY_COLORS: typeof import('../constants/admin-appearance').ADMIN_THEME_PRIMARY_COLORS
   const API_BASE_URL: typeof import('../constants/app-config').API_BASE_URL
   const API_TIMEOUT: typeof import('../constants/app-config').API_TIMEOUT
+  const COLOR_MODES: typeof import('../constants/admin-appearance').COLOR_MODES
   const COMPATIBILITY_TOKEN_HEADER_ENABLED: typeof import('../constants/app-config').COMPATIBILITY_TOKEN_HEADER_ENABLED
   const COMPATIBILITY_TOKEN_HEADER_NAME: typeof import('../constants/app-config').COMPATIBILITY_TOKEN_HEADER_NAME
   const CONTENT_LAYOUTS: typeof import('../constants/themes').CONTENT_LAYOUTS
+  const DEFAULT_ADMIN_APPEARANCE_PREFERENCES: typeof import('../constants/admin-appearance').DEFAULT_ADMIN_APPEARANCE_PREFERENCES
   const DEFAULT_PAGE_SIZE: typeof import('../constants/pagination').DEFAULT_PAGE_SIZE
   const EffectScope: typeof import('vue').EffectScope
   const PAGE_SIZES: typeof import('../constants/pagination').PAGE_SIZES
   const RADIUS: typeof import('../constants/themes').RADIUS
   const RouterPath: typeof import('../constants/route-path').RouterPath
   const THEMES: typeof import('../constants/themes').THEMES
-  const THEMES_COLOR: typeof import('../constants/themes')['THEMES_COLOR']
   const THEME_PRIMARY_COLORS: typeof import('../constants/themes').THEME_PRIMARY_COLORS
   const TOKEN_HEADER_NAME: typeof import('../constants/app-config').TOKEN_HEADER_NAME
   const TOKEN_HEADER_PREFIX: typeof import('../constants/app-config').TOKEN_HEADER_PREFIX
@@ -40,7 +51,6 @@ declare global {
   const isReadonly: typeof import('vue').isReadonly
   const isRef: typeof import('vue').isRef
   const isShallow: typeof import('vue').isShallow
-  const logout: typeof import('../composables/use-auth')['logout']
   const markRaw: typeof import('vue').markRaw
   const nextTick: typeof import('vue').nextTick
   const onActivated: typeof import('vue').onActivated
@@ -65,6 +75,7 @@ declare global {
   const readonly: typeof import('vue').readonly
   const recordRows: typeof import('../constants/user-portal').recordRows
   const ref: typeof import('vue').ref
+  const resolveAdminAppearanceEffects: typeof import('../composables/use-apply-admin-appearance-preferences').resolveAdminAppearanceEffects
   const resolveComponent: typeof import('vue').resolveComponent
   const shallowReactive: typeof import('vue').shallowReactive
   const shallowReadonly: typeof import('vue').shallowReadonly
@@ -75,15 +86,15 @@ declare global {
   const toValue: typeof import('vue').toValue
   const triggerRef: typeof import('vue').triggerRef
   const unref: typeof import('vue').unref
+  const useAdminAppearancePreferencesStore: typeof import('../stores/admin-appearance-preferences').useAdminAppearancePreferencesStore
   const useApiFetch: typeof import('../composables/use-fetch').useApiFetch
+  const useApplyAdminAppearancePreferences: typeof import('../composables/use-apply-admin-appearance-preferences').useApplyAdminAppearancePreferences
   const useAttrs: typeof import('vue').useAttrs
   const useAuth: typeof import('../composables/use-auth').useAuth
   const useAuthStore: typeof import('../stores/auth').useAuthStore
   const useCssModule: typeof import('vue').useCssModule
   const useCssVars: typeof import('vue').useCssVars
   const useId: typeof import('vue').useId
-  const useLink: typeof import('vue-router')['useLink']
-  const useModal: typeof import('../composables/use-modal').useModal
   const useModel: typeof import('vue').useModel
   const useRoute: typeof import('vue-router').useRoute
   const useRouter: typeof import('vue-router').useRouter
@@ -94,7 +105,6 @@ declare global {
   const useSystemConfig: typeof import('../composables/use-system-config').useSystemConfig
   const useSystemTheme: typeof import('../composables/use-system-theme').useSystemTheme
   const useTemplateRef: typeof import('vue').useTemplateRef
-  const useThemeConfig: typeof import('../composables/use-theme-config')['useThemeConfig']
   const useThemeStore: typeof import('../stores/theme').useThemeStore
   const userFeatures: typeof import('../constants/user-portal').userFeatures
   const userHighlights: typeof import('../constants/user-portal').userHighlights
@@ -110,6 +120,12 @@ declare global {
   // @ts-ignore
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
+  // @ts-ignore
+  export type { AdminAppearanceEffects } from '../composables/use-apply-admin-appearance-preferences'
+  import('../composables/use-apply-admin-appearance-preferences')
+  // @ts-ignore
+  export type { AdminColorMode, AdminFont, AdminDensity, AdminSidebarState, AdminAppearancePreferences } from '../constants/admin-appearance'
+  import('../constants/admin-appearance')
   // @ts-ignore
   export type { LoginPayload } from '../constants/mock-auth'
   import('../constants/mock-auth')

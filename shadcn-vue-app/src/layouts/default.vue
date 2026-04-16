@@ -7,18 +7,28 @@ import AppSidebar from '@/components/app-sidebar/index.vue'
 import CommandMenuPanel from '@/components/command-menu-panel/index.vue'
 import ThemePopover from '@/components/custom-theme/theme-popover.vue'
 import LanguageChange from '@/components/language-change.vue'
-import ToggleTheme from '@/components/toggle-theme.vue'
 import { SIDEBAR_COOKIE_NAME } from '@/components/ui/sidebar/utils'
 import { cn } from '@/lib/utils'
-import { useThemeStore } from '@/stores/theme'
+import { useAdminAppearancePreferencesStore } from '@/stores/admin-appearance-preferences'
 
-const defaultOpen = useCookies([SIDEBAR_COOKIE_NAME])
-const themeStore = useThemeStore()
-const { contentLayout } = storeToRefs(themeStore)
+const sidebarCookies = useCookies([SIDEBAR_COOKIE_NAME])
+const adminAppearanceStore = useAdminAppearancePreferencesStore()
+const { preferences } = storeToRefs(adminAppearanceStore)
+
+// 后台布局是管理端外观偏好的唯一初始化位置，避免用户端读取这套配置。
+useApplyAdminAppearancePreferences()
+
+const defaultSidebarOpen = computed(() => {
+  if (preferences.value.sidebarDefaultState === 'expanded')
+    return true
+  if (preferences.value.sidebarDefaultState === 'collapsed')
+    return false
+  return sidebarCookies.get(SIDEBAR_COOKIE_NAME) !== 'false'
+})
 </script>
 
 <template>
-  <UiSidebarProvider :default-open="defaultOpen.get(SIDEBAR_COOKIE_NAME)">
+  <UiSidebarProvider :default-open="defaultSidebarOpen">
     <AppSidebar />
     <UiSidebarInset class="w-full max-w-full peer-data-[state=collapsed]:w-[calc(100%-var(--sidebar-width-icon)-1rem)] peer-data-[state=expanded]:w-[calc(100%-var(--sidebar-width))]">
       <header
@@ -37,15 +47,14 @@ const { contentLayout } = storeToRefs(themeStore)
             </RouterLink>
           </UiButton>
           <LanguageChange />
-          <ToggleTheme />
           <ThemePopover />
         </div>
       </header>
 
       <main
         :class="cn(
-          'p-4 grow',
-          contentLayout === 'centered' ? 'container mx-auto ' : '',
+          'p-[var(--admin-density-space,1rem)] grow',
+          preferences.contentLayout === 'centered' ? 'container mx-auto ' : '',
         )"
       >
         <router-view />

@@ -140,4 +140,60 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* 管理端外观偏好：字体、密度和动效通过根节点 class 统一控制。 */
+  .font-system body {
+    font-family: ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .font-inter body {
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .font-manrope body {
+    font-family: Manrope, ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .font-geist body {
+    font-family: Geist, 'Geist Sans', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .font-mono body {
+    font-family: 'Geist Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  }
+
+  .font-serif body {
+    font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
+  }
+
+  .density-comfortable body {
+    --admin-density-space: 1.125rem;
+  }
+
+  .density-standard body {
+    --admin-density-space: 1rem;
+  }
+
+  .density-compact body {
+    --admin-density-space: 0.75rem;
+  }
+
+  .motion-reduced *,
+  .motion-reduced *::before,
+  .motion-reduced *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .tables-striped tbody tr:nth-child(even) {
+    @apply bg-muted/30;
+  }
+
+  .breadcrumbs-hidden .admin-breadcrumb,
+  .page-title-hidden .admin-page-title,
+  .breadcrumbs-hidden [data-slot='breadcrumb'] {
+    @apply hidden;
+  }
 }

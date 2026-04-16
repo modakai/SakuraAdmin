@@ -1,149 +1,339 @@
 <script setup lang="ts">
+import { RotateCcwIcon, SaveIcon } from '@lucide/vue'
+import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
+
+import type {
+  AdminColorMode,
+  AdminDensity,
+  AdminFont,
+  AdminSidebarState,
+} from '@/constants/admin-appearance'
+import type { ContentLayout, Radius, Theme } from '@/constants/themes'
+import type { NavigationMode } from '@/stores/sidebar-config'
+
 import { Button } from '@/components/ui/button'
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Separator } from '@/components/ui/separator'
-import { Spinner } from '@/components/ui/spinner'
+import {
+  ADMIN_CONTENT_LAYOUTS,
+  ADMIN_DENSITY_OPTIONS,
+  ADMIN_FONT_OPTIONS,
+  ADMIN_RADIUS,
+  ADMIN_SIDEBAR_STATE_OPTIONS,
+  ADMIN_THEME_PRIMARY_COLORS,
+  COLOR_MODES,
+} from '@/constants/admin-appearance'
+import { useAdminAppearancePreferencesStore } from '@/stores/admin-appearance-preferences'
 
-import { appearanceValidator } from '../validators/appearance.validator'
+const adminAppearanceStore = useAdminAppearancePreferencesStore()
+const { preferences } = storeToRefs(adminAppearanceStore)
+const { t } = useI18n()
 
-const KEY = 'appearance_config'
-const DESCRIPTION = 'Customize the appearance of the app. Automatically switch between day and night themes.'
-const DEFAULT_APPEARANCE_CONFIG_VALUE = {
-  theme: 'light',
-  font: 'inter',
-} as const
+// 表单直接写入本地偏好 store，Pinia 持久化负责保存到当前浏览器。
+const navigationModeOptions: Array<{ value: NavigationMode }> = [
+  { value: 'collapsible' },
+  { value: 'vercel' },
+]
 
-const { isGetting, isPending, onSubmit } = useSystemConfig({
-  key: KEY,
-  description: DESCRIPTION,
-  defaultValue: DEFAULT_APPEARANCE_CONFIG_VALUE,
-  schema: appearanceValidator,
-})
+function setColorMode(colorMode: AdminColorMode) {
+  adminAppearanceStore.updatePreference('colorMode', colorMode)
+}
+
+function setTheme(theme: Theme) {
+  adminAppearanceStore.updatePreference('theme', theme)
+}
+
+function setRadius(radius: Radius) {
+  adminAppearanceStore.updatePreference('radius', radius)
+}
+
+function setContentLayout(contentLayout: ContentLayout) {
+  adminAppearanceStore.updatePreference('contentLayout', contentLayout)
+}
+
+function setNavigationMode(navigationMode: NavigationMode) {
+  adminAppearanceStore.updatePreference('navigationMode', navigationMode)
+}
+
+function setFont(font: AdminFont) {
+  adminAppearanceStore.updatePreference('font', font)
+}
+
+function setDensity(density: AdminDensity) {
+  adminAppearanceStore.updatePreference('density', density)
+}
+
+function setSidebarDefaultState(sidebarDefaultState: AdminSidebarState) {
+  adminAppearanceStore.updatePreference('sidebarDefaultState', sidebarDefaultState)
+}
+
+function setReducedMotion(reducedMotion: boolean) {
+  adminAppearanceStore.updatePreference('reducedMotion', reducedMotion)
+}
+
+function setStripedTables(stripedTables: boolean) {
+  adminAppearanceStore.updatePreference('stripedTables', stripedTables)
+}
+
+function setShowBreadcrumbs(showBreadcrumbs: boolean) {
+  adminAppearanceStore.updatePreference('showBreadcrumbs', showBreadcrumbs)
+}
+
+function setShowPageTitle(showPageTitle: boolean) {
+  adminAppearanceStore.updatePreference('showPageTitle', showPageTitle)
+}
 </script>
 
 <template>
-  <div>
-    <h3 class="text-lg font-medium">
-      Appearance
-    </h3>
-    <p class="text-sm text-muted-foreground">
-      Customize the appearance of the app. Automatically switch between day and night themes.
-    </p>
+  <div class="space-y-1">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div>
+        <h3 class="text-lg font-medium">
+          {{ t('pages.settings.appearancePreferences.title') }}
+        </h3>
+        <p class="text-sm text-muted-foreground">
+          {{ t('pages.settings.appearancePreferences.description') }}
+        </p>
+      </div>
+      <Button variant="outline" size="sm" @click="adminAppearanceStore.resetPreferences()">
+        <RotateCcwIcon class="size-4" />
+        {{ t('pages.settings.appearancePreferences.resetDefaults') }}
+      </Button>
+    </div>
   </div>
   <Separator class="my-4" />
 
-  <div v-if="isGetting">
-    <Button variant="secondary" disabled size="sm">
-      <Spinner />
-      Please wait
-    </Button>
-  </div>
+  <div class="space-y-8">
+    <section class="space-y-4">
+      <div>
+        <h4 class="text-sm font-medium">
+          {{ t('pages.settings.appearancePreferences.themeSection') }}
+        </h4>
+        <p class="text-sm text-muted-foreground">
+          {{ t('pages.settings.appearancePreferences.themeDescription') }}
+        </p>
+      </div>
 
-  <form v-if="!isGetting" class="space-y-8" @submit="onSubmit">
-    <FormField v-slot="{ componentField }" name="font">
-      <FormItem>
-        <FormLabel>Font</FormLabel>
-        <UiSelect v-bind="componentField">
-          <UiFormControl>
+      <div class="grid gap-4 lg:grid-cols-2">
+        <div class="space-y-2">
+          <UiLabel>{{ t('pages.settings.appearancePreferences.colorMode') }}</UiLabel>
+          <div class="grid grid-cols-3 gap-2">
+            <Button
+              v-for="colorMode in COLOR_MODES"
+              :key="colorMode"
+              variant="outline"
+              class="justify-center"
+              :class="preferences.colorMode === colorMode ? 'border-foreground border-2' : ''"
+              @click="setColorMode(colorMode)"
+            >
+              {{ t(`pages.settings.appearancePreferences.colorModes.${colorMode}`) }}
+            </Button>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <UiLabel>{{ t('pages.settings.appearancePreferences.font') }}</UiLabel>
+          <UiSelect :model-value="preferences.font" @update:model-value="value => setFont(value as AdminFont)">
             <UiSelectTrigger>
-              <UiSelectValue placeholder="Select a font" />
+              <UiSelectValue :placeholder="t('pages.settings.appearancePreferences.fontPlaceholder')" />
             </UiSelectTrigger>
-          </UiFormControl>
-          <UiSelectContent>
-            <UiSelectGroup>
-              <UiSelectItem value="inter">
-                Inter
+            <UiSelectContent>
+              <UiSelectItem
+                v-for="font in ADMIN_FONT_OPTIONS"
+                :key="font.value"
+                :value="font.value"
+              >
+                {{ t(`pages.settings.appearancePreferences.fonts.${font.value}`) }}
               </UiSelectItem>
-              <UiSelectItem value="manrope">
-                Manrope
+            </UiSelectContent>
+          </UiSelect>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <UiLabel>{{ t('pages.settings.appearancePreferences.palette') }}</UiLabel>
+        <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          <Button
+            v-for="theme in ADMIN_THEME_PRIMARY_COLORS"
+            :key="theme.theme"
+            variant="outline"
+            class="justify-start"
+            :class="preferences.theme === theme.theme ? 'border-foreground border-2' : ''"
+            @click="setTheme(theme.theme)"
+          >
+            <span
+              :style="{ '--theme-primary': theme.primaryColor }"
+              class="size-3 rounded-full bg-(--theme-primary)"
+            />
+            <span>{{ t(`pages.settings.appearancePreferences.themes.${theme.theme}`) }}</span>
+          </Button>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <UiLabel>{{ t('pages.settings.appearancePreferences.radius') }}</UiLabel>
+        <div class="grid grid-cols-5 gap-2">
+          <Button
+            v-for="radius in ADMIN_RADIUS"
+            :key="radius"
+            variant="outline"
+            class="justify-center"
+            :class="preferences.radius === radius ? 'border-foreground border-2' : ''"
+            @click="setRadius(radius)"
+          >
+            {{ radius }}
+          </Button>
+        </div>
+      </div>
+    </section>
+
+    <Separator />
+
+    <section class="space-y-4">
+      <div>
+        <h4 class="text-sm font-medium">
+          {{ t('pages.settings.appearancePreferences.layoutSection') }}
+        </h4>
+        <p class="text-sm text-muted-foreground">
+          {{ t('pages.settings.appearancePreferences.layoutDescription') }}
+        </p>
+      </div>
+
+      <div class="grid gap-4 lg:grid-cols-3">
+        <div class="space-y-2">
+          <UiLabel>{{ t('pages.settings.appearancePreferences.contentLayout') }}</UiLabel>
+          <div class="grid grid-cols-2 gap-2">
+            <Button
+              v-for="layout in ADMIN_CONTENT_LAYOUTS"
+              :key="layout.value"
+              variant="outline"
+              class="justify-center"
+              :class="preferences.contentLayout === layout.value ? 'border-foreground border-2' : ''"
+              @click="setContentLayout(layout.value)"
+            >
+              <component :is="layout.icon" />
+              {{ t(`pages.settings.appearancePreferences.contentLayouts.${layout.value}`) }}
+            </Button>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <UiLabel>{{ t('pages.settings.appearancePreferences.menuStyle') }}</UiLabel>
+          <div class="grid grid-cols-2 gap-2">
+            <Button
+              v-for="mode in navigationModeOptions"
+              :key="mode.value"
+              variant="outline"
+              class="justify-center"
+              :title="t(`pages.settings.appearancePreferences.navigationDescriptions.${mode.value}`)"
+              :class="preferences.navigationMode === mode.value ? 'border-foreground border-2' : ''"
+              @click="setNavigationMode(mode.value)"
+            >
+              {{ t(`pages.settings.appearancePreferences.navigationModes.${mode.value}`) }}
+            </Button>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <UiLabel>{{ t('pages.settings.appearancePreferences.sidebarStartup') }}</UiLabel>
+          <UiSelect :model-value="preferences.sidebarDefaultState" @update:model-value="value => setSidebarDefaultState(value as AdminSidebarState)">
+            <UiSelectTrigger>
+              <UiSelectValue :placeholder="t('pages.settings.appearancePreferences.sidebarStartupPlaceholder')" />
+            </UiSelectTrigger>
+            <UiSelectContent>
+              <UiSelectItem
+                v-for="state in ADMIN_SIDEBAR_STATE_OPTIONS"
+                :key="state.value"
+                :value="state.value"
+              >
+                {{ t(`pages.settings.appearancePreferences.sidebarStates.${state.value}`) }}
               </UiSelectItem>
-              <UiSelectItem value="system">
-                System
+            </UiSelectContent>
+          </UiSelect>
+        </div>
+      </div>
+    </section>
+
+    <Separator />
+
+    <section class="space-y-4">
+      <div>
+        <h4 class="text-sm font-medium">
+          {{ t('pages.settings.appearancePreferences.displaySection') }}
+        </h4>
+        <p class="text-sm text-muted-foreground">
+          {{ t('pages.settings.appearancePreferences.displayDescription') }}
+        </p>
+      </div>
+
+      <div class="grid gap-4 lg:grid-cols-2">
+        <div class="space-y-2">
+          <UiLabel>{{ t('pages.settings.appearancePreferences.density') }}</UiLabel>
+          <UiSelect :model-value="preferences.density" @update:model-value="value => setDensity(value as AdminDensity)">
+            <UiSelectTrigger>
+              <UiSelectValue :placeholder="t('pages.settings.appearancePreferences.densityPlaceholder')" />
+            </UiSelectTrigger>
+            <UiSelectContent>
+              <UiSelectItem
+                v-for="density in ADMIN_DENSITY_OPTIONS"
+                :key="density.value"
+                :value="density.value"
+              >
+                {{ t(`pages.settings.appearancePreferences.densities.${density.value}`) }}
               </UiSelectItem>
-            </UiSelectGroup>
-          </UiSelectContent>
-        </UiSelect>
-        <FormDescription>
-          Set the font you want to use in the dashboard.
-        </FormDescription>
-        <FormMessage />
-      </FormItem>
-    </FormField>
+            </UiSelectContent>
+          </UiSelect>
+        </div>
 
-    <FormField v-slot="{ componentField }" type="radio" name="theme">
-      <FormItem class="space-y-1">
-        <FormLabel>Theme</FormLabel>
-        <FormDescription>
-          Select the theme for the dashboard.
-        </FormDescription>
-        <FormMessage />
+        <div class="grid gap-3 rounded-md border p-4">
+          <!-- UiSwitch 使用 Reka modelValue 受控接口，确保布尔偏好能写回持久化 store。 -->
+          <label class="flex items-center justify-between gap-4">
+            <span>
+              <span class="block text-sm font-medium">{{ t('pages.settings.appearancePreferences.reduceMotion') }}</span>
+              <span class="block text-sm text-muted-foreground">{{ t('pages.settings.appearancePreferences.reduceMotionDescription') }}</span>
+            </span>
+            <UiSwitch
+              :model-value="preferences.reducedMotion"
+              @update:model-value="setReducedMotion"
+            />
+          </label>
+          <label class="flex items-center justify-between gap-4">
+            <span>
+              <span class="block text-sm font-medium">{{ t('pages.settings.appearancePreferences.stripedTables') }}</span>
+              <span class="block text-sm text-muted-foreground">{{ t('pages.settings.appearancePreferences.stripedTablesDescription') }}</span>
+            </span>
+            <UiSwitch
+              :model-value="preferences.stripedTables"
+              @update:model-value="setStripedTables"
+            />
+          </label>
+          <label class="flex items-center justify-between gap-4">
+            <span>
+              <span class="block text-sm font-medium">{{ t('pages.settings.appearancePreferences.showBreadcrumbs') }}</span>
+              <span class="block text-sm text-muted-foreground">{{ t('pages.settings.appearancePreferences.showBreadcrumbsDescription') }}</span>
+            </span>
+            <UiSwitch
+              :model-value="preferences.showBreadcrumbs"
+              @update:model-value="setShowBreadcrumbs"
+            />
+          </label>
+          <label class="flex items-center justify-between gap-4">
+            <span>
+              <span class="block text-sm font-medium">{{ t('pages.settings.appearancePreferences.showPageTitles') }}</span>
+              <span class="block text-sm text-muted-foreground">{{ t('pages.settings.appearancePreferences.showPageTitlesDescription') }}</span>
+            </span>
+            <UiSwitch
+              :model-value="preferences.showPageTitle"
+              @update:model-value="setShowPageTitle"
+            />
+          </label>
+        </div>
+      </div>
+    </section>
 
-        <RadioGroup
-          class="grid max-w-md grid-cols-2 gap-8 pt-2"
-          v-bind="componentField"
-        >
-          <FormItem>
-            <FormLabel class="[&:has([data-state=checked])>div]:border-primary flex flex-col">
-              <FormControl>
-                <RadioGroupItem value="light" class="sr-only" />
-              </FormControl>
-              <div class="items-center p-1 border-2 rounded-md border-muted hover:border-accent">
-                <div class="space-y-2 rounded-sm bg-[#ecedef] p-2">
-                  <div class="p-2 space-y-2 bg-white rounded-md shadow-xs">
-                    <div class="h-2 w-20 rounded-lg bg-[#ecedef]" />
-                    <div class="h-2 w-[100px] rounded-lg bg-[#ecedef]" />
-                  </div>
-                  <div class="flex items-center p-2 space-x-2 bg-white rounded-md shadow-xs">
-                    <div class="h-4 w-4 rounded-full bg-[#ecedef]" />
-                    <div class="h-2 w-[100px] rounded-lg bg-[#ecedef]" />
-                  </div>
-                  <div class="flex items-center p-2 space-x-2 bg-white rounded-md shadow-xs">
-                    <div class="h-4 w-4 rounded-full bg-[#ecedef]" />
-                    <div class="h-2 w-[100px] rounded-lg bg-[#ecedef]" />
-                  </div>
-                </div>
-              </div>
-              <span class="block w-full p-2 font-normal text-center">
-                Light
-              </span>
-            </FormLabel>
-          </FormItem>
-          <FormItem>
-            <FormLabel class="[&:has([data-state=checked])>div]:border-primary flex flex-col">
-              <FormControl>
-                <RadioGroupItem value="dark" class="sr-only" />
-              </FormControl>
-              <div class="items-center p-1 border-2 rounded-md border-muted bg-popover hover:bg-accent hover:text-accent-foreground">
-                <div class="p-2 space-y-2 rounded-sm bg-slate-950">
-                  <div class="p-2 space-y-2 rounded-md shadow-xs bg-slate-800">
-                    <div class="w-20 h-2 rounded-lg bg-slate-400" />
-                    <div class="h-2 w-[100px] rounded-lg bg-slate-400" />
-                  </div>
-                  <div class="flex items-center p-2 space-x-2 rounded-md shadow-xs bg-slate-800">
-                    <div class="size-4 rounded-full bg-slate-400" />
-                    <div class="h-2 w-[100px] rounded-lg bg-slate-400" />
-                  </div>
-                  <div class="flex items-center p-2 space-x-2 rounded-md shadow-xs bg-slate-800">
-                    <div class="size-4 rounded-full bg-slate-400" />
-                    <div class="h-2 w-[100px] rounded-lg bg-slate-400" />
-                  </div>
-                </div>
-              </div>
-              <span class="block w-full p-2 font-normal text-center">
-                Dark
-              </span>
-            </FormLabel>
-          </FormItem>
-        </RadioGroup>
-      </FormItem>
-    </FormField>
-
-    <div class="flex justify-start">
-      <Button type="submit" :disabled="isPending">
-        <Spinner v-if="isPending" size="sm" />
-        Update preferences
-      </Button>
+    <div class="flex items-center gap-2 text-sm text-muted-foreground">
+      <SaveIcon class="size-4" />
+      {{ t('pages.settings.appearancePreferences.savedHint') }}
     </div>
-  </form>
+  </div>
 </template>

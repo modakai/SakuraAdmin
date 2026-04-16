@@ -1,5 +1,6 @@
 {
   "common": {
+    "admin": "Admin",
     "account": "account",
     "email": "Email",
     "password": "Password",
@@ -148,6 +149,100 @@
         "savePassword": "Save Password",
         "passwordSaved": "Password updated successfully",
         "passwordSaveFailed": "Failed to update password"
+      },
+      "appearancePreferences": {
+        "title": "Appearance preferences",
+        "description": "Configure admin appearance preferences for this browser. Changes are saved automatically.",
+        "resetDefaults": "Reset defaults",
+        "shortcut": "Admin appearance preferences",
+        "shortcutTitle": "Appearance preferences",
+        "shortcutDescription": "Quickly adjust admin theme, layout, and menu style.",
+        "openFullSettings": "Open full settings",
+        "savedHint": "Preferences save automatically in this browser.",
+        "themeSection": "Theme",
+        "themeDescription": "Choose the color mode, shadcn palette, radius, and admin font.",
+        "colorMode": "Color mode",
+        "font": "Font",
+        "fontPlaceholder": "Select font",
+        "palette": "Palette",
+        "radius": "Radius",
+        "layoutSection": "Layout and navigation",
+        "layoutDescription": "Tune the admin workspace width, menu behavior, and sidebar startup state.",
+        "contentLayout": "Content layout",
+        "menuStyle": "Menu style",
+        "sidebarStartup": "Sidebar startup",
+        "sidebarStartupPlaceholder": "Select startup state",
+        "displaySection": "Display effects",
+        "displayDescription": "Adjust motion and optional chrome for dense admin work.",
+        "density": "Density",
+        "densityPlaceholder": "Select density",
+        "reduceMotion": "Reduce motion",
+        "reduceMotionDescription": "Disable non-essential transitions.",
+        "stripedTables": "Striped tables",
+        "stripedTablesDescription": "Show alternating row backgrounds where supported.",
+        "showBreadcrumbs": "Show breadcrumbs",
+        "showBreadcrumbsDescription": "Keep page path context visible.",
+        "showPageTitles": "Show page titles",
+        "showPageTitlesDescription": "Keep page heading regions visible.",
+        "colorModes": {
+          "light": "Light",
+          "dark": "Dark",
+          "system": "System"
+        },
+        "fonts": {
+          "system": "System",
+          "inter": "Inter",
+          "manrope": "Manrope",
+          "geist": "Geist",
+          "mono": "Mono",
+          "serif": "Serif"
+        },
+        "themes": {
+          "slate": "Slate",
+          "gray": "Gray",
+          "zinc": "Zinc",
+          "neutral": "Neutral",
+          "stone": "Stone",
+          "red": "Red",
+          "rose": "Rose",
+          "pink": "Pink",
+          "fuchsia": "Fuchsia",
+          "purple": "Purple",
+          "violet": "Violet",
+          "indigo": "Indigo",
+          "blue": "Blue",
+          "sky": "Sky",
+          "cyan": "Cyan",
+          "teal": "Teal",
+          "emerald": "Emerald",
+          "green": "Green",
+          "lime": "Lime",
+          "yellow": "Yellow",
+          "amber": "Amber",
+          "orange": "Orange"
+        },
+        "contentLayouts": {
+          "full": "Full",
+          "centered": "Centered"
+        },
+        "navigationModes": {
+          "collapsible": "Collapsible",
+          "vercel": "Vercel"
+        },
+        "navigationDescriptions": {
+          "collapsible": "Use the classic collapsible sidebar.",
+          "vercel": "Use progressive drill-down navigation."
+        },
+        "sidebarStates": {
+          "remember": "Remember last state",
+          "expanded": "Expanded by default",
+          "collapsed": "Collapsed by default"
+        },
+        "densities": {
+          "comfortable": "Comfortable",
+          "standard": "Standard",
+          "compact": "Compact"
+        }
       }
     },
     "users": {

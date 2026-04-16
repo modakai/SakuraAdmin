@@ -1,23 +1,20 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 
-import { THEME_PRIMARY_COLORS, THEMES } from '@/constants/themes'
+import { THEME_PRIMARY_COLORS } from '@/constants/themes'
 import { useThemeStore } from '@/stores/theme'
 
 const themeStore = useThemeStore()
 const { setTheme } = themeStore
 const { theme: t } = storeToRefs(themeStore)
-
-watchEffect(() => {
-  document.documentElement.classList.remove(...THEMES.map(theme => `theme-${theme}`))
-  document.documentElement.classList.add(`theme-${t.value}`)
-})
+const { t: translate } = useI18n()
 </script>
 
 <template>
   <div class="space-y-1.5 pt-6">
     <UiLabel for="radius" class="text-xs">
-      Color
+      {{ translate('pages.settings.appearancePreferences.palette') }}
     </UiLabel>
     <div class="grid grid-cols-2 gap-2 py-1.5">
       <UiButton
@@ -33,7 +30,7 @@ watchEffect(() => {
           }"
           class="size-2 rounded-full bg-(--theme-primary)"
         />
-        <span class="text-xs">{{ theme.theme[0].toUpperCase() }}{{ theme.theme.slice(1) }}</span>
+        <span class="text-xs">{{ translate(`pages.settings.appearancePreferences.themes.${theme.theme}`) }}</span>
       </UiButton>
     </div>
   </div>

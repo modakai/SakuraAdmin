@@ -1,5 +1,6 @@
 {
   "common": {
+    "admin": "管理端",
     "account": "账户",
     "email": "邮箱",
     "password": "密码",
@@ -148,6 +149,100 @@
         "savePassword": "保存新密码",
         "passwordSaved": "密码修改成功",
         "passwordSaveFailed": "密码修改失败"
+      },
+      "appearancePreferences": {
+        "title": "外观偏好",
+        "description": "配置当前浏览器中的管理端外观偏好，修改后会自动保存。",
+        "resetDefaults": "恢复默认",
+        "shortcut": "管理端外观偏好",
+        "shortcutTitle": "外观偏好",
+        "shortcutDescription": "快速调整管理端主题、布局和菜单风格。",
+        "openFullSettings": "打开完整设置",
+        "savedHint": "偏好会自动保存到当前浏览器。",
+        "themeSection": "主题",
+        "themeDescription": "选择明暗模式、shadcn 配色、圆角和管理端字体。",
+        "colorMode": "明暗模式",
+        "font": "字体",
+        "fontPlaceholder": "请选择字体",
+        "palette": "配色",
+        "radius": "圆角",
+        "layoutSection": "布局与导航",
+        "layoutDescription": "调整管理端内容宽度、菜单交互和侧边栏初始状态。",
+        "contentLayout": "内容布局",
+        "menuStyle": "菜单风格",
+        "sidebarStartup": "侧边栏初始状态",
+        "sidebarStartupPlaceholder": "请选择初始状态",
+        "displaySection": "显示效果",
+        "displayDescription": "调整适合高密度后台工作的动效和页面辅助元素。",
+        "density": "界面密度",
+        "densityPlaceholder": "请选择界面密度",
+        "reduceMotion": "减少动效",
+        "reduceMotionDescription": "关闭非必要过渡和动画。",
+        "stripedTables": "表格斑马纹",
+        "stripedTablesDescription": "在支持的管理端表格中显示交替行背景。",
+        "showBreadcrumbs": "显示面包屑",
+        "showBreadcrumbsDescription": "保留页面路径上下文。",
+        "showPageTitles": "显示页面标题",
+        "showPageTitlesDescription": "保留页面标题区域。",
+        "colorModes": {
+          "light": "浅色",
+          "dark": "深色",
+          "system": "跟随系统"
+        },
+        "fonts": {
+          "system": "系统字体",
+          "inter": "Inter",
+          "manrope": "Manrope",
+          "geist": "Geist",
+          "mono": "等宽字体",
+          "serif": "衬线字体"
+        },
+        "themes": {
+          "slate": "板岩灰",
+          "gray": "中性灰",
+          "zinc": "锌灰",
+          "neutral": "纯中性",
+          "stone": "石色",
+          "red": "红色",
+          "rose": "玫瑰",
+          "pink": "粉色",
+          "fuchsia": "紫红",
+          "purple": "紫色",
+          "violet": "紫罗兰",
+          "indigo": "靛蓝",
+          "blue": "蓝色",
+          "sky": "天蓝",
+          "cyan": "青色",
+          "teal": "青绿",
+          "emerald": "翠绿",
+          "green": "绿色",
+          "lime": "酸橙",
+          "yellow": "黄色",
+          "amber": "琥珀",
+          "orange": "橙色"
+        },
+        "contentLayouts": {
+          "full": "通栏",
+          "centered": "居中"
+        },
+        "navigationModes": {
+          "collapsible": "折叠菜单",
+          "vercel": "渐进菜单"
+        },
+        "navigationDescriptions": {
+          "collapsible": "使用传统可折叠侧边栏。",
+          "vercel": "使用逐级进入的导航交互。"
+        },
+        "sidebarStates": {
+          "remember": "记住上次状态",
+          "expanded": "默认展开",
+          "collapsed": "默认收起"
+        },
+        "densities": {
+          "comfortable": "舒适",
+          "standard": "标准",
+          "compact": "紧凑"
+        }
       }
     },
     "users": {
