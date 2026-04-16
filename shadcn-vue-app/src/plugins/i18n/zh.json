@@ -224,8 +224,8 @@
       "enterAdmin": "进入后台",
       "guideTitle": "用户端说明",
       "guideDesc": "首版模板已补齐用户端首页、登录页、刷题中心、学习记录和个人中心。",
-      "userLoginPath": "用户端登录入口：`/login`",
-      "adminLoginPath": "统一登录入口：`/login`",
+      "userLoginPath": "用户端登录入口：`/auth/sign-in`",
+      "adminLoginPath": "统一登录入口：`/auth/sign-in`",
       "accessNote": "统一认证返回后，是否允许进入后台由角色权限决定。",
       "recentTitle": "近期动态",
       "metrics": {
@@ -264,7 +264,12 @@
       "emailPlaceholder": "请输入登录账号",
       "passwordPlaceholder": "12345678",
       "enterUser": "进入用户端",
-      "demoTip": "默认密码需满足后端最小 8 位要求，示例账号会显示在登录表单中。"
+      "demoTip": "默认密码需满足后端最小 8 位要求，示例账号会显示在登录表单中。",
+      "noAccount": "还没有账号？",
+      "toSignUp": "去注册",
+      "agreePrefix": "登录即表示你同意",
+      "agreeAnd": "以及",
+      "fillRequired": "必填项未填写完整，请先补全。"
     },
     "authPortal": {
       "user": {

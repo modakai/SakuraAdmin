@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <UiButton as="a" href="/login">
+  <UiButton as="a" href="/auth/sign-in">
     {{ $t('login') }}
   </UiButton>
 </template>

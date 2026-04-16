@@ -224,8 +224,8 @@
       "enterAdmin": "Go to Admin",
       "guideTitle": "User Portal Guide",
       "guideDesc": "The first template release already includes the user homepage, login, practice center, study records, and profile.",
-      "userLoginPath": "User login entry: `/login`",
-      "adminLoginPath": "Unified login entry: `/login`",
+      "userLoginPath": "User login entry: `/auth/sign-in`",
+      "adminLoginPath": "Unified login entry: `/auth/sign-in`",
       "accessNote": "After unified authentication, role permissions determine whether admin access is allowed.",
       "recentTitle": "Recent Updates",
       "metrics": {
@@ -264,7 +264,12 @@
       "emailPlaceholder": "Enter your login account",
       "passwordPlaceholder": "12345678",
       "enterUser": "Enter User Portal",
-      "demoTip": "The sample password must satisfy the backend minimum length of 8. Demo accounts are shown in the login form."
+      "demoTip": "The sample password must satisfy the backend minimum length of 8. Demo accounts are shown in the login form.",
+      "noAccount": "No account yet?",
+      "toSignUp": "Sign up",
+      "agreePrefix": "By signing in, you agree to our",
+      "agreeAnd": "and",
+      "fillRequired": "Please complete required fields before signing in."
     },
     "authPortal": {
       "user": {

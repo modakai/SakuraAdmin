@@ -2,7 +2,7 @@ import type { RouteLocationRaw } from 'vue-router'
 
 export const RouterPath: Record<string, RouteLocationRaw> = {
   HOME: '/',
-  USER_LOGIN: '/login',
+  USER_LOGIN: '/auth/sign-in',
   ADMIN_HOME: '/dashboard',
-  ADMIN_LOGIN: '/login',
+  ADMIN_LOGIN: '/auth/sign-in',
 } as const

@@ -61,7 +61,7 @@ const userHighlights = computed(() => [
             v-else-if="!isLogin"
             variant="outline"
             class="border-white/30 bg-white/10 text-white hover:bg-white/15"
-            @click="$router.push('/login')"
+            @click="$router.push('/auth/sign-in')"
           >
             {{ t('pages.login.enterUser') }}
           </UiButton>

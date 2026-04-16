@@ -52,10 +52,10 @@ const activePath = computed(() => route.path)
           </template>
 
           <template v-else>
-            <UiButton variant="ghost" size="sm" @click="$router.push('/login')">
+            <UiButton variant="ghost" size="sm" @click="$router.push('/auth/sign-in')">
               登录
             </UiButton>
-            <UiButton variant="outline" size="sm" @click="$router.push('/login')">
+            <UiButton variant="outline" size="sm" @click="$router.push('/auth/sign-in')">
               统一登录
             </UiButton>
           </template>
@@ -82,10 +82,10 @@ const activePath = computed(() => route.path)
             <UiDropdownMenuItem v-if="isLogin" @click="logout">
               退出登录
             </UiDropdownMenuItem>
-            <UiDropdownMenuItem v-else @click="$router.push('/login')">
+            <UiDropdownMenuItem v-else @click="$router.push('/auth/sign-in')">
               用户登录
             </UiDropdownMenuItem>
-            <UiDropdownMenuItem v-if="!isLogin" @click="$router.push('/login')">
+            <UiDropdownMenuItem v-if="!isLogin" @click="$router.push('/auth/sign-in')">
               统一登录
             </UiDropdownMenuItem>
           </UiDropdownMenuContent>

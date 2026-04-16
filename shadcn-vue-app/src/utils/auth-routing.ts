@@ -53,7 +53,7 @@ export function getDefaultRedirectPath(session: AuthSession): string {
 
 export function getLoginRoute(_section: 'user' | 'admin' = 'user'): string {
   // 前台与后台统一使用同一个登录路由，登录后再按角色分流。
-  return '/login'
+  return '/auth/sign-in'
 }
 
 // 用纯函数统一表达守卫跳转规则，便于测试和路由复用。

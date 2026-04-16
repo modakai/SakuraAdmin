@@ -7,6 +7,7 @@ import { useAuthStore } from '@/stores/auth'
 import {
   canAccessAdmin,
   getDefaultRedirectPath,
+  getLoginRoute,
 } from '@/utils/auth-routing'
 import { buildAuthSessionFromLoginUser } from '@/utils/auth-session'
 
@@ -25,7 +26,7 @@ export function useAuth() {
       authStore.clearSession()
     }
 
-    router.push({ path: '/login' })
+    router.push({ path: getLoginRoute() })
   }
 
   /**
