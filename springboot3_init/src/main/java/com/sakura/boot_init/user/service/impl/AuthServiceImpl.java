@@ -68,6 +68,8 @@ public class AuthServiceImpl implements AuthService {
             User user = new User();
             user.setUserAccount(userAccount);
             user.setUserPassword(encryptPassword(userPassword));
+            // 注册接口只允许创建普通用户（user），角色不允许由客户端或其他参数决定。
+            user.setUserRole(UserRoleEnum.USER.getValue());
             user.setStatus(UserConstant.STATUS_ENABLED);
             int saveResult = userMapper.insertSelective(user);
             if (saveResult <= 0) {
@@ -117,6 +119,8 @@ public class AuthServiceImpl implements AuthService {
                 user.setMpOpenId(mpOpenId);
                 user.setUserAvatar(wxOAuth2UserInfo.getHeadImgUrl());
                 user.setUserName(wxOAuth2UserInfo.getNickname());
+                // 第三方登录首次创建用户时同样强制写入普通用户角色，避免角色为空带来权限歧义。
+                user.setUserRole(UserRoleEnum.USER.getValue());
                 user.setStatus(UserConstant.STATUS_ENABLED);
                 int result = userMapper.insert(user);
                 if (result <= 0) {

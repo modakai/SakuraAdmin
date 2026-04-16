@@ -28,6 +28,10 @@
     "action": "Action",
     "openMenu": "Open menu"
   },
+  "validation": {
+    "required": "Required",
+    "minLength": "At least {min} characters"
+  },
   "language": {
     "change": "Change language",
     "option": {
@@ -85,6 +89,23 @@
     }
   },
   "pages": {
+    "signUp": {
+      "title": "Sign Up",
+      "description": "Enter your account and password to create an account.",
+      "hasAccount": "Already have an account?",
+      "toLogin": "Sign In",
+      "accountPlaceholder": "Enter account (min 4)",
+      "passwordPlaceholder": "Enter password (min 8)",
+      "confirmPassword": "Confirm Password",
+      "submit": "Create Account",
+      "success": "Account created. Please sign in.",
+      "failedTitle": "Sign up failed",
+      "failedRetry": "Sign up failed. Please try again later.",
+      "fillRequired": "Please complete required fields before submitting.",
+      "passwordNotMatch": "Passwords do not match",
+      "agreePrefix": "By creating an account, you agree to our",
+      "agreeAnd": "and"
+    },
     "billing": {
       "title": "Plans & Billing",
       "upgrade": "Upgrade to Pro"

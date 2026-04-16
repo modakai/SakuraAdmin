@@ -28,6 +28,10 @@
     "action": "操作",
     "openMenu": "打开菜单"
   },
+  "validation": {
+    "required": "必填项",
+    "minLength": "至少 {min} 个字符"
+  },
   "language": {
     "change": "切换语言",
     "option": {
@@ -85,6 +89,23 @@
     }
   },
   "pages": {
+    "signUp": {
+      "title": "注册",
+      "description": "请输入账号和密码创建新账户。",
+      "hasAccount": "已有账号？",
+      "toLogin": "去登录",
+      "accountPlaceholder": "请输入账号（至少 4 位）",
+      "passwordPlaceholder": "请输入密码（至少 8 位）",
+      "confirmPassword": "确认密码",
+      "submit": "创建账号",
+      "success": "注册成功，请登录。",
+      "failedTitle": "注册失败",
+      "failedRetry": "注册失败，请稍后重试。",
+      "fillRequired": "必填项未填写完整，请先补全。",
+      "passwordNotMatch": "两次输入的密码不一致",
+      "agreePrefix": "创建账号即表示你同意",
+      "agreeAnd": "以及"
+    },
     "billing": {
       "title": "套餐与账单",
       "upgrade": "升级到专业版"
