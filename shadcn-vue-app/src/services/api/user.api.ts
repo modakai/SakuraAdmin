@@ -1,4 +1,7 @@
+import type { MaybeRefOrGetter } from 'vue'
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { computed, toValue } from 'vue'
 
 import type { IPageResponse, IResponse } from '@/services/types/response.type'
 import type {
@@ -13,6 +16,7 @@ import type {
 
 import { useApiFetch } from '@/composables/use-fetch'
 import { normalizeUserQuery } from '@/services/api/admin-query'
+import { shouldEnableUserDetailQuery } from '@/services/api/user-query'
 
 /**
  * 获取后台用户分页列表。
@@ -38,12 +42,12 @@ export function useGetUserPageQuery(query: UserQuery) {
 /**
  * 获取后台用户详情。
  */
-export function useGetUserDetailQuery(id: UserEntityId | null | undefined) {
+export function useGetUserDetailQuery(id: UserEntityId | null | undefined, enabled: MaybeRefOrGetter<boolean> = true) {
   const { apiFetch } = useApiFetch()
 
   return useQuery<IResponse<UserItem>, Error>({
     queryKey: ['user-detail', id],
-    enabled: computed(() => Boolean(id)),
+    enabled: computed(() => shouldEnableUserDetailQuery(id, toValue(enabled))),
     queryFn: async () => await apiFetch<IResponse<UserItem>>('/user/get', {
       method: 'get',
       query: { id },

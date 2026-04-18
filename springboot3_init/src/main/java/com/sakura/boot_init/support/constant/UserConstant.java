@@ -20,6 +20,11 @@ public interface UserConstant {
     String ADMIN_ROLE = "admin";
 
     /**
+     * 内置超级管理员账号，不允许删除。
+     */
+    String PROTECTED_SUPER_ADMIN_ACCOUNT = "sakura";
+
+    /**
      * 封禁角色
      */
     String BAN_ROLE = "ban";

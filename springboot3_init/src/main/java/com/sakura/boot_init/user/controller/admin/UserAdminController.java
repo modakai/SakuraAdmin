@@ -81,7 +81,7 @@ public class UserAdminController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @AuditLogRecord(description = "删除用户", module = "用户管理", operationType = AuditOperationTypeEnum.DELETE)
     public BaseResponse<Boolean> deleteUser(@Valid @RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
-        boolean result = userService.removeById(deleteRequest.getId());
+        boolean result = userService.removeUser(deleteRequest.getId());
         return ResultUtils.success(result);
     }
 
@@ -97,9 +97,7 @@ public class UserAdminController {
     @AuditLogRecord(description = "更新用户", module = "用户管理", operationType = AuditOperationTypeEnum.UPDATE)
     public BaseResponse<Boolean> updateUser(@Valid @RequestBody UserUpdateRequest userUpdateRequest,
             HttpServletRequest request) {
-        User user = new User();
-        BeanUtils.copyProperties(userUpdateRequest, user);
-        boolean result = userService.updateById(user);
+        boolean result = userService.updateUser(userUpdateRequest);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         sendDisabledNotificationIfNeeded(userUpdateRequest);
         return ResultUtils.success(true);

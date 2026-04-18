@@ -294,6 +294,8 @@
       "confirmDelete": "Confirm Delete",
       "deleteSuccess": "User deleted successfully",
       "deleteFailed": "Failed to delete user",
+      "protectedAdminCannotDelete": "The built-in super administrator sakura cannot be deleted",
+      "protectedAdminCannotDisable": "The built-in super administrator sakura cannot be disabled",
       "createSuccess": "User created successfully. Default password: 12345678",
       "updateSuccess": "User updated successfully",
       "saveFailed": "Failed to save user",
@@ -315,7 +317,7 @@
       "columns": {
         "userAccount": "Account",
         "userName": "Nickname",
-        "userAvatar": "Avatar URL",
+        "userAvatar": "Avatar",
         "userProfile": "Profile",
         "status": "Status",
         "userRole": "Role",
@@ -329,7 +331,7 @@
       "form": {
         "accountPlaceholder": "Enter login account",
         "namePlaceholder": "Enter nickname",
-        "avatarPlaceholder": "Enter avatar URL",
+        "avatarPlaceholder": "Supports jpeg, jpg, svg, png, and webp. Max 1MB per image.",
         "profilePlaceholder": "Enter user profile",
         "rolePlaceholder": "Select a user role",
         "statusPlaceholder": "Select a user status",

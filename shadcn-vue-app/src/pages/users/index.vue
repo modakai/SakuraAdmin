@@ -15,6 +15,7 @@ import {
 
 import { deleteSelectedUser } from './components/user-delete-action'
 import UserFormDialog from './components/user-form-dialog.vue'
+import { canDeleteUser, canToggleUserStatus } from './components/user-protection'
 
 const { t } = useI18n()
 const query = reactive<UserQuery>({
@@ -117,6 +118,11 @@ async function handleDelete() {
   if (!targetUser) {
     return
   }
+  if (!canDeleteUser(targetUser)) {
+    toast.error(t('pages.users.protectedAdminCannotDelete'))
+    deletingUser.value = null
+    return
+  }
   try {
     const isDeleted = await deleteSelectedUser({
       user: targetUser,
@@ -160,6 +166,11 @@ async function handleResetPassword() {
  */
 async function handleToggleStatus() {
   if (!togglingUser.value?.id) {
+    return
+  }
+  if (!canToggleUserStatus(togglingUser.value)) {
+    toast.error(t('pages.users.protectedAdminCannotDisable'))
+    togglingUser.value = null
     return
   }
   try {
@@ -295,9 +306,6 @@ async function handleToggleStatus() {
                     <div class="font-medium">
                       {{ item.userAccount || t('common.emptyDash') }}
                     </div>
-                    <div v-if="item.userAvatar" class="mt-1 truncate text-xs text-muted-foreground">
-                      {{ item.userAvatar }}
-                    </div>
                   </td>
                   <td class="px-4 py-3 align-top">
                     <div class="font-medium">
@@ -321,7 +329,7 @@ async function handleToggleStatus() {
                   <td class="px-4 py-3">
                     <div class="flex justify-end gap-2">
                       <UserFormDialog :user-id="item.id" @success="refetch()" />
-                      <UiButton variant="outline" size="sm" :disabled="isUpdating" @click="togglingUser = item">
+                      <UiButton v-if="canToggleUserStatus(item)" variant="outline" size="sm" :disabled="isUpdating" @click="togglingUser = item">
                         <component :is="item.status === 1 ? ShieldBanIcon : ShieldCheckIcon" class="mr-1 size-4" />
                         {{ item.status === 1 ? t('pages.users.disableUser') : t('pages.users.enableUser') }}
                       </UiButton>
@@ -329,7 +337,7 @@ async function handleToggleStatus() {
                         <KeyRoundIcon class="mr-1 size-4" />
                         {{ t('pages.users.resetPassword') }}
                       </UiButton>
-                      <UiButton variant="outline" size="sm" :disabled="isDeleting" @click="deletingUser = item">
+                      <UiButton v-if="canDeleteUser(item)" variant="outline" size="sm" :disabled="isDeleting" @click="deletingUser = item">
                         <Trash2Icon class="mr-1 size-4" />
                         {{ t('actions.delete') }}
                       </UiButton>

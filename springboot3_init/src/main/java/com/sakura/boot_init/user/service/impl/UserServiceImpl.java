@@ -10,6 +10,7 @@ import com.sakura.boot_init.support.exception.BusinessException;
 import com.sakura.boot_init.support.exception.ThrowUtils;
 import com.sakura.boot_init.support.util.SqlUtils;
 import com.sakura.boot_init.user.model.dto.UserQueryRequest;
+import com.sakura.boot_init.user.model.dto.UserUpdateRequest;
 import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.model.vo.UserVO;
 import com.sakura.boot_init.user.repository.UserMapper;
@@ -78,6 +79,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             queryWrapper.orderBy(sortField, CommonConstant.SORT_ORDER_ASC.equals(sortOrder));
         }
         return queryWrapper;
+    }
+
+    @Override
+    public boolean removeUser(Long id) {
+        if (id == null || id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户 id 非法");
+        }
+        User oldUser = this.getById(id);
+        ThrowUtils.throwIf(oldUser == null, ErrorCode.NOT_FOUND_ERROR);
+        // 内置超级管理员账号承担系统兜底管理职责，禁止通过用户管理删除。
+        ThrowUtils.throwIf(UserConstant.PROTECTED_SUPER_ADMIN_ACCOUNT.equals(oldUser.getUserAccount()),
+                ErrorCode.FORBIDDEN_ERROR, "内置超级管理员 sakura 不允许删除");
+
+        return this.removeById(id);
+    }
+
+    @Override
+    public boolean updateUser(UserUpdateRequest userUpdateRequest) {
+        ThrowUtils.throwIf(userUpdateRequest == null || userUpdateRequest.getId() == null,
+                ErrorCode.PARAMS_ERROR, "请求参数为空");
+        User oldUser = this.getById(userUpdateRequest.getId());
+        ThrowUtils.throwIf(oldUser == null, ErrorCode.NOT_FOUND_ERROR);
+        // 内置超级管理员必须保持启用状态，避免系统失去兜底管理员。
+        ThrowUtils.throwIf(UserConstant.PROTECTED_SUPER_ADMIN_ACCOUNT.equals(oldUser.getUserAccount())
+                        && UserConstant.STATUS_DISABLED.equals(userUpdateRequest.getStatus()),
+                ErrorCode.FORBIDDEN_ERROR, "内置超级管理员 sakura 不允许禁用");
+
+        User user = new User();
+        BeanUtils.copyProperties(userUpdateRequest, user);
+        return this.updateById(user);
     }
 
     @Override

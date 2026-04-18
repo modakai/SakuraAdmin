@@ -5,11 +5,14 @@ import { toast } from 'vue-sonner'
 
 import type { UserAddForm, UserEntityId, UserUpdateForm } from '@/services/types/user.type'
 
+import ImageUpload from '@/components/prop-ui/image-upload/ImageUpload.vue'
 import {
   useCreateUserMutation,
   useGetUserDetailQuery,
   useUpdateUserMutation,
 } from '@/services/api/user.api'
+
+import { buildAvatarUploadModel, resolveAvatarFromUploadModel } from './user-form-avatar'
 
 /**
  * 用户表单弹窗属性。
@@ -38,7 +41,7 @@ const form = reactive<UserAddForm & Partial<UserUpdateForm> & { id?: UserEntityI
   status: 1,
 })
 
-const { data: detailData, isFetching: isFetchingDetail, refetch: refetchDetail } = useGetUserDetailQuery(props.userId)
+const { data: detailData, isFetching: isFetchingDetail } = useGetUserDetailQuery(props.userId, open)
 const { mutateAsync: createUser, isPending: isCreating } = useCreateUserMutation()
 const { mutateAsync: updateUser, isPending: isUpdating } = useUpdateUserMutation()
 
@@ -62,8 +65,12 @@ const roleOptions = computed(() => [
  * 提交中的统一状态。
  */
 const isSubmitting = computed(() => isCreating.value || isUpdating.value)
+const avatarUploadModel = computed({
+  get: () => buildAvatarUploadModel(form.userAvatar),
+  set: urls => form.userAvatar = resolveAvatarFromUploadModel(urls),
+})
 
-watch(open, async (value) => {
+watch(open, (value) => {
   if (!value) {
     return
   }
@@ -71,10 +78,9 @@ watch(open, async (value) => {
     resetForm()
     return
   }
-  const detailResult = await refetchDetail()
-  if (detailResult.data?.data) {
-    // 编辑弹窗打开时显式回填，避免仅依赖 watch 导致缓存场景下回显失效。
-    fillForm(detailResult.data.data)
+  if (detailData.value?.data) {
+    // 编辑弹窗打开时优先回填缓存，后续查询完成会由 detailData watcher 覆盖为最新详情。
+    fillForm(detailData.value.data)
   }
 })
 
@@ -233,7 +239,11 @@ async function handleSubmit() {
 
         <div class="space-y-2 md:col-span-2">
           <UiLabel>{{ t('pages.users.columns.userAvatar') }}</UiLabel>
-          <UiInput v-model="form.userAvatar" :placeholder="t('pages.users.form.avatarPlaceholder')" />
+          <ImageUpload
+            v-model="avatarUploadModel"
+            variant="avatar"
+            :tips="t('pages.users.form.avatarPlaceholder')"
+          />
         </div>
 
         <div class="space-y-2 md:col-span-2">

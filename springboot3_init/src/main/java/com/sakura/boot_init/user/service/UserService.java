@@ -3,6 +3,7 @@ package com.sakura.boot_init.user.service;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.core.service.IService;
 import com.sakura.boot_init.user.model.dto.UserQueryRequest;
+import com.sakura.boot_init.user.model.dto.UserUpdateRequest;
 import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.model.vo.UserVO;
 
@@ -39,6 +40,22 @@ public interface UserService extends IService<User> {
      * @return 查询条件
      */
     QueryWrapper getQueryWrapper(UserQueryRequest userQueryRequest);
+
+    /**
+     * 删除用户，包含内置超级管理员保护规则。
+     *
+     * @param id 用户 id
+     * @return 是否删除成功
+     */
+    boolean removeUser(Long id);
+
+    /**
+     * 更新用户，包含内置超级管理员状态保护规则。
+     *
+     * @param userUpdateRequest 更新请求
+     * @return 是否更新成功
+     */
+    boolean updateUser(UserUpdateRequest userUpdateRequest);
 
     /**
      * 当前登录用户修改密码。
