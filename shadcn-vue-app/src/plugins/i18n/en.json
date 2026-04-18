@@ -17,6 +17,9 @@
       "disabled": "Disabled"
     }
   },
+  "homePage": {
+    "searchKeyWords": "Search"
+  },
   "actions": {
     "refresh": "Refresh",
     "search": "Search",

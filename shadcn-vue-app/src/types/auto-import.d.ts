@@ -35,6 +35,7 @@ declare global {
   const TOKEN_HEADER_NAME: typeof import('../constants/app-config').TOKEN_HEADER_NAME
   const TOKEN_HEADER_PREFIX: typeof import('../constants/app-config').TOKEN_HEADER_PREFIX
   const buildAdminNavGroups: typeof import('../composables/use-sidebar').buildAdminNavGroups
+  const buildOtherNavGroups: typeof import('../composables/use-sidebar').buildOtherNavGroups
   const buildSettingsNavItems: typeof import('../composables/use-sidebar').buildSettingsNavItems
   const computed: typeof import('vue').computed
   const createApp: typeof import('vue').createApp

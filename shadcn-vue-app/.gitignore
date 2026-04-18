@@ -27,11 +27,4 @@ stats.html
 *.sln
 *.sw?
 
-
-.env
-.env.local
-.env.development
-.env.test
-.env.production
-
 .superpowers/

@@ -17,6 +17,9 @@
       "disabled": "禁用"
     }
   },
+  "homePage": {
+    "searchKeyWords": "搜索"
+  },
   "actions": {
     "refresh": "刷新",
     "search": "查询",

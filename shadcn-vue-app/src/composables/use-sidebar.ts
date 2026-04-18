@@ -54,6 +54,21 @@ export function buildAdminNavGroups(t: (key: string) => string): NavGroup[] {
   ]
 }
 
+/**
+ * 构建未归入主导航的页面入口，供侧边栏、命令面板和页面标题统一复用。
+ */
+export function buildOtherNavGroups(t: (key: string) => string): NavGroup[] {
+  return [
+    {
+      id: 'other',
+      title: t('menu.other'),
+      items: [
+        { id: 'billing', title: t('pages.billing.title'), icon: CreditCardIcon, url: '/billing' },
+      ],
+    },
+  ]
+}
+
 export function useSidebar() {
   const { t } = useI18n()
 
@@ -62,16 +77,7 @@ export function useSidebar() {
    */
   const settingsNavItems = computed(() => buildSettingsNavItems(t))
   const navData = computed<NavGroup[]>(() => buildAdminNavGroups(t))
-
-  const otherPages = computed<NavGroup[]>(() => [
-    {
-      id: 'other',
-      title: t('menu.other'),
-      items: [
-        { id: 'billing', title: t('pages.billing.title'), icon: CreditCardIcon, url: '/billing' },
-      ],
-    },
-  ])
+  const otherPages = computed<NavGroup[]>(() => buildOtherNavGroups(t))
 
   return {
     navData,
