@@ -47,8 +47,8 @@ class ArchitectureMigrationTest {
                     .filter(Files::isDirectory)
                     .filter(path -> {
                         String packageName = path.getFileName().toString();
-                        // notification 是系统通知公告能力的独立业务域。
-                        return !List.of("support", "user", "dict", "file", "wxmp", "agreement", "notification").contains(packageName);
+                        // notification 和 audit 是跨页面使用的独立业务域。
+                        return !List.of("support", "user", "dict", "file", "wxmp", "agreement", "notification", "audit").contains(packageName);
                     })
                     .toList();
 

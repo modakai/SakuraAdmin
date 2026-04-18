@@ -67,7 +67,8 @@
       "appearance": "外观设置",
       "notifications": "通知设置",
       "notificationAnnouncements": "通知公告",
-      "notificationTemplates": "消息模板"
+      "notificationTemplates": "消息模板",
+      "auditLogs": "审计日志"
     }
   },
   "errors": {

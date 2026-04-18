@@ -21,3 +21,10 @@ spring:
 mybatis-flex:
   configuration:
     log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+
+logging:
+  level:
+    com.sakura.boot_init.user.repository: debug
+    com.sakura.boot_init.agreement.repository: debug
+    com.sakura.boot_init.dict.repository: debug
+    com.sakura.boot_init.audit.repository: debug

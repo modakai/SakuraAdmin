@@ -13,6 +13,7 @@ import {
   useUpdateUserMutation,
 } from '@/services/api/user.api'
 
+import { deleteSelectedUser } from './components/user-delete-action'
 import UserFormDialog from './components/user-form-dialog.vue'
 
 const { t } = useI18n()
@@ -111,11 +112,21 @@ function changePage(nextPage: number) {
  * 删除用户。
  */
 async function handleDelete() {
-  if (!deletingUser.value?.id) {
+  const targetUser = deletingUser.value
+
+  if (!targetUser) {
     return
   }
   try {
-    await deleteUser(deletingUser.value.id)
+    const isDeleted = await deleteSelectedUser({
+      user: targetUser,
+      deleteUser,
+    })
+
+    if (!isDeleted) {
+      return
+    }
+
     toast.success(t('pages.users.deleteSuccess'))
     deletingUser.value = null
     refetch()
@@ -359,9 +370,9 @@ async function handleToggleStatus() {
           <UiAlertDialogCancel @click="deletingUser = null">
             {{ t('actions.cancel') }}
           </UiAlertDialogCancel>
-          <UiAlertDialogAction :disabled="isDeleting" @click="handleDelete">
+          <UiButton variant="destructive" :disabled="isDeleting" @click="handleDelete">
             {{ t('pages.users.confirmDelete') }}
-          </UiAlertDialogAction>
+          </UiButton>
         </UiAlertDialogFooter>
       </UiAlertDialogContent>
     </UiAlertDialog>
@@ -376,9 +387,9 @@ async function handleToggleStatus() {
           <UiAlertDialogCancel @click="resettingUser = null">
             {{ t('actions.cancel') }}
           </UiAlertDialogCancel>
-          <UiAlertDialogAction :disabled="isResetting" @click="handleResetPassword">
+          <UiButton :disabled="isResetting" @click="handleResetPassword">
             {{ t('pages.users.confirmResetPassword') }}
-          </UiAlertDialogAction>
+          </UiButton>
         </UiAlertDialogFooter>
       </UiAlertDialogContent>
     </UiAlertDialog>
@@ -399,9 +410,9 @@ async function handleToggleStatus() {
           <UiAlertDialogCancel @click="togglingUser = null">
             {{ t('actions.cancel') }}
           </UiAlertDialogCancel>
-          <UiAlertDialogAction :disabled="isUpdating" @click="handleToggleStatus">
+          <UiButton :disabled="isUpdating" @click="handleToggleStatus">
             {{ togglingUser?.status === 1 ? t('pages.users.confirmDisable') : t('pages.users.confirmEnable') }}
-          </UiAlertDialogAction>
+          </UiButton>
         </UiAlertDialogFooter>
       </UiAlertDialogContent>
     </UiAlertDialog>

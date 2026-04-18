@@ -22,7 +22,7 @@ export interface RegisterPayload {
  * 后端登录用户响应。
  */
 export interface LoginUser {
-  id: number
+  id: string | number
   userAccount?: string
   userName?: string
   userAvatar?: string

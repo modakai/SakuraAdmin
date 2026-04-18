@@ -3,7 +3,7 @@ import { LoaderCircleIcon, PlusIcon, SquarePenIcon } from '@lucide/vue'
 import { useI18n } from 'vue-i18n'
 import { toast } from 'vue-sonner'
 
-import type { UserAddForm, UserUpdateForm } from '@/services/types/user.type'
+import type { UserAddForm, UserEntityId, UserUpdateForm } from '@/services/types/user.type'
 
 import {
   useCreateUserMutation,
@@ -15,7 +15,7 @@ import {
  * 用户表单弹窗属性。
  */
 const props = defineProps<{
-  userId?: number
+  userId?: UserEntityId
 }>()
 
 /**
@@ -28,7 +28,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const open = ref(false)
 const isEdit = computed(() => !!props.userId)
-const form = reactive<UserAddForm & Partial<UserUpdateForm> & { id?: number }>({
+const form = reactive<UserAddForm & Partial<UserUpdateForm> & { id?: UserEntityId }>({
   id: undefined,
   userAccount: '',
   userName: '',

@@ -1,5 +1,7 @@
 package com.sakura.boot_init.support.system.controller;
 
+import com.sakura.boot_init.audit.enums.AuditOperationTypeEnum;
+import com.sakura.boot_init.support.annotation.AuditLogRecord;
 import com.sakura.boot_init.support.annotation.AuthCheck;
 import com.sakura.boot_init.support.common.BaseResponse;
 import com.sakura.boot_init.support.common.ResultUtils;
@@ -55,6 +57,7 @@ public class SystemConfigController {
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @AuditLogRecord(description = "新增系统配置", module = "系统配置", operationType = AuditOperationTypeEnum.CREATE)
     public BaseResponse<Boolean> addConfig(@Valid @RequestBody SystemConfigAddRequest request) {
         return ResultUtils.success(systemConfigService.addConfig(request));
     }
@@ -67,6 +70,7 @@ public class SystemConfigController {
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @AuditLogRecord(description = "修改系统配置", module = "系统配置", operationType = AuditOperationTypeEnum.UPDATE)
     public BaseResponse<Boolean> updateConfig(@Valid @RequestBody SystemConfigUpdateRequest request) {
         return ResultUtils.success(systemConfigService.updateConfig(request));
     }

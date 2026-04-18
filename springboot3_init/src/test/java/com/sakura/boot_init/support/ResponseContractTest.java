@@ -1,9 +1,13 @@
 package com.sakura.boot_init.support;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sakura.boot_init.support.config.JsonConfig;
 import com.sakura.boot_init.support.common.BaseResponse;
 import com.sakura.boot_init.support.common.PageRequest;
 import com.sakura.boot_init.support.common.ResultUtils;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -47,5 +51,19 @@ class ResponseContractTest {
 
         assertEquals(3, getPage.invoke(pageRequest));
         assertEquals(20, getPageSize.invoke(pageRequest));
+    }
+
+    /**
+     * Long 类型 id 必须序列化为字符串，避免前端 JSON.parse 后出现精度丢失。
+     */
+    @Test
+    void shouldSerializeLongResponseDataAsString() throws Exception {
+        ObjectMapper objectMapper = new JsonConfig().jacksonObjectMapper(new Jackson2ObjectMapperBuilder());
+        BaseResponse<Long> response = ResultUtils.success(95939540536000160L);
+
+        JsonNode jsonNode = objectMapper.readTree(objectMapper.writeValueAsString(response));
+
+        assertTrue(jsonNode.get("data").isTextual());
+        assertEquals("95939540536000160", jsonNode.get("data").asText());
     }
 }

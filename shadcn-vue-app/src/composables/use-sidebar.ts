@@ -1,4 +1,4 @@
-import { BellDotIcon, CreditCardIcon, FileCode2Icon, FileTextIcon, LayoutDashboardIcon, PaletteIcon, SettingsIcon, SlidersHorizontalIcon, UserIcon, UsersIcon, WrenchIcon } from '@lucide/vue'
+import { BellDotIcon, CreditCardIcon, FileCode2Icon, FileTextIcon, LayoutDashboardIcon, PaletteIcon, ScrollTextIcon, SettingsIcon, SlidersHorizontalIcon, UserIcon, UsersIcon, WrenchIcon } from '@lucide/vue'
 import { useI18n } from 'vue-i18n'
 
 import type { NavGroup } from '@/components/app-sidebar/types'
@@ -45,6 +45,7 @@ export function buildAdminNavGroups(t: (key: string) => string): NavGroup[] {
               items: [
                 { id: 'notifications', title: t('menu.settings.notificationAnnouncements'), url: '/notifications', icon: BellDotIcon },
                 { id: 'notification-templates', title: t('menu.settings.notificationTemplates'), url: '/notification-templates', icon: FileCode2Icon },
+                { id: 'audit-logs', title: t('menu.settings.auditLogs'), url: '/audit-logs', icon: ScrollTextIcon },
               ],
             },
           ],

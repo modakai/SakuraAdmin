@@ -1,12 +1,15 @@
 package com.sakura.boot_init.user.service.impl;
 
 import com.mybatisflex.core.query.QueryWrapper;
+import com.sakura.boot_init.audit.model.dto.AuditLogCreateRequest;
+import com.sakura.boot_init.audit.service.AuditLogService;
 import com.sakura.boot_init.support.auth.TokenManager;
 import com.sakura.boot_init.support.common.ErrorCode;
 import com.sakura.boot_init.support.constant.UserConstant;
 import com.sakura.boot_init.support.context.LoginUserContext;
 import com.sakura.boot_init.support.enums.UserRoleEnum;
 import com.sakura.boot_init.support.exception.BusinessException;
+import com.sakura.boot_init.support.util.NetUtils;
 import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.model.vo.LoginUserVO;
 import com.sakura.boot_init.user.repository.UserMapper;
@@ -16,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -38,9 +42,20 @@ public class AuthServiceImpl implements AuthService {
      */
     private final TokenManager tokenManager;
 
+    /**
+     * 审计日志服务。
+     */
+    private final AuditLogService auditLogService;
+
     public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager) {
+        this(userMapper, tokenManager, null);
+    }
+
+    @Autowired
+    public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager, AuditLogService auditLogService) {
         this.userMapper = userMapper;
         this.tokenManager = tokenManager;
+        this.auditLogService = auditLogService;
     }
 
     @Override
@@ -81,26 +96,39 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
-        if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.param.blank");
-        }
-        if (userAccount.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.account.invalid");
-        }
-        if (userPassword.length() < 8) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.password.invalid");
-        }
+        long startTime = System.currentTimeMillis();
+        User loginUser = null;
+        try {
+            if (StringUtils.isAnyBlank(userAccount, userPassword)) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.param.blank");
+            }
+            if (userAccount.length() < 4) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.account.invalid");
+            }
+            if (userPassword.length() < 8) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.password.invalid");
+            }
 
-        QueryWrapper queryWrapper = QueryWrapper.create()
-                .eq("user_account", userAccount)
-                .eq("user_password", encryptPassword(userPassword));
-        User user = userMapper.selectOneByQuery(queryWrapper);
-        if (user == null) {
-            log.info("user login failed, userAccount cannot match userPassword");
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.login.invalid");
+            QueryWrapper queryWrapper = QueryWrapper.create()
+                    .eq("user_account", userAccount)
+                    .eq("user_password", encryptPassword(userPassword));
+            User user = userMapper.selectOneByQuery(queryWrapper);
+            if (user == null) {
+                log.info("user login failed, userAccount cannot match userPassword");
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.login.invalid");
+            }
+            validateUserLoginStatus(user);
+            loginUser = user;
+            LoginUserVO loginUserVO = buildLoginUserVOWithToken(user);
+            recordLoginAudit(userAccount, loginUser, request, true, null, startTime);
+            return loginUserVO;
+        } catch (BusinessException e) {
+            recordLoginAudit(userAccount, loginUser, request, false, e.getMessage(), startTime);
+            throw e;
+        } catch (RuntimeException e) {
+            recordLoginAudit(userAccount, loginUser, request, false, e.getClass().getSimpleName(), startTime);
+            throw e;
         }
-        validateUserLoginStatus(user);
-        return buildLoginUserVOWithToken(user);
     }
 
     @Override
@@ -212,6 +240,33 @@ public class AuthServiceImpl implements AuthService {
         LoginUserVO loginUserVO = getLoginUserVO(user);
         loginUserVO.setToken(token);
         return loginUserVO;
+    }
+
+    /**
+     * 记录登录审计日志，审计失败不能影响登录主流程。
+     *
+     * @param userAccount 登录账号
+     * @param user 用户实体
+     * @param request HTTP 请求
+     * @param success 是否登录成功
+     * @param failureReason 失败原因
+     * @param startTime 开始时间
+     */
+    private void recordLoginAudit(String userAccount, User user, HttpServletRequest request,
+            boolean success, String failureReason, long startTime) {
+        if (auditLogService == null) {
+            return;
+        }
+        try {
+            AuditLogCreateRequest auditRequest = new AuditLogCreateRequest();
+            auditRequest.setAccountIdentifier(userAccount);
+            auditRequest.setUserId(user == null ? null : user.getId());
+            auditRequest.setIpAddress(request == null ? null : NetUtils.getIpAddress(request));
+            auditRequest.setClientInfo(request == null ? null : request.getHeader("User-Agent"));
+            auditLogService.submitLoginLog(auditRequest, success, failureReason, System.currentTimeMillis() - startTime);
+        } catch (Exception e) {
+            log.error("record login audit failed", e);
+        }
     }
 
     /**

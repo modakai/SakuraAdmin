@@ -67,7 +67,8 @@
       "appearance": "Appearance",
       "notifications": "Notifications",
       "notificationAnnouncements": "Notification Announcements",
-      "notificationTemplates": "Message Templates"
+      "notificationTemplates": "Message Templates",
+      "auditLogs": "Audit Logs"
     }
   },
   "errors": {

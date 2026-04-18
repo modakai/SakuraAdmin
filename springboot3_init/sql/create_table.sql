@@ -156,4 +156,39 @@ create table if not exists sys_notification_template
     key idx_event_enabled (event_type, enabled)
 ) comment '消息通知模板' collate = utf8mb4_unicode_ci;
 
+-- 审计日志表
+create table if not exists sys_audit_log
+(
+    id                    bigint auto_increment comment 'id' primary key,
+    log_type              varchar(32)                            not null comment '日志类型：login/admin_operation',
+    user_id               bigint                                 null comment '用户id',
+    account_identifier    varchar(256)                           null comment '账号标识',
+    ip_address            varchar(64)                            null comment 'IP地址',
+    client_info           varchar(512)                           null comment '客户端信息',
+    request_path          varchar(512)                           null comment '请求路径',
+    http_method           varchar(16)                            null comment 'HTTP方法',
+    operation_description varchar(256)                           null comment '操作描述',
+    business_module       varchar(128)                           null comment '业务模块',
+    operation_type        varchar(64)                            null comment '操作类型',
+    cost_millis           bigint                                 null comment '耗时毫秒',
+    result                varchar(32)                            not null comment '执行结果：success/failure',
+    status_code           int                                    null comment '状态码',
+    failure_reason        varchar(512)                           null comment '失败原因',
+    exception_summary     varchar(1024)                          null comment '异常摘要',
+    request_summary       text                                   null comment '请求摘要',
+    response_summary      text                                   null comment '响应摘要',
+    trace_id              varchar(128)                           null comment '追踪ID',
+    audit_time            datetime     default CURRENT_TIMESTAMP not null comment '审计时间',
+    create_time           datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time           datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    is_delete             tinyint      default 0                 not null comment '是否删除',
+    key idx_log_type_time (log_type, audit_time),
+    key idx_user_id (user_id),
+    key idx_account_identifier (account_identifier),
+    key idx_ip_address (ip_address),
+    key idx_request_path (request_path),
+    key idx_http_method (http_method),
+    key idx_result_time (result, audit_time),
+    key idx_operation (business_module, operation_type)
+) comment '审计日志' collate = utf8mb4_unicode_ci;
 

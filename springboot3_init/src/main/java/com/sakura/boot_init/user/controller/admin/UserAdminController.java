@@ -1,7 +1,9 @@
 package com.sakura.boot_init.user.controller.admin;
 
 import com.mybatisflex.core.paginate.Page;
+import com.sakura.boot_init.audit.enums.AuditOperationTypeEnum;
 import com.sakura.boot_init.support.annotation.AuthCheck;
+import com.sakura.boot_init.support.annotation.AuditLogRecord;
 import com.sakura.boot_init.support.common.BaseResponse;
 import com.sakura.boot_init.support.common.DeleteRequest;
 import com.sakura.boot_init.support.common.ErrorCode;
@@ -53,6 +55,7 @@ public class UserAdminController {
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @AuditLogRecord(description = "创建用户", module = "用户管理", operationType = AuditOperationTypeEnum.CREATE)
     public BaseResponse<Long> addUser(@Valid @RequestBody UserAddRequest userAddRequest, HttpServletRequest request) {
         User user = new User();
         BeanUtils.copyProperties(userAddRequest, user);
@@ -76,6 +79,7 @@ public class UserAdminController {
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @AuditLogRecord(description = "删除用户", module = "用户管理", operationType = AuditOperationTypeEnum.DELETE)
     public BaseResponse<Boolean> deleteUser(@Valid @RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         boolean result = userService.removeById(deleteRequest.getId());
         return ResultUtils.success(result);
@@ -90,6 +94,7 @@ public class UserAdminController {
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @AuditLogRecord(description = "更新用户", module = "用户管理", operationType = AuditOperationTypeEnum.UPDATE)
     public BaseResponse<Boolean> updateUser(@Valid @RequestBody UserUpdateRequest userUpdateRequest,
             HttpServletRequest request) {
         User user = new User();
@@ -155,6 +160,7 @@ public class UserAdminController {
      */
     @PostMapping("/reset/password")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @AuditLogRecord(description = "重置用户密码", module = "用户管理", operationType = AuditOperationTypeEnum.UPDATE)
     public BaseResponse<Boolean> resetUserPassword(@Valid @RequestBody DeleteRequest deleteRequest,
             HttpServletRequest request) {
         boolean result = userService.resetPassword(deleteRequest.getId());

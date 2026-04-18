@@ -1,10 +1,12 @@
 import type { IPaginationRequestQuery } from '@/services/types/response.type'
 
+export type UserEntityId = string | number
+
 /**
  * 后台用户列表项。
  */
 export interface UserItem {
-  id: number
+  id: UserEntityId
   userAccount?: string
   userName?: string
   userAvatar?: string
@@ -19,7 +21,7 @@ export interface UserItem {
  * 用户分页查询参数。
  */
 export interface UserQuery extends IPaginationRequestQuery {
-  id?: number
+  id?: UserEntityId
   unionId?: string
   mpOpenId?: string
   userName?: string
@@ -44,7 +46,7 @@ export interface UserAddForm {
  * 更新用户请求。
  */
 export interface UserUpdateForm {
-  id: number
+  id: UserEntityId
   userName?: string
   userAvatar?: string
   userProfile?: string

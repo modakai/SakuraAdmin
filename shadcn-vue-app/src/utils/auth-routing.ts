@@ -3,7 +3,7 @@ export type AuthEntry = 'user' | 'admin'
 export type UserRole = 'user' | 'admin'
 
 export interface AuthUserInfo {
-  id: number
+  id: string | number
   name: string
   email: string
   avatar?: string

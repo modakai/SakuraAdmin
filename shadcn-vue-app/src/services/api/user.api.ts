@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import type { IPageResponse, IResponse } from '@/services/types/response.type'
 import type {
   UserAddForm,
+  UserEntityId,
   UserItem,
   UserQuery,
   UserUpdateForm,
@@ -37,7 +38,7 @@ export function useGetUserPageQuery(query: UserQuery) {
 /**
  * 获取后台用户详情。
  */
-export function useGetUserDetailQuery(id: number | null | undefined) {
+export function useGetUserDetailQuery(id: UserEntityId | null | undefined) {
   const { apiFetch } = useApiFetch()
 
   return useQuery<IResponse<UserItem>, Error>({
@@ -96,7 +97,7 @@ export function useDeleteUserMutation() {
   const { apiFetch } = useApiFetch()
   const queryClient = useQueryClient()
 
-  return useMutation<IResponse<boolean>, Error, number>({
+  return useMutation<IResponse<boolean>, Error, UserEntityId>({
     mutationKey: ['user-delete'],
     mutationFn: async id => await apiFetch<IResponse<boolean>>('/user/delete', {
       method: 'post',
@@ -115,7 +116,7 @@ export function useResetUserPasswordMutation() {
   const { apiFetch } = useApiFetch()
   const queryClient = useQueryClient()
 
-  return useMutation<IResponse<boolean>, Error, number>({
+  return useMutation<IResponse<boolean>, Error, UserEntityId>({
     mutationKey: ['user-reset-password'],
     mutationFn: async id => await apiFetch<IResponse<boolean>>('/user/reset/password', {
       method: 'post',
@@ -130,7 +131,7 @@ export function useResetUserPasswordMutation() {
 /**
  * 获取公开用户详情。
  */
-export function useGetUserVOQuery(id: number | null | undefined) {
+export function useGetUserVOQuery(id: UserEntityId | null | undefined) {
   const { apiFetch } = useApiFetch()
 
   return useQuery<IResponse<UserItem>, Error>({
