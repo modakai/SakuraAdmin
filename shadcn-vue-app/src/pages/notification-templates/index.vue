@@ -12,6 +12,8 @@ import {
   useUpdateNotificationTemplateMutation,
 } from '@/services/api/notification.api'
 
+const ALL_SELECT_VALUE = '__all__'
+
 /**
  * 模板分页查询条件。
  */
@@ -45,6 +47,13 @@ const enableMutation = useNotificationTemplateEnabledMutation('enable')
 const disableMutation = useNotificationTemplateEnabledMutation('disable')
 const templates = computed(() => data.value?.data?.records ?? [])
 const total = computed(() => data.value?.data?.totalRow ?? 0)
+const queryEnabledModel = computed({
+  // Reka Select 不能使用空字符串选项，使用哨兵值代表全部状态。
+  get: () => query.enabled === '' ? ALL_SELECT_VALUE : String(query.enabled),
+  set: (value) => {
+    query.enabled = value === ALL_SELECT_VALUE ? '' : Number(value)
+  },
+})
 
 /**
  * 创建模板。
@@ -184,12 +193,12 @@ function updateEnabled(value: boolean | 'indeterminate') {
         <UiCardContent class="grid gap-4 pt-6 md:grid-cols-4">
           <UiInput v-model="query.templateCode" placeholder="模板编码" />
           <UiInput v-model="query.eventType" placeholder="事件类型" />
-          <UiSelect v-model="query.enabled">
+          <UiSelect v-model="queryEnabledModel">
             <UiSelectTrigger><UiSelectValue placeholder="全部状态" /></UiSelectTrigger>
             <UiSelectContent>
-              <UiSelectItem value="">全部状态</UiSelectItem>
-              <UiSelectItem :value="1">启用</UiSelectItem>
-              <UiSelectItem :value="0">停用</UiSelectItem>
+              <UiSelectItem :value="ALL_SELECT_VALUE">全部状态</UiSelectItem>
+              <UiSelectItem value="1">启用</UiSelectItem>
+              <UiSelectItem value="0">停用</UiSelectItem>
             </UiSelectContent>
           </UiSelect>
           <UiButton @click="query.page = 1; refetch()">筛选</UiButton>

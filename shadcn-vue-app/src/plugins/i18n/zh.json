@@ -47,6 +47,7 @@
   "menu": {
     "main": "主菜单",
     "other": "其他",
+    "dashboard": "仪表盘",
     "teams": "团队",
     "addTeam": "新增团队",
     "logout": "退出登录",
@@ -57,10 +58,13 @@
       "agreements": "协议管理"
     },
     "settings": {
+      "title": "系统设置",
       "profile": "个人资料",
       "account": "账户设置",
       "appearance": "外观设置",
-      "notifications": "通知设置"
+      "notifications": "通知设置",
+      "notificationAnnouncements": "通知公告",
+      "notificationTemplates": "消息模板"
     }
   },
   "errors": {

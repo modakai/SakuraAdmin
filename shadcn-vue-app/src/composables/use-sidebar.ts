@@ -1,4 +1,4 @@
-import { BellDotIcon, CreditCardIcon, FileCode2Icon, FileTextIcon, PaletteIcon, SettingsIcon, UserIcon, UsersIcon, WrenchIcon } from '@lucide/vue'
+import { BellDotIcon, CreditCardIcon, FileCode2Icon, FileTextIcon, LayoutDashboardIcon, PaletteIcon, SettingsIcon, SlidersHorizontalIcon, UserIcon, UsersIcon, WrenchIcon } from '@lucide/vue'
 import { useI18n } from 'vue-i18n'
 
 import type { NavGroup } from '@/components/app-sidebar/types'
@@ -15,42 +15,53 @@ export function buildSettingsNavItems(t: (key: string) => string) {
   ]
 }
 
-export function useSidebar() {
-  const { t } = useI18n()
-
-  /**
-   * 系统管理的子菜单。
-   * 仅保留当前项目实际需要展示的后台功能入口。
-   */
-  const systemManagementItems = computed(() => [
-    { id: 'users', title: t('menu.system.users'), url: '/users', icon: UsersIcon },
-    { id: 'dicts', title: t('menu.system.dicts'), url: '/dicts', icon: WrenchIcon },
-    { id: 'agreements', title: t('menu.system.agreements'), url: '/agreements', icon: FileTextIcon },
-    { id: 'notifications', title: '通知公告', url: '/notifications', icon: BellDotIcon },
-    { id: 'notification-templates', title: '消息模板', url: '/notification-templates', icon: FileCode2Icon },
-    // 外观偏好属于后台管理端体验配置，放在系统管理入口下更容易发现。
-    { id: 'appearance-preferences', title: t('menu.settings.appearance'), url: '/settings/appearance', icon: PaletteIcon },
-  ])
-
-  /**
-   * 设置页导航仍然保留给设置模块内部复用。
-   */
-  const settingsNavItems = computed(() => buildSettingsNavItems(t))
-
-  const navData = computed<NavGroup[]>(() => [
+/**
+ * 构建后台侧边栏主导航，保持菜单结构可测试、可复用。
+ */
+export function buildAdminNavGroups(t: (key: string) => string): NavGroup[] {
+  return [
     {
       id: 'main',
       title: t('menu.main'),
       items: [
         {
+          id: 'dashboard',
+          title: t('menu.dashboard'),
+          url: '/dashboard',
+          icon: LayoutDashboardIcon,
+        },
+        {
           id: 'system',
           title: t('menu.system.title'),
           icon: SettingsIcon,
-          items: systemManagementItems.value,
+          items: [
+            { id: 'users', title: t('menu.system.users'), url: '/users', icon: UsersIcon },
+            { id: 'dicts', title: t('menu.system.dicts'), url: '/dicts', icon: WrenchIcon },
+            { id: 'agreements', title: t('menu.system.agreements'), url: '/agreements', icon: FileTextIcon },
+            {
+              id: 'system-settings',
+              title: t('menu.settings.title'),
+              icon: SlidersHorizontalIcon,
+              items: [
+                { id: 'notifications', title: t('menu.settings.notificationAnnouncements'), url: '/notifications', icon: BellDotIcon },
+                { id: 'notification-templates', title: t('menu.settings.notificationTemplates'), url: '/notification-templates', icon: FileCode2Icon },
+              ],
+            },
+          ],
         },
       ],
     },
-  ])
+  ]
+}
+
+export function useSidebar() {
+  const { t } = useI18n()
+
+  /**
+   * 设置页导航仍然保留给设置模块内部复用。
+   */
+  const settingsNavItems = computed(() => buildSettingsNavItems(t))
+  const navData = computed<NavGroup[]>(() => buildAdminNavGroups(t))
 
   const otherPages = computed<NavGroup[]>(() => [
     {

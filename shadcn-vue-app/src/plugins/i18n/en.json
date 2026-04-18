@@ -47,6 +47,7 @@
   "menu": {
     "main": "Main Menu",
     "other": "Other",
+    "dashboard": "Dashboard",
     "teams": "Teams",
     "addTeam": "Add Team",
     "logout": "Log out",
@@ -57,10 +58,13 @@
       "agreements": "Agreements"
     },
     "settings": {
+      "title": "System Settings",
       "profile": "Profile",
       "account": "Account",
       "appearance": "Appearance",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "notificationAnnouncements": "Notification Announcements",
+      "notificationTemplates": "Message Templates"
     }
   },
   "errors": {

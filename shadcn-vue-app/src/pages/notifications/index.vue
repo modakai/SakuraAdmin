@@ -12,6 +12,8 @@ import {
   useUpdateNotificationMutation,
 } from '@/services/api/notification.api'
 
+const ALL_SELECT_VALUE = '__all__'
+
 /**
  * 通知公告查询条件。
  */
@@ -56,6 +58,20 @@ const archiveMutation = useNotificationActionMutation('archive')
 const notifications = computed(() => data.value?.data?.records ?? [])
 const total = computed(() => data.value?.data?.totalRow ?? 0)
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / query.pageSize)))
+
+/**
+ * Reka Select 不允许空字符串选项，UI 使用非空哨兵值，查询仍保持空字符串表示全部。
+ */
+function createAllOptionModel<T extends string>(getValue: () => T | '', setValue: (value: T | '') => void) {
+  return computed({
+    get: () => getValue() || ALL_SELECT_VALUE,
+    set: value => setValue(value === ALL_SELECT_VALUE ? '' : value as T),
+  })
+}
+
+const queryTypeModel = createAllOptionModel(() => query.type ?? '', value => query.type = value)
+const queryStatusModel = createAllOptionModel(() => query.status ?? '', value => query.status = value)
+const queryReceiverTypeModel = createAllOptionModel(() => query.receiverType ?? '', value => query.receiverType = value)
 
 /**
  * 保存通知草稿。
@@ -278,28 +294,28 @@ function statusVariant(status: string) {
       <UiCard>
         <UiCardContent class="grid gap-4 pt-6 md:grid-cols-5">
           <UiInput v-model="query.title" placeholder="搜索标题" @keyup.enter="refetch()" />
-          <UiSelect v-model="query.type">
+          <UiSelect v-model="queryTypeModel">
             <UiSelectTrigger><UiSelectValue placeholder="全部类型" /></UiSelectTrigger>
             <UiSelectContent>
-              <UiSelectItem value="">全部类型</UiSelectItem>
+              <UiSelectItem :value="ALL_SELECT_VALUE">全部类型</UiSelectItem>
               <UiSelectItem value="message">通知消息</UiSelectItem>
               <UiSelectItem value="announcement">公告</UiSelectItem>
             </UiSelectContent>
           </UiSelect>
-          <UiSelect v-model="query.status">
+          <UiSelect v-model="queryStatusModel">
             <UiSelectTrigger><UiSelectValue placeholder="全部状态" /></UiSelectTrigger>
             <UiSelectContent>
-              <UiSelectItem value="">全部状态</UiSelectItem>
+              <UiSelectItem :value="ALL_SELECT_VALUE">全部状态</UiSelectItem>
               <UiSelectItem value="draft">草稿</UiSelectItem>
               <UiSelectItem value="published">已发布</UiSelectItem>
               <UiSelectItem value="revoked">已撤回</UiSelectItem>
               <UiSelectItem value="archived">已归档</UiSelectItem>
             </UiSelectContent>
           </UiSelect>
-          <UiSelect v-model="query.receiverType">
+          <UiSelect v-model="queryReceiverTypeModel">
             <UiSelectTrigger><UiSelectValue placeholder="全部接收端" /></UiSelectTrigger>
             <UiSelectContent>
-              <UiSelectItem value="">全部接收端</UiSelectItem>
+              <UiSelectItem :value="ALL_SELECT_VALUE">全部接收端</UiSelectItem>
               <UiSelectItem value="all">全部用户</UiSelectItem>
               <UiSelectItem value="admin">后台用户</UiSelectItem>
               <UiSelectItem value="app">用户端用户</UiSelectItem>

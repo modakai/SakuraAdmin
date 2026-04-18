@@ -16,24 +16,13 @@ const route = useRoute()
 
 const { state, isMobile } = useSidebar()
 
-function isCollapsed(menu: NavItem): boolean {
-  const pathname = route.path
-  navMain.forEach((group) => {
-    group.items.forEach((item) => {
-      if (item.url === pathname) {
-        return true
-      }
-    })
-  })
-  return !!menu.items?.some(item => item.url === pathname)
-}
-
 function isActive(menu: NavItem): boolean {
   const pathname = route.path
   if (menu.url) {
     return pathname === menu.url
   }
-  return !!menu.items?.some(item => item.url === pathname)
+  // 多级菜单按后代路由递归判断激活态。
+  return !!menu.items?.some(item => isActive(item))
 }
 </script>
 
@@ -55,24 +44,55 @@ function isActive(menu: NavItem): boolean {
           <!-- sidebar expanded -->
           <UiCollapsible
             v-if="state !== 'collapsed' || isMobile"
-            as-child :default-open="isCollapsed(menu)"
+            :default-open="isActive(menu)"
             class="group/collapsible"
           >
-            <UiSidebarMenuItem>
-              <UiCollapsibleTrigger as-child>
-                <UiSidebarMenuButton :tooltip="menu.title">
-                  <component :is="menu.icon" v-if="menu.icon" />
-                  <span>{{ menu.title }}</span>
-                  <ChevronRightIcon
-                    class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
-                  />
-                </UiSidebarMenuButton>
-              </UiCollapsibleTrigger>
-            </UiSidebarMenuItem>
+            <UiCollapsibleTrigger as-child>
+              <UiSidebarMenuButton :tooltip="menu.title">
+                <component :is="menu.icon" v-if="menu.icon" />
+                <span>{{ menu.title }}</span>
+                <ChevronRightIcon
+                  class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"
+                />
+              </UiSidebarMenuButton>
+            </UiCollapsibleTrigger>
             <UiCollapsibleContent>
               <UiSidebarMenuSub>
                 <UiSidebarMenuSubItem v-for="subItem in menu.items" :key="subItem.id">
-                  <UiSidebarMenuSubButton as-child :is-active="isActive(subItem as NavItem)">
+                  <UiCollapsible
+                    v-if="subItem.items"
+                    :default-open="isActive(subItem)"
+                    class="group/sub-collapsible"
+                  >
+                    <UiCollapsibleTrigger as-child>
+                      <UiSidebarMenuSubButton :is-active="isActive(subItem)" class="cursor-pointer">
+                        <component :is="subItem.icon" v-if="subItem.icon" />
+                        <span>{{ subItem.title }}</span>
+                        <ChevronRightIcon
+                          class="ml-auto transition-transform duration-200 group-data-[state=open]/sub-collapsible:rotate-90"
+                        />
+                      </UiSidebarMenuSubButton>
+                    </UiCollapsibleTrigger>
+                    <UiCollapsibleContent>
+                      <UiSidebarMenuSub class="ml-3">
+                        <UiSidebarMenuSubItem v-for="childItem in subItem.items" :key="childItem.id">
+                          <UiSidebarMenuSubButton as-child :is-active="isActive(childItem)">
+                            <a v-if="isExternalUrl(childItem?.url)" :href="childItem?.url" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2">
+                              <component :is="childItem.icon" v-if="childItem.icon" />
+                              <span>{{ childItem.title }}</span>
+                              <ExternalLinkIcon class="w-4 h-4 ml-auto" />
+                            </a>
+                            <router-link v-else :to="childItem?.url || '/'">
+                              <component :is="childItem.icon" v-if="childItem.icon" />
+                              <span>{{ childItem.title }}</span>
+                            </router-link>
+                          </UiSidebarMenuSubButton>
+                        </UiSidebarMenuSubItem>
+                      </UiSidebarMenuSub>
+                    </UiCollapsibleContent>
+                  </UiCollapsible>
+
+                  <UiSidebarMenuSubButton v-else as-child :is-active="isActive(subItem)">
                     <a v-if="isExternalUrl(subItem?.url)" :href="subItem?.url" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2">
                       <component :is="subItem.icon" v-if="subItem.icon" />
                       <span>{{ subItem.title }}</span>
@@ -99,14 +119,37 @@ function isActive(menu: NavItem): boolean {
             <UiDropdownMenuContent align="start" side="right">
               <UiDropdownMenuLabel>{{ menu.title }}</UiDropdownMenuLabel>
               <UiDropdownMenuSeparator />
-              <UiDropdownMenuItem v-for="subItem in menu.items" :key="subItem.id" as-child>
-                <MenuButton
-                  :is-active="isActive(subItem as NavItem)"
-                  :tooltip="subItem.title"
-                  :is-external-url="isExternalUrl(subItem?.url)"
-                  :menu="subItem as NavItem"
-                />
-              </UiDropdownMenuItem>
+              <template v-for="subItem in menu.items" :key="subItem.id">
+                <UiDropdownMenuSub v-if="subItem.items">
+                  <UiDropdownMenuSubTrigger>
+                    <component :is="subItem.icon" v-if="subItem.icon" />
+                    <span>{{ subItem.title }}</span>
+                  </UiDropdownMenuSubTrigger>
+                  <UiDropdownMenuSubContent>
+                    <UiDropdownMenuItem v-for="childItem in subItem.items" :key="childItem.id" as-child>
+                      <a v-if="isExternalUrl(childItem?.url)" :href="childItem?.url" target="_blank" rel="noopener noreferrer">
+                        <component :is="childItem.icon" v-if="childItem.icon" />
+                        <span>{{ childItem.title }}</span>
+                      </a>
+                      <router-link v-else :to="childItem?.url || '/'">
+                        <component :is="childItem.icon" v-if="childItem.icon" />
+                        <span>{{ childItem.title }}</span>
+                      </router-link>
+                    </UiDropdownMenuItem>
+                  </UiDropdownMenuSubContent>
+                </UiDropdownMenuSub>
+
+                <UiDropdownMenuItem v-else as-child>
+                  <a v-if="isExternalUrl(subItem?.url)" :href="subItem?.url" target="_blank" rel="noopener noreferrer">
+                    <component :is="subItem.icon" v-if="subItem.icon" />
+                    <span>{{ subItem.title }}</span>
+                  </a>
+                  <router-link v-else :to="subItem?.url || '/'">
+                    <component :is="subItem.icon" v-if="subItem.icon" />
+                    <span>{{ subItem.title }}</span>
+                  </router-link>
+                </UiDropdownMenuItem>
+              </template>
             </UiDropdownMenuContent>
           </UiDropdownMenu>
         </UiSidebarMenuItem>
