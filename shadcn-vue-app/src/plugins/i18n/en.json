@@ -49,6 +49,7 @@
     "other": "Other",
     "teams": "Teams",
     "addTeam": "Add Team",
+    "logout": "Log out",
     "system": {
       "title": "System Management",
       "users": "Users",

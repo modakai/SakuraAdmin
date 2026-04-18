@@ -2,7 +2,7 @@
 import { useSidebarData } from './data/sidebar-data'
 import NavFooter from './nav-footer.vue'
 import NavTeam from './nav-team.vue'
-import TeamSwitcher from './team-switcher.vue'
+import SidebarLogo from './sidebar-logo.vue'
 
 const { sidebarData } = useSidebarData()
 </script>
@@ -10,7 +10,7 @@ const { sidebarData } = useSidebarData()
 <template>
   <UiSidebar collapsible="icon" class="z-50">
     <UiSidebarHeader>
-      <TeamSwitcher :teams="sidebarData.teams" />
+      <SidebarLogo />
     </UiSidebarHeader>
 
     <UiSidebarContent>

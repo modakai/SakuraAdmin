@@ -49,6 +49,7 @@
     "other": "其他",
     "teams": "团队",
     "addTeam": "新增团队",
+    "logout": "退出登录",
     "system": {
       "title": "系统管理",
       "users": "用户管理",

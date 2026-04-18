@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BadgeCheckIcon, BellIcon, ChevronsUpDownIcon, CreditCardIcon, LogOutIcon, SparklesIcon, UserRoundCogIcon } from '@lucide/vue'
+import { BadgeCheckIcon, BellIcon, ChevronsUpDownIcon, LogOutIcon, UserRoundCogIcon } from '@lucide/vue'
 import { useI18n } from 'vue-i18n'
 
 import { useSidebar } from '@/components/ui/sidebar'
@@ -12,6 +12,7 @@ const { user } = defineProps<
 
 const { logout } = useAuth()
 const { isMobile, open } = useSidebar()
+// 用户下拉菜单文案统一走 i18n，避免直接显示缺失的翻译 key。
 const { t } = useI18n()
 </script>
 
@@ -60,40 +61,24 @@ const { t } = useI18n()
 
           <UiDropdownMenuSeparator />
           <UiDropdownMenuGroup>
-            <UiDropdownMenuItem @click="$router.push('/billing/')">
-              <SparklesIcon />
-              {{ t('pages.billing.upgrade') }}
-            </UiDropdownMenuItem>
-          </UiDropdownMenuGroup>
-
-          <UiDropdownMenuSeparator />
-          <UiDropdownMenuGroup>
-            <UiDropdownMenuItem @click="$router.push('/billing?type=billing')">
-              <CreditCardIcon />
-              {{ t('pages.billing.title') }}
-            </UiDropdownMenuItem>
-          </UiDropdownMenuGroup>
-
-          <UiDropdownMenuSeparator />
-          <UiDropdownMenuGroup>
             <UiDropdownMenuItem @click="$router.push('/settings/')">
               <UserRoundCogIcon />
-              {{ t('pages.users.profile') }}
+              {{ t('menu.settings.profile') }}
             </UiDropdownMenuItem>
             <UiDropdownMenuItem @click="$router.push('/settings/account')">
               <BadgeCheckIcon />
-              {{ t('pages.users.account') }}
+              {{ t('menu.settings.account') }}
             </UiDropdownMenuItem>
             <UiDropdownMenuItem @click="$router.push('/settings/notifications')">
               <BellIcon />
-              {{ t('pages.users.notifications') }}
+              {{ t('menu.settings.notifications') }}
             </UiDropdownMenuItem>
           </UiDropdownMenuGroup>
 
           <UiDropdownMenuSeparator />
           <UiDropdownMenuItem @click="logout">
             <LogOutIcon />
-            {{ $t('logout') }}
+            {{ t('menu.logout') }}
           </UiDropdownMenuItem>
         </UiDropdownMenuContent>
       </UiDropdownMenu>
