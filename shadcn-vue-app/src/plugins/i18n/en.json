@@ -171,6 +171,8 @@
         "fontPlaceholder": "Select font",
         "palette": "Palette",
         "radius": "Radius",
+        "componentStyle": "Component style",
+        "componentStyleHint": "This is a runtime appearance preset. It does not rewrite components.json or generated component source.",
         "layoutSection": "Layout and navigation",
         "layoutDescription": "Tune the admin workspace width, menu behavior, and sidebar startup state.",
         "contentLayout": "Content layout",
@@ -201,6 +203,22 @@
           "geist": "Geist",
           "mono": "Mono",
           "serif": "Serif"
+        },
+        "componentStyles": {
+          "reka-vega": "Reka Vega",
+          "reka-nova": "Reka Nova",
+          "reka-maia": "Reka Maia",
+          "reka-lyra": "Reka Lyra",
+          "reka-mira": "Reka Mira",
+          "reka-luma": "Reka Luma"
+        },
+        "componentStyleDescriptions": {
+          "reka-vega": "Balanced default surfaces and control hierarchy.",
+          "reka-nova": "Brighter lifted cards and crisp controls.",
+          "reka-maia": "Tighter borders for dense admin pages.",
+          "reka-lyra": "Softer panels with lighter shadows.",
+          "reka-mira": "Translucent layers and more pronounced focus states.",
+          "reka-luma": "High-contrast direct surfaces with minimal depth."
         },
         "themes": {
           "slate": "Slate",

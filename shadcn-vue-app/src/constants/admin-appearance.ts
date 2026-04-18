@@ -18,6 +18,9 @@ export type AdminFont = typeof ADMIN_FONTS[number]
 export const ADMIN_DENSITIES = ['comfortable', 'standard', 'compact'] as const
 export type AdminDensity = typeof ADMIN_DENSITIES[number]
 
+export const ADMIN_COMPONENT_STYLES = ['reka-vega', 'reka-nova', 'reka-maia', 'reka-lyra', 'reka-mira', 'reka-luma'] as const
+export type AdminComponentStyle = typeof ADMIN_COMPONENT_STYLES[number]
+
 export const ADMIN_SIDEBAR_STATES = ['remember', 'expanded', 'collapsed'] as const
 export type AdminSidebarState = typeof ADMIN_SIDEBAR_STATES[number]
 
@@ -27,6 +30,7 @@ export interface AdminAppearancePreferences {
   radius: Radius
   font: AdminFont
   density: AdminDensity
+  componentStyle: AdminComponentStyle
   contentLayout: ContentLayout
   navigationMode: NavigationMode
   sidebarDefaultState: AdminSidebarState
@@ -43,6 +47,7 @@ export const DEFAULT_ADMIN_APPEARANCE_PREFERENCES: AdminAppearancePreferences = 
   radius: 0.5,
   font: 'system',
   density: 'standard',
+  componentStyle: 'reka-vega',
   contentLayout: 'centered',
   navigationMode: 'collapsible',
   sidebarDefaultState: 'remember',
@@ -65,6 +70,15 @@ export const ADMIN_DENSITY_OPTIONS: Array<{ label: string, value: AdminDensity, 
   { label: 'Comfortable', value: 'comfortable', description: 'Larger spacing for long review sessions.' },
   { label: 'Standard', value: 'standard', description: 'Balanced spacing for daily admin work.' },
   { label: 'Compact', value: 'compact', description: 'Denser spacing for data-heavy workflows.' },
+]
+
+export const ADMIN_COMPONENT_STYLE_OPTIONS: Array<{ label: string, value: AdminComponentStyle, description: string }> = [
+  { label: 'Reka Vega', value: 'reka-vega', description: 'The default shadcn-vue preset with balanced surfaces.' },
+  { label: 'Reka Nova', value: 'reka-nova', description: 'A brighter preset with lifted cards and crisp controls.' },
+  { label: 'Reka Maia', value: 'reka-maia', description: 'A compact preset with stronger borders for dense admin screens.' },
+  { label: 'Reka Lyra', value: 'reka-lyra', description: 'A calm preset with soft panels and lighter control shadows.' },
+  { label: 'Reka Mira', value: 'reka-mira', description: 'A glassier preset with translucent layers and pronounced focus states.' },
+  { label: 'Reka Luma', value: 'reka-luma', description: 'A high-contrast preset with direct surfaces and minimal depth.' },
 ]
 
 export const ADMIN_SIDEBAR_STATE_OPTIONS: Array<{ label: string, value: AdminSidebarState, description: string }> = [

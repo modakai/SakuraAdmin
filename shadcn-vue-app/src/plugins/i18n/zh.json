@@ -171,6 +171,8 @@
         "fontPlaceholder": "请选择字体",
         "palette": "配色",
         "radius": "圆角",
+        "componentStyle": "组件风格",
+        "componentStyleHint": "这是运行时外观预设，不会改写 components.json 或已生成的组件源码。",
         "layoutSection": "布局与导航",
         "layoutDescription": "调整管理端内容宽度、菜单交互和侧边栏初始状态。",
         "contentLayout": "内容布局",
@@ -201,6 +203,22 @@
           "geist": "Geist",
           "mono": "等宽字体",
           "serif": "衬线字体"
+        },
+        "componentStyles": {
+          "reka-vega": "Reka Vega",
+          "reka-nova": "Reka Nova",
+          "reka-maia": "Reka Maia",
+          "reka-lyra": "Reka Lyra",
+          "reka-mira": "Reka Mira",
+          "reka-luma": "Reka Luma"
+        },
+        "componentStyleDescriptions": {
+          "reka-vega": "均衡的默认表面和控件层级。",
+          "reka-nova": "更明亮的卡片抬升和清晰控件。",
+          "reka-maia": "更紧凑的边框感，适合高密度页面。",
+          "reka-lyra": "更柔和的面板和轻量阴影。",
+          "reka-mira": "半透明层次和更明显的聚焦状态。",
+          "reka-luma": "高对比、低阴影的直接界面。"
         },
         "themes": {
           "slate": "板岩灰",

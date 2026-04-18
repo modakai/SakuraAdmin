@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia'
 import type { AdminAppearancePreferences } from '@/constants/admin-appearance'
 
 import {
+  ADMIN_COMPONENT_STYLES,
   ADMIN_DENSITIES,
   ADMIN_FONTS,
   ADMIN_THEMES,
@@ -28,6 +29,7 @@ const ALL_ADMIN_APPEARANCE_CLASSES = [
   ...ADMIN_THEMES.map(theme => `theme-${theme}`),
   ...ADMIN_FONTS.map(font => `font-${font}`),
   ...ADMIN_DENSITIES.map(density => `density-${density}`),
+  ...ADMIN_COMPONENT_STYLES.map(style => `style-${style}`),
   ...OPTIONAL_EFFECT_CLASSES,
 ]
 
@@ -39,10 +41,14 @@ export function resolveAdminAppearanceEffects(
   const themeClasses = ADMIN_THEMES.map(theme => `theme-${theme}`)
   const fontClasses = ADMIN_FONTS.map(font => `font-${font}`)
   const densityClasses = ADMIN_DENSITIES.map(density => `density-${density}`)
+  // 持久化数据可能来自旧版本，运行时兜底避免出现 style-undefined。
+  const componentStyle = preferences.componentStyle ?? DEFAULT_ADMIN_APPEARANCE_PREFERENCES.componentStyle
+  const componentStyleClasses = ADMIN_COMPONENT_STYLES.map(style => `style-${style}`)
   const addClasses = [
     `theme-${preferences.theme}`,
     `font-${preferences.font}`,
     `density-${preferences.density}`,
+    `style-${componentStyle}`,
   ]
 
   if (isDark)
@@ -62,6 +68,7 @@ export function resolveAdminAppearanceEffects(
       ...themeClasses.filter(className => className !== `theme-${preferences.theme}`),
       ...fontClasses.filter(className => className !== `font-${preferences.font}`),
       ...densityClasses.filter(className => className !== `density-${preferences.density}`),
+      ...componentStyleClasses.filter(className => className !== `style-${componentStyle}`),
       ...OPTIONAL_EFFECT_CLASSES.filter(className => !addClasses.includes(className)),
     ],
     cssVariables: {

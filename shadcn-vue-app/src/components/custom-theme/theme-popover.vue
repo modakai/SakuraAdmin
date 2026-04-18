@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/popover'
 
 import ContentLayout from './content-layout.vue'
+import ComponentStyle from './component-style.vue'
 import CustomColor from './custom-color.vue'
 import CustomRadius from './custom-radius.vue'
 import CustomThemeTitle from './custom-theme-title.vue'
@@ -31,6 +32,7 @@ const { t } = useI18n()
       <CustomThemeTitle />
       <CustomColor />
       <CustomRadius />
+      <ComponentStyle />
       <ToggleColorMode />
       <ContentLayout />
       <MenuStyle />

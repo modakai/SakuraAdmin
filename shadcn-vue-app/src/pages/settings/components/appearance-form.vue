@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 
 import type {
   AdminColorMode,
+  AdminComponentStyle,
   AdminDensity,
   AdminFont,
   AdminSidebarState,
@@ -16,6 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import {
   ADMIN_CONTENT_LAYOUTS,
+  ADMIN_COMPONENT_STYLE_OPTIONS,
   ADMIN_DENSITY_OPTIONS,
   ADMIN_FONT_OPTIONS,
   ADMIN_RADIUS,
@@ -61,6 +63,10 @@ function setFont(font: AdminFont) {
 
 function setDensity(density: AdminDensity) {
   adminAppearanceStore.updatePreference('density', density)
+}
+
+function setComponentStyle(componentStyle: AdminComponentStyle) {
+  adminAppearanceStore.updatePreference('componentStyle', componentStyle)
 }
 
 function setSidebarDefaultState(sidebarDefaultState: AdminSidebarState) {
@@ -184,6 +190,31 @@ function setShowPageTitle(showPageTitle: boolean) {
             {{ radius }}
           </Button>
         </div>
+      </div>
+
+      <div class="space-y-2">
+        <UiLabel>{{ t('pages.settings.appearancePreferences.componentStyle') }}</UiLabel>
+        <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          <Button
+            v-for="style in ADMIN_COMPONENT_STYLE_OPTIONS"
+            :key="style.value"
+            variant="outline"
+            class="h-auto justify-start px-3 py-2 text-left"
+            :class="preferences.componentStyle === style.value ? 'border-foreground border-2' : ''"
+            :title="t(`pages.settings.appearancePreferences.componentStyleDescriptions.${style.value}`)"
+            @click="setComponentStyle(style.value)"
+          >
+            <span class="flex min-w-0 flex-col gap-1">
+              <span class="truncate">{{ t(`pages.settings.appearancePreferences.componentStyles.${style.value}`) }}</span>
+              <span class="text-xs font-normal text-muted-foreground">
+                {{ t(`pages.settings.appearancePreferences.componentStyleDescriptions.${style.value}`) }}
+              </span>
+            </span>
+          </Button>
+        </div>
+        <p class="text-xs text-muted-foreground">
+          {{ t('pages.settings.appearancePreferences.componentStyleHint') }}
+        </p>
       </div>
     </section>
 

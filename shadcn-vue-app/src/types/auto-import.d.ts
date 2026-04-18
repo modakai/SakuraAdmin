@@ -6,6 +6,8 @@
 // biome-ignore lint: disable
 export {}
 declare global {
+  const ADMIN_COMPONENT_STYLES: typeof import('../constants/admin-appearance').ADMIN_COMPONENT_STYLES
+  const ADMIN_COMPONENT_STYLE_OPTIONS: typeof import('../constants/admin-appearance').ADMIN_COMPONENT_STYLE_OPTIONS
   const ADMIN_CONTENT_LAYOUTS: typeof import('../constants/admin-appearance').ADMIN_CONTENT_LAYOUTS
   const ADMIN_DENSITIES: typeof import('../constants/admin-appearance').ADMIN_DENSITIES
   const ADMIN_DENSITY_OPTIONS: typeof import('../constants/admin-appearance').ADMIN_DENSITY_OPTIONS
@@ -125,7 +127,7 @@ declare global {
   export type { AdminAppearanceEffects } from '../composables/use-apply-admin-appearance-preferences'
   import('../composables/use-apply-admin-appearance-preferences')
   // @ts-ignore
-  export type { AdminColorMode, AdminFont, AdminDensity, AdminSidebarState, AdminAppearancePreferences } from '../constants/admin-appearance'
+  export type { AdminColorMode, AdminFont, AdminDensity, AdminComponentStyle, AdminSidebarState, AdminAppearancePreferences } from '../constants/admin-appearance'
   import('../constants/admin-appearance')
   // @ts-ignore
   export type { LoginPayload } from '../constants/mock-auth'
