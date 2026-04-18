@@ -47,7 +47,8 @@ class ArchitectureMigrationTest {
                     .filter(Files::isDirectory)
                     .filter(path -> {
                         String packageName = path.getFileName().toString();
-                        return !List.of("support", "user", "dict", "file", "wxmp", "agreement").contains(packageName);
+                        // notification 是系统通知公告能力的独立业务域。
+                        return !List.of("support", "user", "dict", "file", "wxmp", "agreement", "notification").contains(packageName);
                     })
                     .toList();
 

@@ -78,4 +78,82 @@ create table if not exists sys_agreement
     key idx_sort_order (sort_order)
 ) comment '协议内容' collate = utf8mb4_unicode_ci;
 
+-- 系统通知公告表
+create table if not exists sys_notification
+(
+    id             bigint auto_increment comment 'id' primary key,
+    type           varchar(32)                            not null comment '类型：message通知/announcement公告',
+    title          varchar(256)                           not null comment '标题',
+    summary        varchar(512)                           null comment '摘要',
+    content        longtext                               not null comment '内容',
+    level          varchar(32)  default 'info'            not null comment '级别：info/warning/error',
+    status         varchar(32)  default 'draft'           not null comment '状态：draft/published/revoked/archived',
+    receiver_type  varchar(32)                            not null comment '接收端：admin/app/all',
+    target_type    varchar(32)  default 'all'             not null comment '目标范围：all/role/user',
+    pinned         tinyint      default 0                 not null comment '是否置顶',
+    popup          tinyint      default 0                 not null comment '是否弹窗',
+    link_url       varchar(1024)                          null comment '跳转链接',
+    effective_time datetime                               null comment '生效时间',
+    expire_time    datetime                               null comment '失效时间',
+    publish_time   datetime                               null comment '发布时间',
+    publisher_id   bigint                                 null comment '发布人id',
+    create_user_id bigint                                 null comment '创建人id',
+    update_user_id bigint                                 null comment '更新人id',
+    create_time    datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time    datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    is_delete      tinyint      default 0                 not null comment '是否删除',
+    key idx_type_status_receiver (type, status, receiver_type),
+    key idx_target_type (target_type),
+    key idx_publish_time (publish_time),
+    key idx_effective_expire_time (effective_time, expire_time)
+) comment '系统通知公告' collate = utf8mb4_unicode_ci;
+
+-- 通知目标表
+create table if not exists sys_notification_target
+(
+    id              bigint auto_increment comment 'id' primary key,
+    notification_id bigint                                not null comment '通知id',
+    target_type     varchar(32)                           not null comment '目标类型：role/user',
+    target_value    varchar(128)                          not null comment '目标值',
+    create_time     datetime default CURRENT_TIMESTAMP    not null comment '创建时间',
+    is_delete       tinyint  default 0                    not null comment '是否删除',
+    key idx_notification_id (notification_id),
+    key idx_target (target_type, target_value)
+) comment '通知目标' collate = utf8mb4_unicode_ci;
+
+-- 通知阅读状态表
+create table if not exists sys_notification_read
+(
+    id              bigint auto_increment comment 'id' primary key,
+    notification_id bigint                                not null comment '通知id',
+    receiver_type   varchar(32)                           not null comment '接收端：admin/app',
+    user_id         bigint                                not null comment '用户id',
+    read_time       datetime                              null comment '已读时间',
+    close_time      datetime                              null comment '关闭时间',
+    create_time     datetime default CURRENT_TIMESTAMP    not null comment '创建时间',
+    update_time     datetime default CURRENT_TIMESTAMP    not null on update CURRENT_TIMESTAMP comment '更新时间',
+    is_delete       tinyint  default 0                    not null comment '是否删除',
+    unique key uk_notification_user (notification_id, receiver_type, user_id),
+    key idx_user_read (receiver_type, user_id, read_time)
+) comment '通知阅读状态' collate = utf8mb4_unicode_ci;
+
+-- 消息通知模板表
+create table if not exists sys_notification_template
+(
+    id              bigint auto_increment comment 'id' primary key,
+    template_code   varchar(128)                          not null comment '模板编码',
+    event_type      varchar(128)                          not null comment '事件类型',
+    title_template  varchar(256)                          not null comment '标题模板',
+    content_template longtext                             not null comment '内容模板',
+    variable_schema text                                  null comment '变量定义JSON',
+    receiver_type   varchar(32)                           not null comment '默认接收端',
+    enabled         tinyint  default 0                    not null comment '是否启用',
+    remark          varchar(512)                          null comment '备注',
+    create_time     datetime default CURRENT_TIMESTAMP    not null comment '创建时间',
+    update_time     datetime default CURRENT_TIMESTAMP    not null on update CURRENT_TIMESTAMP comment '更新时间',
+    is_delete       tinyint  default 0                    not null comment '是否删除',
+    unique key uk_template_code (template_code),
+    key idx_event_enabled (event_type, enabled)
+) comment '消息通知模板' collate = utf8mb4_unicode_ci;
+
 

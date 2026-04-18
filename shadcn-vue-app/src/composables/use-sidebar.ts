@@ -1,4 +1,4 @@
-import { BellDotIcon, CreditCardIcon, FileTextIcon, PaletteIcon, SettingsIcon, UserIcon, UsersIcon, WrenchIcon } from '@lucide/vue'
+import { BellDotIcon, CreditCardIcon, FileCode2Icon, FileTextIcon, PaletteIcon, SettingsIcon, UserIcon, UsersIcon, WrenchIcon } from '@lucide/vue'
 import { useI18n } from 'vue-i18n'
 
 import type { NavGroup } from '@/components/app-sidebar/types'
@@ -26,6 +26,8 @@ export function useSidebar() {
     { id: 'users', title: t('menu.system.users'), url: '/users', icon: UsersIcon },
     { id: 'dicts', title: t('menu.system.dicts'), url: '/dicts', icon: WrenchIcon },
     { id: 'agreements', title: t('menu.system.agreements'), url: '/agreements', icon: FileTextIcon },
+    { id: 'notifications', title: '通知公告', url: '/notifications', icon: BellDotIcon },
+    { id: 'notification-templates', title: '消息模板', url: '/notification-templates', icon: FileCode2Icon },
     // 外观偏好属于后台管理端体验配置，放在系统管理入口下更容易发现。
     { id: 'appearance-preferences', title: t('menu.settings.appearance'), url: '/settings/appearance', icon: PaletteIcon },
   ])

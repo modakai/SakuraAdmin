@@ -8,6 +8,7 @@ import com.sakura.boot_init.support.common.ErrorCode;
 import com.sakura.boot_init.support.common.ResultUtils;
 import com.sakura.boot_init.support.constant.UserConstant;
 import com.sakura.boot_init.support.exception.ThrowUtils;
+import com.sakura.boot_init.notification.support.NotificationSendHelper;
 import com.sakura.boot_init.user.model.dto.UserAddRequest;
 import com.sakura.boot_init.user.model.dto.UserQueryRequest;
 import com.sakura.boot_init.user.model.dto.UserUpdateRequest;
@@ -39,6 +40,9 @@ public class UserAdminController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private NotificationSendHelper notificationSendHelper;
 
     /**
      * 创建用户。
@@ -92,7 +96,20 @@ public class UserAdminController {
         BeanUtils.copyProperties(userUpdateRequest, user);
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        sendDisabledNotificationIfNeeded(userUpdateRequest);
         return ResultUtils.success(true);
+    }
+
+    /**
+     * 用户被禁用时按模板发送系统消息。
+     *
+     * @param request 用户更新请求
+     */
+    private void sendDisabledNotificationIfNeeded(UserUpdateRequest request) {
+        if (!UserConstant.STATUS_DISABLED.equals(request.getStatus())) {
+            return;
+        }
+        notificationSendHelper.sendUserDisabledNotification(request.getId(), request.getDisableReason());
     }
 
     /**

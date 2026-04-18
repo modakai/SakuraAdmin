@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { MenuIcon, ShieldCheckIcon } from '@lucide/vue'
 
+import { AnnouncementHub, NotificationBell } from '@/components/notification-center'
 import { useAuth } from '@/composables/use-auth'
 import { userNavItems } from '@/constants/user-portal'
 
@@ -43,6 +44,7 @@ const activePath = computed(() => route.path)
           </UiButton>
 
           <template v-if="isLogin">
+            <NotificationBell receiver-type="app" />
             <UiButton variant="ghost" size="sm" @click="$router.push('/profile')">
               {{ session.user?.name }}
             </UiButton>
@@ -94,6 +96,7 @@ const activePath = computed(() => route.path)
     </header>
 
     <main class="container mx-auto px-4 py-8">
+      <AnnouncementHub v-if="isLogin" receiver-type="app" />
       <router-view />
     </main>
 

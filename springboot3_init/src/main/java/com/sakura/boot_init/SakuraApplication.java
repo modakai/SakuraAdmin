@@ -16,7 +16,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @MapperScan({
         "com.sakura.boot_init.user.repository",
         "com.sakura.boot_init.dict.repository",
-        "com.sakura.boot_init.agreement.repository"
+        "com.sakura.boot_init.agreement.repository",
+        "com.sakura.boot_init.notification.repository"
 })
 @EnableScheduling
 @EnableAspectJAutoProxy(proxyTargetClass = true, exposeProxy = true)

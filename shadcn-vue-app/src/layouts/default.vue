@@ -7,6 +7,7 @@ import AppSidebar from '@/components/app-sidebar/index.vue'
 import CommandMenuPanel from '@/components/command-menu-panel/index.vue'
 import ThemePopover from '@/components/custom-theme/theme-popover.vue'
 import LanguageChange from '@/components/language-change.vue'
+import { AnnouncementHub, NotificationBell } from '@/components/notification-center'
 import { SIDEBAR_COOKIE_NAME } from '@/components/ui/sidebar/utils'
 import { cn } from '@/lib/utils'
 import { useAdminAppearancePreferencesStore } from '@/stores/admin-appearance-preferences'
@@ -39,6 +40,7 @@ const defaultSidebarOpen = computed(() => {
         <CommandMenuPanel />
         <div class="flex-1" />
         <div class="ml-auto flex items-center space-x-4">
+          <NotificationBell receiver-type="admin" />
           <!-- 在后台顶部提供回到前台的快捷入口，方便双端切换。 -->
           <UiButton variant="outline" size="sm" as-child>
             <RouterLink to="/">
@@ -57,6 +59,7 @@ const defaultSidebarOpen = computed(() => {
           preferences.contentLayout === 'centered' ? 'container mx-auto ' : '',
         )"
       >
+        <AnnouncementHub receiver-type="admin" />
         <router-view />
       </main>
     </UiSidebarInset>

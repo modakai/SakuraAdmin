@@ -219,6 +219,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/notification-templates/': RouteRecordInfo<
+      '/notification-templates/',
+      '/notification-templates',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/notifications/': RouteRecordInfo<
+      '/notifications/',
+      '/notifications',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/practice/': RouteRecordInfo<
       '/practice/',
       '/practice',
@@ -467,6 +481,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/marketing/hello.vue': {
       routes:
         | '/marketing/hello'
+      views:
+        | never
+    }
+    'src/pages/notification-templates/index.vue': {
+      routes:
+        | '/notification-templates/'
+      views:
+        | never
+    }
+    'src/pages/notifications/index.vue': {
+      routes:
+        | '/notifications/'
       views:
         | never
     }

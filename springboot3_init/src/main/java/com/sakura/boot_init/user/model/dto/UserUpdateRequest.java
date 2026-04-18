@@ -47,5 +47,10 @@ public class UserUpdateRequest implements Serializable {
     @NotNull(message = "{validation.user.status.not_null}")
     private Integer status;
 
+    /**
+     * 禁用原因，用于触发消息通知模板中的 {reason} 变量。
+     */
+    private String disableReason;
+
     private static final long serialVersionUID = 1L;
 }
