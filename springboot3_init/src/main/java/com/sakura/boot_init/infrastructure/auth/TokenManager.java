@@ -64,6 +64,19 @@ public class TokenManager {
     }
 
     /**
+     * 根据用户 id 获取当前 token。
+     *
+     * @param userId 用户 id
+     * @return 当前 token，不存在时返回 null
+     */
+    public String getTokenByUserId(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        return RedisUtil.getCacheObject(buildUserKey(userId));
+    }
+
+    /**
      * 根据 token 获取用户 id。
      *
      * @param token token

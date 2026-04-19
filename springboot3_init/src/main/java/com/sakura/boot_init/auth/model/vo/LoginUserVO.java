@@ -1,4 +1,4 @@
-package com.sakura.boot_init.user.model.vo;
+package com.sakura.boot_init.auth.model.vo;
 
 import lombok.Data;
 

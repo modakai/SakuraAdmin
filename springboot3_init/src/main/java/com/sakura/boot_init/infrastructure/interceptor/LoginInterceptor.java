@@ -1,6 +1,7 @@
 package com.sakura.boot_init.infrastructure.interceptor;
 
 import com.sakura.boot_init.infrastructure.auth.LoginUserProvider;
+import com.sakura.boot_init.infrastructure.auth.OnlineSessionTracker;
 import com.sakura.boot_init.shared.annotation.NoLoginRequired;
 import com.sakura.boot_init.infrastructure.auth.TokenManager;
 import com.sakura.boot_init.shared.common.ErrorCode;
@@ -30,9 +31,16 @@ public class LoginInterceptor implements HandlerInterceptor {
      */
     private final LoginUserProvider loginUserProvider;
 
-    public LoginInterceptor(TokenManager tokenManager, LoginUserProvider loginUserProvider) {
+    /**
+     * 在线用户服务。
+     */
+    private final OnlineSessionTracker onlineSessionTracker;
+
+    public LoginInterceptor(TokenManager tokenManager, LoginUserProvider loginUserProvider,
+            OnlineSessionTracker onlineSessionTracker) {
         this.tokenManager = tokenManager;
         this.loginUserProvider = loginUserProvider;
+        this.onlineSessionTracker = onlineSessionTracker;
     }
 
     /**
@@ -64,6 +72,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
         LoginUserContext.setLoginUser(loginUserInfo);
+        onlineSessionTracker.refreshLastAccess(token);
         return true;
     }
 

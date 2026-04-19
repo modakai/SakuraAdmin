@@ -137,7 +137,7 @@ class AuthMigrationTest {
     @Test
     void shouldMoveAuthEndpointsOutOfUserController() throws IOException {
         Path userController = Path.of("src", "main", "java", "com", "sakura", "boot_init", "user", "controller", "app", "UserController.java");
-        Path authController = Path.of("src", "main", "java", "com", "sakura", "boot_init", "user", "controller", "app", "AuthController.java");
+        Path authController = Path.of("src", "main", "java", "com", "sakura", "boot_init", "auth", "controller", "AuthController.java");
         String content = Files.readString(userController, StandardCharsets.UTF_8);
 
         assertTrue(Files.exists(authController), "认证入口应拆分到 AuthController");
@@ -155,8 +155,8 @@ class AuthMigrationTest {
     void shouldMoveAuthMethodsOutOfUserService() throws IOException {
         Path userService = Path.of("src", "main", "java", "com", "sakura", "boot_init", "user", "service", "UserService.java");
         Path userServiceImpl = Path.of("src", "main", "java", "com", "sakura", "boot_init", "user", "service", "impl", "UserServiceImpl.java");
-        Path authService = Path.of("src", "main", "java", "com", "sakura", "boot_init", "user", "service", "AuthService.java");
-        Path authServiceImpl = Path.of("src", "main", "java", "com", "sakura", "boot_init", "user", "service", "impl", "AuthServiceImpl.java");
+        Path authService = Path.of("src", "main", "java", "com", "sakura", "boot_init", "auth", "service", "AuthService.java");
+        Path authServiceImpl = Path.of("src", "main", "java", "com", "sakura", "boot_init", "auth", "service", "impl", "AuthServiceImpl.java");
         String interfaceContent = Files.readString(userService, StandardCharsets.UTF_8);
         String implContent = Files.readString(userServiceImpl, StandardCharsets.UTF_8);
 
@@ -177,6 +177,55 @@ class AuthMigrationTest {
         assertFalseContent(implContent, "getLoginUserPermitNull(");
         assertFalseContent(implContent, "userLogout(");
         assertFalseContent(implContent, "getLoginUserVO(");
+    }
+
+    /**
+     * 在线用户管理属于认证模块，不应由基础设施层暴露对外 API。
+     */
+    @Test
+    void shouldPlaceOnlineUserManagementInAuthModule() {
+        Path infrastructureOnlineController = Path.of("src", "main", "java", "com", "sakura", "boot_init",
+                "infrastructure", "online", "controller", "OnlineUserController.java");
+        Path authOnlineController = Path.of("src", "main", "java", "com", "sakura", "boot_init",
+                "auth", "controller", "OnlineUserController.java");
+
+        assertTrue(Files.notExists(infrastructureOnlineController), "基础设施层不应暴露在线用户 API");
+        assertTrue(Files.exists(authOnlineController), "在线用户 API 应放在 auth 模块");
+    }
+
+    /**
+     * 在线用户 Redis 仓储应复用项目 RedisUtil，避免绕开统一工具类。
+     */
+    @Test
+    void shouldUseRedisUtilForOnlineUserSessionRepository() throws IOException {
+        Path repository = Path.of("src", "main", "java", "com", "sakura", "boot_init", "auth",
+                "repository", "RedisOnlineUserSessionRepository.java");
+        String content = Files.readString(repository, StandardCharsets.UTF_8);
+
+        assertTrue(content.contains("RedisUtil"), "在线用户 Redis 仓储应使用 RedisUtil");
+        assertFalseContent(content, "RedisTemplate");
+        assertFalseContent(content, "opsForValue()");
+        assertFalseContent(content, "opsForZSet()");
+    }
+
+    /**
+     * 在线用户 Redis 仓储不应再维护 token->session 和 sessions 集合索引，避免登录一次写入过多 key。
+     */
+    @Test
+    void shouldNotCreateRedundantOnlineUserRedisIndexes() throws IOException {
+        Path repository = Path.of("src", "main", "java", "com", "sakura", "boot_init", "auth",
+                "repository", "RedisOnlineUserSessionRepository.java");
+        Path tokenProperties = Path.of("src", "main", "java", "com", "sakura", "boot_init",
+                "infrastructure", "auth", "TokenProperties.java");
+        String repositoryContent = Files.readString(repository, StandardCharsets.UTF_8);
+        String propertiesContent = Files.readString(tokenProperties, StandardCharsets.UTF_8);
+
+        assertFalseContent(repositoryContent, "getRedisOnlineTokenSessionKeyPrefix");
+        assertFalseContent(repositoryContent, "getRedisOnlineSessionIndexKey");
+        assertFalseContent(repositoryContent, "addCacheSetValue");
+        assertFalseContent(repositoryContent, "removeCacheSetValue");
+        assertFalseContent(propertiesContent, "redisOnlineTokenSessionKeyPrefix");
+        assertFalseContent(propertiesContent, "redisOnlineSessionIndexKey");
     }
 
     /**

@@ -3,6 +3,7 @@ package com.sakura.boot_init.user.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
+import com.sakura.boot_init.infrastructure.auth.LoginUserCache;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.CommonConstant;
 import com.sakura.boot_init.shared.constant.UserConstant;
@@ -33,6 +34,15 @@ import org.springframework.util.DigestUtils;
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+    /**
+     * 登录用户快照缓存。
+     */
+    private final LoginUserCache loginUserCache;
+
+    public UserServiceImpl(LoginUserCache loginUserCache) {
+        this.loginUserCache = loginUserCache;
+    }
 
     @Override
     public UserVO getUserVO(User user) {
@@ -92,7 +102,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         ThrowUtils.throwIf(UserConstant.PROTECTED_SUPER_ADMIN_ACCOUNT.equals(oldUser.getUserAccount()),
                 ErrorCode.FORBIDDEN_ERROR, "内置超级管理员 sakura 不允许删除");
 
-        return this.removeById(id);
+        boolean result = this.removeById(id);
+        if (result) {
+            loginUserCache.evict(id);
+        }
+        return result;
     }
 
     @Override
@@ -108,7 +122,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         User user = new User();
         BeanUtils.copyProperties(userUpdateRequest, user);
-        return this.updateById(user);
+        boolean result = this.updateById(user);
+        if (result) {
+            loginUserCache.evict(userUpdateRequest.getId());
+        }
+        return result;
     }
 
     @Override

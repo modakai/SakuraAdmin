@@ -3,7 +3,8 @@
  */
 @ApplicationModule(
         displayName = "用户模块",
-        allowedDependencies = { "shared", "infrastructure", "audit::api" }
+        allowedDependencies = { "shared", "infrastructure", "audit::api" },
+        type = ApplicationModule.Type.OPEN
 )
 package com.sakura.boot_init.user;
 

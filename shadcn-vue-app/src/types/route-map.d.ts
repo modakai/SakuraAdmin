@@ -240,6 +240,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/online-users/': RouteRecordInfo<
+      '/online-users/',
+      '/online-users',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/practice/': RouteRecordInfo<
       '/practice/',
       '/practice',
@@ -506,6 +513,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/notifications/index.vue': {
       routes:
         | '/notifications/'
+      views:
+        | never
+    }
+    'src/pages/online-users/index.vue': {
+      routes:
+        | '/online-users/'
       views:
         | never
     }

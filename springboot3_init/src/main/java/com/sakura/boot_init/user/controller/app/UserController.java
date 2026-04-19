@@ -1,6 +1,8 @@
 package com.sakura.boot_init.user.controller.app;
 
 import com.mybatisflex.core.paginate.Page;
+import com.sakura.boot_init.shared.context.LoginUserContext;
+import com.sakura.boot_init.shared.context.LoginUserInfo;
 import com.sakura.boot_init.shared.common.BaseResponse;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.common.ResultUtils;
@@ -10,7 +12,6 @@ import com.sakura.boot_init.user.model.dto.UserUpdateMyRequest;
 import com.sakura.boot_init.user.model.dto.UserUpdatePasswordRequest;
 import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.model.vo.UserVO;
-import com.sakura.boot_init.user.service.AuthService;
 import com.sakura.boot_init.user.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,9 +39,6 @@ public class UserController {
 
     @Resource
     private UserService userService;
-
-    @Resource
-    private AuthService authService;
 
     /**
      * 根据 id 获取用户包装类。
@@ -89,7 +87,7 @@ public class UserController {
     @PostMapping("/update/my")
     public BaseResponse<Boolean> updateMyUser(@Valid @RequestBody UserUpdateMyRequest userUpdateMyRequest,
             HttpServletRequest request) {
-        User loginUser = authService.getLoginUser(request);
+        User loginUser = getCurrentLoginUser();
         User user = new User();
         BeanUtils.copyProperties(userUpdateMyRequest, user);
         user.setId(loginUser.getId());
@@ -108,10 +106,23 @@ public class UserController {
     @PostMapping("/password/update")
     public BaseResponse<Boolean> updateMyPassword(@Valid @RequestBody UserUpdatePasswordRequest userUpdatePasswordRequest,
             HttpServletRequest request) {
-        User loginUser = authService.getLoginUser(request);
+        User loginUser = getCurrentLoginUser();
         boolean result = userService.updateMyPassword(loginUser, userUpdatePasswordRequest.getOldPassword(),
                 userUpdatePasswordRequest.getNewPassword(), userUpdatePasswordRequest.getCheckPassword());
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
+    }
+
+    /**
+     * 从登录上下文读取当前用户实体。
+     *
+     * @return 当前登录用户实体
+     */
+    private User getCurrentLoginUser() {
+        LoginUserInfo loginUserInfo = LoginUserContext.getLoginUser();
+        ThrowUtils.throwIf(loginUserInfo == null || loginUserInfo.userId() == null, ErrorCode.NOT_LOGIN_ERROR);
+        User loginUser = userService.getById(loginUserInfo.userId());
+        ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
+        return loginUser;
     }
 }

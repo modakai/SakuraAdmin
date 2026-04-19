@@ -1,7 +1,7 @@
-package com.sakura.boot_init.user.service;
+package com.sakura.boot_init.auth.service;
 
+import com.sakura.boot_init.auth.model.vo.LoginUserVO;
 import com.sakura.boot_init.user.model.entity.User;
-import com.sakura.boot_init.user.model.vo.LoginUserVO;
 import jakarta.servlet.http.HttpServletRequest;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 

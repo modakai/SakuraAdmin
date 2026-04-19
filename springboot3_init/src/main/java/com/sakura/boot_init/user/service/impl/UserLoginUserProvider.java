@@ -1,6 +1,7 @@
 package com.sakura.boot_init.user.service.impl;
 
 import com.sakura.boot_init.infrastructure.auth.LoginUserProvider;
+import com.sakura.boot_init.infrastructure.auth.LoginUserCache;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.UserConstant;
 import com.sakura.boot_init.shared.context.LoginUserInfo;
@@ -21,8 +22,14 @@ public class UserLoginUserProvider implements LoginUserProvider {
      */
     private final UserMapper userMapper;
 
-    public UserLoginUserProvider(UserMapper userMapper) {
+    /**
+     * 登录用户快照缓存。
+     */
+    private final LoginUserCache loginUserCache;
+
+    public UserLoginUserProvider(UserMapper userMapper, LoginUserCache loginUserCache) {
         this.userMapper = userMapper;
+        this.loginUserCache = loginUserCache;
     }
 
     /**
@@ -36,12 +43,19 @@ public class UserLoginUserProvider implements LoginUserProvider {
         if (userId == null) {
             return null;
         }
+        LoginUserInfo cachedLoginUser = loginUserCache.get(userId);
+        if (cachedLoginUser != null) {
+            return cachedLoginUser;
+        }
         User user = userMapper.selectOneById(userId);
         if (user == null) {
             return null;
         }
         validateUserLoginStatus(user);
-        return new LoginUserInfo(user.getId(), user.getUserAccount(), user.getUserRole());
+        LoginUserInfo loginUserInfo = new LoginUserInfo(user.getId(), user.getUserAccount(), user.getUserName(),
+                user.getUserRole());
+        loginUserCache.put(loginUserInfo);
+        return loginUserInfo;
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.sakura.boot_init.user.model.dto;
+package com.sakura.boot_init.auth.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -7,12 +7,12 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 用户登录请求
+ * 用户注册请求体
  *
  * @author Sakura
  */
 @Data
-public class UserLoginRequest implements Serializable {
+public class UserRegisterRequest implements Serializable {
 
     private static final long serialVersionUID = 3191241716373120793L;
 
@@ -29,4 +29,11 @@ public class UserLoginRequest implements Serializable {
     @NotBlank(message = "{validation.user.password.not_blank}")
     @Size(min = 8, message = "{validation.user.password.min}")
     private String userPassword;
+
+    /**
+     * 校验密码
+     */
+    @NotBlank(message = "{validation.user.check_password.not_blank}")
+    @Size(min = 8, message = "{validation.user.check_password.min}")
+    private String checkPassword;
 }

@@ -36,6 +36,7 @@ export function buildAdminNavGroups(t: (key: string) => string): NavGroup[] {
           icon: SettingsIcon,
           items: [
             { id: 'users', title: t('menu.system.users'), url: '/users', icon: UsersIcon },
+            { id: 'online-users', title: '在线用户', url: '/online-users', icon: UsersIcon },
             { id: 'dicts', title: t('menu.system.dicts'), url: '/dicts', icon: WrenchIcon },
             { id: 'agreements', title: t('menu.system.agreements'), url: '/agreements', icon: FileTextIcon },
             {

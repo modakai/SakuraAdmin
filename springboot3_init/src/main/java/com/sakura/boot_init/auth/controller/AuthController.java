@@ -1,16 +1,16 @@
-package com.sakura.boot_init.user.controller.app;
+package com.sakura.boot_init.auth.controller;
 
+import com.sakura.boot_init.auth.model.dto.UserLoginRequest;
+import com.sakura.boot_init.auth.model.dto.UserRegisterRequest;
+import com.sakura.boot_init.auth.model.vo.LoginUserVO;
+import com.sakura.boot_init.auth.service.AuthService;
 import com.sakura.boot_init.shared.annotation.NoLoginRequired;
 import com.sakura.boot_init.shared.common.BaseResponse;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.common.ResultUtils;
 import com.sakura.boot_init.infrastructure.config.WxOpenConfig;
 import com.sakura.boot_init.shared.exception.BusinessException;
-import com.sakura.boot_init.user.model.dto.UserLoginRequest;
-import com.sakura.boot_init.user.model.dto.UserRegisterRequest;
 import com.sakura.boot_init.user.model.entity.User;
-import com.sakura.boot_init.user.model.vo.LoginUserVO;
-import com.sakura.boot_init.user.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;

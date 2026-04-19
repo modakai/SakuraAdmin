@@ -4,7 +4,7 @@ import com.sakura.boot_init.infrastructure.config.I18nConfig;
 import com.sakura.boot_init.shared.common.BaseResponse;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.common.ResultUtils;
-import com.sakura.boot_init.user.model.dto.UserLoginRequest;
+import com.sakura.boot_init.auth.model.dto.UserLoginRequest;
 import jakarta.validation.ConstraintViolation;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

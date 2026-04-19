@@ -1,8 +1,11 @@
-package com.sakura.boot_init.user.service.impl;
+package com.sakura.boot_init.auth.service.impl;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.sakura.boot_init.audit.api.AuditApi;
 import com.sakura.boot_init.audit.api.LoginAuditCommand;
+import com.sakura.boot_init.auth.model.vo.LoginUserVO;
+import com.sakura.boot_init.auth.service.AuthService;
+import com.sakura.boot_init.auth.service.OnlineUserService;
 import com.sakura.boot_init.infrastructure.auth.TokenManager;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.UserConstant;
@@ -12,9 +15,7 @@ import com.sakura.boot_init.shared.enums.UserRoleEnum;
 import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.shared.util.NetUtils;
 import com.sakura.boot_init.user.model.entity.User;
-import com.sakura.boot_init.user.model.vo.LoginUserVO;
 import com.sakura.boot_init.user.repository.UserMapper;
-import com.sakura.boot_init.user.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
@@ -48,15 +49,22 @@ public class AuthServiceImpl implements AuthService {
      */
     private final AuditApi auditApi;
 
+    /**
+     * 在线用户服务。
+     */
+    private final OnlineUserService onlineUserService;
+
     public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager) {
-        this(userMapper, tokenManager, null);
+        this(userMapper, tokenManager, null, null);
     }
 
     @Autowired
-    public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager, AuditApi auditApi) {
+    public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager, AuditApi auditApi,
+            OnlineUserService onlineUserService) {
         this.userMapper = userMapper;
         this.tokenManager = tokenManager;
         this.auditApi = auditApi;
+        this.onlineUserService = onlineUserService;
     }
 
     @Override
@@ -120,7 +128,7 @@ public class AuthServiceImpl implements AuthService {
             }
             validateUserLoginStatus(user);
             loginUser = user;
-            LoginUserVO loginUserVO = buildLoginUserVOWithToken(user);
+            LoginUserVO loginUserVO = buildLoginUserVOWithToken(user, request);
             recordLoginAudit(userAccount, loginUser, request, true, null, startTime);
             return loginUserVO;
         } catch (BusinessException e) {
@@ -156,7 +164,7 @@ public class AuthServiceImpl implements AuthService {
                     throw new BusinessException(ErrorCode.SYSTEM_ERROR, "auth.login.fail");
                 }
             }
-            return buildLoginUserVOWithToken(user);
+            return buildLoginUserVOWithToken(user, request);
         }
     }
 
@@ -206,6 +214,9 @@ public class AuthServiceImpl implements AuthService {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "auth.logout.not_login");
         }
         tokenManager.removeToken(token);
+        if (onlineUserService != null) {
+            onlineUserService.removeByToken(token);
+        }
         LoginUserContext.clear();
         return true;
     }
@@ -236,9 +247,17 @@ public class AuthServiceImpl implements AuthService {
      * @param user 用户实体
      * @return 登录用户视图
      */
-    private LoginUserVO buildLoginUserVOWithToken(User user) {
+    private LoginUserVO buildLoginUserVOWithToken(User user, HttpServletRequest request) {
+        String oldToken = tokenManager.getTokenByUserId(user.getId());
+        if (onlineUserService != null) {
+            onlineUserService.removeByToken(oldToken);
+        }
         String token = tokenManager.generateToken();
         tokenManager.storeToken(user.getId(), token);
+        if (onlineUserService != null) {
+            onlineUserService.recordLoginSession(user.getId(), user.getUserAccount(), user.getUserName(),
+                    user.getUserRole(), token, request);
+        }
         LoginUserVO loginUserVO = getLoginUserVO(user);
         loginUserVO.setToken(token);
         return loginUserVO;

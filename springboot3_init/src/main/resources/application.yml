@@ -4,6 +4,9 @@
 server:
   servlet:
     context-path: /api
+# 开启Gzip压缩
+  compression:
+    enabled: true
 spring:
   application:
     name: sakura-boot-init-api
@@ -56,6 +59,10 @@ token:
   compatibility-header-name: "token"
   redis-token-key-prefix: "login:token:"
   redis-user-key-prefix: "login:user:"
+  # 登录用户快照缓存前缀，用于减少每次请求的用户表查询。
+  redis-login-user-key-prefix: "login:user-info:"
+  # 登录用户快照缓存有效期，用户更新或删除时会主动清理，TTL 作为兜底。
+  login-user-cache-expire-seconds: 300
 
 mybatis-flex:
   configuration:

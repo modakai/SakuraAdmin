@@ -5,7 +5,8 @@ package com.sakura.boot_init.shared.context;
  *
  * @param userId 用户 id
  * @param userAccount 用户账号
+ * @param userName 用户昵称
  * @param userRole 用户角色
  */
-public record LoginUserInfo(Long userId, String userAccount, String userRole) {
+public record LoginUserInfo(Long userId, String userAccount, String userName, String userRole) {
 }
