@@ -1,6 +1,6 @@
 package com.sakura.boot_init.wxmp.controller;
 
-import com.sakura.boot_init.support.annotation.NoLoginRequired;
+import com.sakura.boot_init.shared.annotation.NoLoginRequired;
 import com.sakura.boot_init.wxmp.constant.WxMpConstant;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;

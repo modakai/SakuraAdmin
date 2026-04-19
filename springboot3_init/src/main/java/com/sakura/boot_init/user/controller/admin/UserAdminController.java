@@ -1,16 +1,16 @@
 package com.sakura.boot_init.user.controller.admin;
 
 import com.mybatisflex.core.paginate.Page;
-import com.sakura.boot_init.audit.enums.AuditOperationTypeEnum;
-import com.sakura.boot_init.support.annotation.AuthCheck;
-import com.sakura.boot_init.support.annotation.AuditLogRecord;
-import com.sakura.boot_init.support.common.BaseResponse;
-import com.sakura.boot_init.support.common.DeleteRequest;
-import com.sakura.boot_init.support.common.ErrorCode;
-import com.sakura.boot_init.support.common.ResultUtils;
-import com.sakura.boot_init.support.constant.UserConstant;
-import com.sakura.boot_init.support.exception.ThrowUtils;
-import com.sakura.boot_init.notification.support.NotificationSendHelper;
+import com.sakura.boot_init.shared.enums.AuditOperationTypeEnum;
+import com.sakura.boot_init.shared.annotation.AuthCheck;
+import com.sakura.boot_init.shared.annotation.AuditLogRecord;
+import com.sakura.boot_init.shared.common.BaseResponse;
+import com.sakura.boot_init.shared.common.DeleteRequest;
+import com.sakura.boot_init.shared.common.ErrorCode;
+import com.sakura.boot_init.shared.common.ResultUtils;
+import com.sakura.boot_init.shared.constant.UserConstant;
+import com.sakura.boot_init.shared.exception.ThrowUtils;
+import com.sakura.boot_init.user.api.UserDisabledEvent;
 import com.sakura.boot_init.user.model.dto.UserAddRequest;
 import com.sakura.boot_init.user.model.dto.UserQueryRequest;
 import com.sakura.boot_init.user.model.dto.UserUpdateRequest;
@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.util.DigestUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +45,7 @@ public class UserAdminController {
     private UserService userService;
 
     @Resource
-    private NotificationSendHelper notificationSendHelper;
+    private ApplicationEventPublisher applicationEventPublisher;
 
     /**
      * 创建用户。
@@ -112,7 +113,7 @@ public class UserAdminController {
         if (!UserConstant.STATUS_DISABLED.equals(request.getStatus())) {
             return;
         }
-        notificationSendHelper.sendUserDisabledNotification(request.getId(), request.getDisableReason());
+        applicationEventPublisher.publishEvent(new UserDisabledEvent(request.getId(), request.getDisableReason()));
     }
 
     /**

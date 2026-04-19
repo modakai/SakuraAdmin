@@ -2,7 +2,7 @@ package com.sakura.boot_init.notification;
 
 import com.sakura.boot_init.notification.model.entity.NotificationTemplate;
 import com.sakura.boot_init.notification.service.impl.NotificationTemplateRenderer;
-import com.sakura.boot_init.support.exception.BusinessException;
+import com.sakura.boot_init.shared.exception.BusinessException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;

@@ -1,8 +1,8 @@
 package com.sakura.boot_init;
 
-import com.sakura.boot_init.support.auth.TokenProperties;
-import com.sakura.boot_init.support.auth.TokenManager;
-import com.sakura.boot_init.support.util.RedisUtil;
+import com.sakura.boot_init.infrastructure.auth.TokenProperties;
+import com.sakura.boot_init.infrastructure.auth.TokenManager;
+import com.sakura.boot_init.shared.util.RedisUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -107,7 +107,7 @@ class AuthMigrationTest {
      */
     @Test
     void shouldUseRedisUtilInTokenManager() throws IOException {
-        Path tokenManager = Path.of("src", "main", "java", "com", "sakura", "boot_init", "support", "auth", "TokenManager.java");
+        Path tokenManager = Path.of("src", "main", "java", "com", "sakura", "boot_init", "infrastructure", "auth", "TokenManager.java");
         String content = Files.readString(tokenManager, StandardCharsets.UTF_8);
 
         assertTrue(content.contains("RedisUtil"), "TokenManager 应改为使用 RedisUtil");

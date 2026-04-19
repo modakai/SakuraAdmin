@@ -1,15 +1,16 @@
 package com.sakura.boot_init.user.service.impl;
 
 import com.mybatisflex.core.query.QueryWrapper;
-import com.sakura.boot_init.audit.model.dto.AuditLogCreateRequest;
-import com.sakura.boot_init.audit.service.AuditLogService;
-import com.sakura.boot_init.support.auth.TokenManager;
-import com.sakura.boot_init.support.common.ErrorCode;
-import com.sakura.boot_init.support.constant.UserConstant;
-import com.sakura.boot_init.support.context.LoginUserContext;
-import com.sakura.boot_init.support.enums.UserRoleEnum;
-import com.sakura.boot_init.support.exception.BusinessException;
-import com.sakura.boot_init.support.util.NetUtils;
+import com.sakura.boot_init.audit.api.AuditApi;
+import com.sakura.boot_init.audit.api.LoginAuditCommand;
+import com.sakura.boot_init.infrastructure.auth.TokenManager;
+import com.sakura.boot_init.shared.common.ErrorCode;
+import com.sakura.boot_init.shared.constant.UserConstant;
+import com.sakura.boot_init.shared.context.LoginUserContext;
+import com.sakura.boot_init.shared.context.LoginUserInfo;
+import com.sakura.boot_init.shared.enums.UserRoleEnum;
+import com.sakura.boot_init.shared.exception.BusinessException;
+import com.sakura.boot_init.shared.util.NetUtils;
 import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.model.vo.LoginUserVO;
 import com.sakura.boot_init.user.repository.UserMapper;
@@ -43,19 +44,19 @@ public class AuthServiceImpl implements AuthService {
     private final TokenManager tokenManager;
 
     /**
-     * 审计日志服务。
+     * 审计模块 API。
      */
-    private final AuditLogService auditLogService;
+    private final AuditApi auditApi;
 
     public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager) {
         this(userMapper, tokenManager, null);
     }
 
     @Autowired
-    public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager, AuditLogService auditLogService) {
+    public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager, AuditApi auditApi) {
         this.userMapper = userMapper;
         this.tokenManager = tokenManager;
-        this.auditLogService = auditLogService;
+        this.auditApi = auditApi;
     }
 
     @Override
@@ -161,11 +162,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public User getLoginUser(HttpServletRequest request) {
-        User currentUser = LoginUserContext.getLoginUser();
-        if (currentUser == null || currentUser.getId() == null) {
+        LoginUserInfo currentUser = LoginUserContext.getLoginUser();
+        if (currentUser == null || currentUser.userId() == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
-        User user = userMapper.selectOneById(currentUser.getId());
+        User user = userMapper.selectOneById(currentUser.userId());
         if (user == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
@@ -175,11 +176,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public User getLoginUserPermitNull(HttpServletRequest request) {
-        User currentUser = LoginUserContext.getLoginUser();
-        if (currentUser == null || currentUser.getId() == null) {
+        LoginUserInfo currentUser = LoginUserContext.getLoginUser();
+        if (currentUser == null || currentUser.userId() == null) {
             return null;
         }
-        User user = userMapper.selectOneById(currentUser.getId());
+        User user = userMapper.selectOneById(currentUser.userId());
         if (user == null) {
             return null;
         }
@@ -189,7 +190,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean isAdmin(HttpServletRequest request) {
-        return isAdmin(LoginUserContext.getLoginUser());
+        LoginUserInfo currentUser = LoginUserContext.getLoginUser();
+        return currentUser != null && UserRoleEnum.ADMIN.getValue().equals(currentUser.userRole());
     }
 
     @Override
@@ -254,16 +256,20 @@ public class AuthServiceImpl implements AuthService {
      */
     private void recordLoginAudit(String userAccount, User user, HttpServletRequest request,
             boolean success, String failureReason, long startTime) {
-        if (auditLogService == null) {
+        if (auditApi == null) {
             return;
         }
         try {
-            AuditLogCreateRequest auditRequest = new AuditLogCreateRequest();
-            auditRequest.setAccountIdentifier(userAccount);
-            auditRequest.setUserId(user == null ? null : user.getId());
-            auditRequest.setIpAddress(request == null ? null : NetUtils.getIpAddress(request));
-            auditRequest.setClientInfo(request == null ? null : request.getHeader("User-Agent"));
-            auditLogService.submitLoginLog(auditRequest, success, failureReason, System.currentTimeMillis() - startTime);
+            LoginAuditCommand command = new LoginAuditCommand(
+                    user == null ? null : user.getId(),
+                    userAccount,
+                    request == null ? null : NetUtils.getIpAddress(request),
+                    request == null ? null : request.getHeader("User-Agent"),
+                    success,
+                    failureReason,
+                    System.currentTimeMillis() - startTime
+            );
+            auditApi.submitLoginLog(command);
         } catch (Exception e) {
             log.error("record login audit failed", e);
         }

@@ -2,8 +2,8 @@ package com.sakura.boot_init.notification.service.impl;
 
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
-import com.sakura.boot_init.support.common.ErrorCode;
-import com.sakura.boot_init.support.exception.BusinessException;
+import com.sakura.boot_init.shared.common.ErrorCode;
+import com.sakura.boot_init.shared.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 

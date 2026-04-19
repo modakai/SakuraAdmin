@@ -1,6 +1,6 @@
 package com.sakura.boot_init.notification.model.dto;
 
-import com.sakura.boot_init.user.model.entity.User;
+import com.sakura.boot_init.shared.context.LoginUserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,7 +21,7 @@ public class NotificationTargetContext {
     private String receiverType;
 
     /**
-     * 当前登录用户。
+     * 当前登录用户快照。
      */
-    private User user;
+    private LoginUserInfo user;
 }

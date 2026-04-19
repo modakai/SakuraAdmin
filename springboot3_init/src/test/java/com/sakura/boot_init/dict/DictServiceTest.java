@@ -1,6 +1,6 @@
 package com.sakura.boot_init.dict;
 
-import com.sakura.boot_init.support.exception.BusinessException;
+import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.dict.model.entity.DictItem;
 import com.sakura.boot_init.dict.model.entity.DictType;
 import com.sakura.boot_init.dict.service.DictItemService;

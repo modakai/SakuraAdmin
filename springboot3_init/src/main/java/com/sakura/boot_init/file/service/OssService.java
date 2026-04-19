@@ -3,10 +3,9 @@ package com.sakura.boot_init.file.service;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PutObjectRequest;
-import com.sakura.boot_init.support.config.OssConfig;
-import com.sakura.boot_init.support.context.LoginUserContext;
-import com.sakura.boot_init.user.model.entity.User;
-import jakarta.annotation.Resource;
+import com.sakura.boot_init.infrastructure.config.OssConfig;
+import com.sakura.boot_init.shared.context.LoginUserContext;
+import com.sakura.boot_init.shared.context.LoginUserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -24,11 +23,20 @@ public class OssService {
 
     private static final DateTimeFormatter DATE_PATH_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM");
 
-    @Resource
-    private OSS ossClient;
+    /**
+     * OSS 客户端。
+     */
+    private final OSS ossClient;
 
-    @Resource
-    private OssConfig.OssProperties ossProperties;
+    /**
+     * OSS 配置属性。
+     */
+    private final OssConfig.OssProperties ossProperties;
+
+    public OssService(OSS ossClient, OssConfig.OssProperties ossProperties) {
+        this.ossClient = ossClient;
+        this.ossProperties = ossProperties;
+    }
 
     /**
      * 通用上传方法：上传文件并返回可访问的 URL
@@ -55,8 +63,8 @@ public class OssService {
      * @return 可公开访问的 URL
      */
     public String uploadFile(MultipartFile file) {
-        User loginUser = LoginUserContext.getLoginUser();
-        if (loginUser == null || loginUser.getId() == null) {
+        LoginUserInfo loginUser = LoginUserContext.getLoginUser();
+        if (loginUser == null || loginUser.userId() == null) {
             throw new RuntimeException("未获取到登录用户信息，上传失败");
         }
         String originalFilename = file.getOriginalFilename();
@@ -64,7 +72,7 @@ public class OssService {
             throw new RuntimeException("文件名为空，上传失败");
         }
         String datePath = LocalDate.now().format(DATE_PATH_FORMATTER);
-        String objectName = String.format( ossProperties.getPrefix() + "/%d/%s/%s", loginUser.getId(), datePath, originalFilename);
+        String objectName = String.format( ossProperties.getPrefix() + "/%d/%s/%s", loginUser.userId(), datePath, originalFilename);
         try (InputStream inputStream = file.getInputStream()) {
             // 构造上传请求
             PutObjectRequest putObjectRequest = new PutObjectRequest(ossProperties.getBucketName(), objectName, inputStream);

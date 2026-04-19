@@ -1,17 +1,16 @@
 package com.sakura.boot_init.user.controller.app;
 
-import com.sakura.boot_init.support.annotation.NoLoginRequired;
-import com.sakura.boot_init.support.common.BaseResponse;
-import com.sakura.boot_init.support.common.ErrorCode;
-import com.sakura.boot_init.support.common.ResultUtils;
-import com.sakura.boot_init.support.config.WxOpenConfig;
-import com.sakura.boot_init.support.exception.BusinessException;
+import com.sakura.boot_init.shared.annotation.NoLoginRequired;
+import com.sakura.boot_init.shared.common.BaseResponse;
+import com.sakura.boot_init.shared.common.ErrorCode;
+import com.sakura.boot_init.shared.common.ResultUtils;
+import com.sakura.boot_init.infrastructure.config.WxOpenConfig;
+import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.user.model.dto.UserLoginRequest;
 import com.sakura.boot_init.user.model.dto.UserRegisterRequest;
 import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.model.vo.LoginUserVO;
 import com.sakura.boot_init.user.service.AuthService;
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -39,11 +38,20 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class AuthController {
 
-    @Resource
-    private AuthService authService;
+    /**
+     * 认证服务。
+     */
+    private final AuthService authService;
 
-    @Resource
-    private WxOpenConfig wxOpenConfig;
+    /**
+     * 微信开放平台配置。
+     */
+    private final WxOpenConfig wxOpenConfig;
+
+    public AuthController(AuthService authService, WxOpenConfig wxOpenConfig) {
+        this.authService = authService;
+        this.wxOpenConfig = wxOpenConfig;
+    }
 
     /**
      * 用户注册。

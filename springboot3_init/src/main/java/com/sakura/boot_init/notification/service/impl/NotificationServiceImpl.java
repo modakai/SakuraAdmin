@@ -20,12 +20,12 @@ import com.sakura.boot_init.notification.service.NotificationReadService;
 import com.sakura.boot_init.notification.service.NotificationService;
 import com.sakura.boot_init.notification.service.NotificationTargetService;
 import com.sakura.boot_init.notification.service.NotificationTemplateService;
-import com.sakura.boot_init.support.common.ErrorCode;
-import com.sakura.boot_init.support.constant.CommonConstant;
-import com.sakura.boot_init.support.exception.BusinessException;
-import com.sakura.boot_init.support.exception.ThrowUtils;
-import com.sakura.boot_init.support.util.SqlUtils;
-import com.sakura.boot_init.user.model.entity.User;
+import com.sakura.boot_init.shared.common.ErrorCode;
+import com.sakura.boot_init.shared.constant.CommonConstant;
+import com.sakura.boot_init.shared.context.LoginUserInfo;
+import com.sakura.boot_init.shared.exception.BusinessException;
+import com.sakura.boot_init.shared.exception.ThrowUtils;
+import com.sakura.boot_init.shared.util.SqlUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -62,14 +62,14 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long addNotification(NotificationAddRequest request, User operator) {
+    public Long addNotification(NotificationAddRequest request, LoginUserInfo operator) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         Notification notification = new Notification();
         BeanUtils.copyProperties(request, notification);
         notification.setStatus(NotificationStatusEnum.DRAFT.getValue());
         if (operator != null) {
-            notification.setCreateUserId(operator.getId());
-            notification.setUpdateUserId(operator.getId());
+            notification.setCreateUserId(operator.userId());
+            notification.setUpdateUserId(operator.userId());
         }
         fillDefaultDisplay(notification);
         validNotification(notification);
@@ -82,7 +82,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateNotification(NotificationUpdateRequest request, User operator) {
+    public boolean updateNotification(NotificationUpdateRequest request, LoginUserInfo operator) {
         ThrowUtils.throwIf(request == null || request.getId() == null || request.getId() <= 0, ErrorCode.PARAMS_ERROR);
         Notification oldNotification = this.getById(request.getId());
         ThrowUtils.throwIf(oldNotification == null, ErrorCode.NOT_FOUND_ERROR);
@@ -91,7 +91,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
         Notification notification = new Notification();
         BeanUtils.copyProperties(request, notification);
         if (operator != null) {
-            notification.setUpdateUserId(operator.getId());
+            notification.setUpdateUserId(operator.userId());
         }
         fillDefaultDisplay(notification);
         validNotification(notification);
@@ -102,37 +102,37 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     }
 
     @Override
-    public boolean publishNotification(Long id, User operator) {
+    public boolean publishNotification(Long id, LoginUserInfo operator) {
         Notification notification = assertNotificationExists(id);
         domainService.assertCanPublish(notification);
         Notification update = new Notification();
         update.setId(id);
         update.setStatus(NotificationStatusEnum.PUBLISHED.getValue());
         update.setPublishTime(new Date());
-        update.setPublisherId(operator == null ? null : operator.getId());
-        update.setUpdateUserId(operator == null ? null : operator.getId());
+        update.setPublisherId(operator == null ? null : operator.userId());
+        update.setUpdateUserId(operator == null ? null : operator.userId());
         return this.updateById(update);
     }
 
     @Override
-    public boolean revokeNotification(Long id, User operator) {
+    public boolean revokeNotification(Long id, LoginUserInfo operator) {
         Notification notification = assertNotificationExists(id);
         ThrowUtils.throwIf(!NotificationStatusEnum.PUBLISHED.getValue().equals(notification.getStatus()),
                 ErrorCode.OPERATION_ERROR, "notification.only_published_can_revoke");
         Notification update = new Notification();
         update.setId(id);
         update.setStatus(NotificationStatusEnum.REVOKED.getValue());
-        update.setUpdateUserId(operator == null ? null : operator.getId());
+        update.setUpdateUserId(operator == null ? null : operator.userId());
         return this.updateById(update);
     }
 
     @Override
-    public boolean archiveNotification(Long id, User operator) {
+    public boolean archiveNotification(Long id, LoginUserInfo operator) {
         assertNotificationExists(id);
         Notification update = new Notification();
         update.setId(id);
         update.setStatus(NotificationStatusEnum.ARCHIVED.getValue());
-        update.setUpdateUserId(operator == null ? null : operator.getId());
+        update.setUpdateUserId(operator == null ? null : operator.userId());
         return this.updateById(update);
     }
 
@@ -180,8 +180,8 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     }
 
     @Override
-    public List<NotificationVO> listVisibleNotifications(String receiverType, User user, String type) {
-        ThrowUtils.throwIf(user == null || user.getId() == null, ErrorCode.NOT_LOGIN_ERROR);
+    public List<NotificationVO> listVisibleNotifications(String receiverType, LoginUserInfo user, String type) {
+        ThrowUtils.throwIf(user == null || user.userId() == null, ErrorCode.NOT_LOGIN_ERROR);
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .eq("status", NotificationStatusEnum.PUBLISHED.getValue())
                 .eq("type", type, StringUtils.isNotBlank(type))
@@ -195,44 +195,44 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
                 .filter(notification -> notification.getExpireTime() == null || !notification.getExpireTime().before(now))
                 .filter(notification -> isVisible(notification, receiverType, user))
                 .filter(notification -> !NotificationTypeEnum.ANNOUNCEMENT.getValue().equals(notification.getType())
-                        || !notificationReadService.isClosed(notification.getId(), receiverType, user.getId()))
+                        || !notificationReadService.isClosed(notification.getId(), receiverType, user.userId()))
                 .map(notification -> {
                     NotificationVO vo = getNotificationVO(notification);
-                    vo.setRead(notificationReadService.isRead(notification.getId(), receiverType, user.getId()));
+                    vo.setRead(notificationReadService.isRead(notification.getId(), receiverType, user.userId()));
                     return vo;
                 })
                 .collect(Collectors.toList());
     }
 
     @Override
-    public long countUnreadMessages(String receiverType, User user) {
+    public long countUnreadMessages(String receiverType, LoginUserInfo user) {
         return listVisibleNotifications(receiverType, user, NotificationTypeEnum.MESSAGE.getValue()).stream()
                 .filter(vo -> !Boolean.TRUE.equals(vo.getRead()))
                 .count();
     }
 
     @Override
-    public boolean markRead(Long notificationId, String receiverType, User user) {
+    public boolean markRead(Long notificationId, String receiverType, LoginUserInfo user) {
         Notification notification = assertNotificationExists(notificationId);
         ThrowUtils.throwIf(!isVisible(notification, receiverType, user), ErrorCode.NO_AUTH_ERROR);
-        notificationReadService.markRead(notificationId, receiverType, user.getId());
+        notificationReadService.markRead(notificationId, receiverType, user.userId());
         return true;
     }
 
     @Override
-    public boolean markAllRead(String receiverType, User user) {
+    public boolean markAllRead(String receiverType, LoginUserInfo user) {
         for (NotificationVO vo : listVisibleNotifications(receiverType, user, NotificationTypeEnum.MESSAGE.getValue())) {
-            notificationReadService.markRead(vo.getId(), receiverType, user.getId());
+            notificationReadService.markRead(vo.getId(), receiverType, user.userId());
         }
         return true;
     }
 
     @Override
-    public boolean closeAnnouncement(Long notificationId, String receiverType, User user) {
+    public boolean closeAnnouncement(Long notificationId, String receiverType, LoginUserInfo user) {
         Notification notification = assertNotificationExists(notificationId);
         ThrowUtils.throwIf(!NotificationTypeEnum.ANNOUNCEMENT.getValue().equals(notification.getType()), ErrorCode.PARAMS_ERROR);
         ThrowUtils.throwIf(!isVisible(notification, receiverType, user), ErrorCode.NO_AUTH_ERROR);
-        notificationReadService.markClosed(notificationId, receiverType, user.getId());
+        notificationReadService.markClosed(notificationId, receiverType, user.userId());
         return true;
     }
 
@@ -259,7 +259,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     /**
      * 判断通知是否对用户可见。
      */
-    private boolean isVisible(Notification notification, String receiverType, User user) {
+    private boolean isVisible(Notification notification, String receiverType, LoginUserInfo user) {
         return domainService.isVisibleTo(notification, new NotificationTargetContext(receiverType, user),
                 notificationTargetService.listRoleTargets(notification.getId()),
                 notificationTargetService.listUserTargets(notification.getId()));

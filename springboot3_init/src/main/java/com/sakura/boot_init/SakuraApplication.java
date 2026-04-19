@@ -4,6 +4,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.modulith.Modulithic;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
@@ -12,14 +13,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @author sakura
  * @from sakura
  */
+@Modulithic(systemName = "springboot3_init")
 @SpringBootApplication
-@MapperScan({
-        "com.sakura.boot_init.user.repository",
-        "com.sakura.boot_init.dict.repository",
-        "com.sakura.boot_init.agreement.repository",
-        "com.sakura.boot_init.notification.repository",
-        "com.sakura.boot_init.audit.repository"
-})
+@MapperScan("com.sakura.boot_init.**.repository")
 @EnableScheduling
 @EnableAspectJAutoProxy(proxyTargetClass = true, exposeProxy = true)
 public class SakuraApplication {

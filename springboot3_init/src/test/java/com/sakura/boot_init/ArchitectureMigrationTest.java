@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,11 +49,57 @@ class ArchitectureMigrationTest {
                     .filter(path -> {
                         String packageName = path.getFileName().toString();
                         // notification 和 audit 是跨页面使用的独立业务域。
-                        return !List.of("support", "user", "dict", "file", "wxmp", "agreement", "notification", "audit").contains(packageName);
+                        return !List.of("shared", "infrastructure", "system", "user", "dict", "file",
+                                "wxmp", "agreement", "notification", "audit").contains(packageName);
                     })
                     .toList();
 
             assertTrue(illegalPackages.isEmpty(), "存在未归类的顶层包：" + illegalPackages);
+        }
+    }
+
+    /**
+     * 校验登录拦截和权限校验属于基础设施模块，避免业务模块承载横切技术职责。
+     */
+    @Test
+    void shouldPlaceAuthenticationInfrastructureInInfrastructureModule() {
+        List<Path> forbiddenUserInfrastructurePaths = List.of(
+                Path.of("src", "main", "java", "com", "sakura", "boot_init", "user", "aop", "AuthInterceptor.java"),
+                Path.of("src", "main", "java", "com", "sakura", "boot_init", "user", "interceptor", "LoginInterceptor.java"),
+                Path.of("src", "main", "java", "com", "sakura", "boot_init", "user", "config", "CorsConfig.java")
+        );
+
+        List<Path> existingForbiddenPaths = forbiddenUserInfrastructurePaths.stream()
+                .filter(Files::exists)
+                .toList();
+
+        assertTrue(existingForbiddenPaths.isEmpty(), "登录拦截和权限校验不应放在 user 模块：" + existingForbiddenPaths);
+        assertTrue(Files.exists(Path.of("src", "main", "java", "com", "sakura", "boot_init", "infrastructure", "aop", "AuthInterceptor.java")));
+        assertTrue(Files.exists(Path.of("src", "main", "java", "com", "sakura", "boot_init", "infrastructure", "interceptor", "LoginInterceptor.java")));
+        assertTrue(Files.exists(Path.of("src", "main", "java", "com", "sakura", "boot_init", "infrastructure", "config", "CorsConfig.java")));
+    }
+
+    /**
+     * 校验基础设施模块不能直接依赖用户业务模块，用户信息通过基础设施端口反向适配。
+     */
+    @Test
+    void shouldNotDependOnUserModuleFromInfrastructure() throws IOException {
+        Path infrastructureRoot = Path.of("src", "main", "java", "com", "sakura", "boot_init", "infrastructure");
+        Set<String> forbiddenImports = Set.of(
+                "import com.sakura.boot_init.user.api.",
+                "import com.sakura.boot_init.user.service.",
+                "import com.sakura.boot_init.user.model.",
+                "import com.sakura.boot_init.user.repository."
+        );
+
+        try (Stream<Path> paths = Files.walk(infrastructureRoot)) {
+            List<Path> illegalFiles = paths
+                    .filter(Files::isRegularFile)
+                    .filter(this::isTextSourceFile)
+                    .filter(path -> containsAny(path, forbiddenImports))
+                    .toList();
+
+            assertTrue(illegalFiles.isEmpty(), "基础设施模块不应直接依赖用户模块：" + illegalFiles);
         }
     }
 
@@ -67,6 +114,18 @@ class ArchitectureMigrationTest {
                     || content.contains("MyBatisPlus")
                     || content.contains("Elasticsearch")
                     || content.contains("elasticsearch");
+        } catch (IOException e) {
+            throw new IllegalStateException("读取源码文件失败：" + path, e);
+        }
+    }
+
+    /**
+     * 判断文件内容是否包含任一指定片段。
+     */
+    private boolean containsAny(Path path, Set<String> fragments) {
+        try {
+            String content = Files.readString(path, StandardCharsets.UTF_8);
+            return fragments.stream().anyMatch(content::contains);
         } catch (IOException e) {
             throw new IllegalStateException("读取源码文件失败：" + path, e);
         }

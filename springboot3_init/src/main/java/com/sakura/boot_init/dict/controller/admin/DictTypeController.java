@@ -1,15 +1,15 @@
 package com.sakura.boot_init.dict.controller.admin;
 
 import com.mybatisflex.core.paginate.Page;
-import com.sakura.boot_init.support.common.BaseResponse;
-import com.sakura.boot_init.support.common.DeleteRequest;
-import com.sakura.boot_init.support.common.ErrorCode;
-import com.sakura.boot_init.support.common.ResultUtils;
-import com.sakura.boot_init.support.constant.UserConstant;
-import com.sakura.boot_init.support.exception.ThrowUtils;
+import com.sakura.boot_init.shared.common.BaseResponse;
+import com.sakura.boot_init.shared.common.DeleteRequest;
+import com.sakura.boot_init.shared.common.ErrorCode;
+import com.sakura.boot_init.shared.common.ResultUtils;
+import com.sakura.boot_init.shared.constant.UserConstant;
+import com.sakura.boot_init.shared.exception.ThrowUtils;
 import com.sakura.boot_init.dict.model.entity.DictType;
 import com.sakura.boot_init.dict.service.DictTypeService;
-import com.sakura.boot_init.support.annotation.AuthCheck;
+import com.sakura.boot_init.shared.annotation.AuthCheck;
 import com.sakura.boot_init.dict.model.dto.DictTypeAddRequest;
 import com.sakura.boot_init.dict.model.dto.DictTypeQueryRequest;
 import com.sakura.boot_init.dict.model.dto.DictTypeUpdateRequest;

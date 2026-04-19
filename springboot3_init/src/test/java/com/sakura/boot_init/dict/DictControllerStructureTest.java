@@ -1,7 +1,7 @@
 package com.sakura.boot_init.dict;
 
-import com.sakura.boot_init.support.constant.UserConstant;
-import com.sakura.boot_init.support.annotation.AuthCheck;
+import com.sakura.boot_init.shared.constant.UserConstant;
+import com.sakura.boot_init.shared.annotation.AuthCheck;
 import com.sakura.boot_init.dict.controller.publicapi.DictMappingController;
 import com.sakura.boot_init.dict.controller.admin.DictItemController;
 import com.sakura.boot_init.dict.controller.admin.DictTypeController;

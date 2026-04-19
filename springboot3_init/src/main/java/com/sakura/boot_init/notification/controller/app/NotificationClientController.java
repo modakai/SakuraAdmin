@@ -2,10 +2,10 @@ package com.sakura.boot_init.notification.controller.app;
 
 import com.sakura.boot_init.notification.model.vo.NotificationVO;
 import com.sakura.boot_init.notification.service.NotificationService;
-import com.sakura.boot_init.support.common.BaseResponse;
-import com.sakura.boot_init.support.common.DeleteRequest;
-import com.sakura.boot_init.support.common.ResultUtils;
-import com.sakura.boot_init.support.context.LoginUserContext;
+import com.sakura.boot_init.shared.common.BaseResponse;
+import com.sakura.boot_init.shared.common.DeleteRequest;
+import com.sakura.boot_init.shared.common.ResultUtils;
+import com.sakura.boot_init.shared.context.LoginUserContext;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

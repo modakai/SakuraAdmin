@@ -6,8 +6,8 @@ import com.sakura.boot_init.notification.enums.NotificationTargetTypeEnum;
 import com.sakura.boot_init.notification.model.dto.NotificationTargetContext;
 import com.sakura.boot_init.notification.model.entity.Notification;
 import com.sakura.boot_init.notification.service.impl.NotificationDomainServiceImpl;
-import com.sakura.boot_init.support.exception.BusinessException;
-import com.sakura.boot_init.user.model.entity.User;
+import com.sakura.boot_init.shared.context.LoginUserInfo;
+import com.sakura.boot_init.shared.exception.BusinessException;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -96,19 +96,15 @@ class NotificationDomainServiceTest {
      * 构造后台用户上下文。
      */
     private NotificationTargetContext adminContext() {
-        User user = new User();
-        user.setId(1L);
-        user.setUserRole("admin");
-        return new NotificationTargetContext(NotificationReceiverTypeEnum.ADMIN.getValue(), user);
+        return new NotificationTargetContext(NotificationReceiverTypeEnum.ADMIN.getValue(),
+                new LoginUserInfo(1L, "admin", "admin"));
     }
 
     /**
      * 构造用户端用户上下文。
      */
     private NotificationTargetContext appContext() {
-        User user = new User();
-        user.setId(2L);
-        user.setUserRole("user");
-        return new NotificationTargetContext(NotificationReceiverTypeEnum.APP.getValue(), user);
+        return new NotificationTargetContext(NotificationReceiverTypeEnum.APP.getValue(),
+                new LoginUserInfo(2L, "user", "user"));
     }
 }

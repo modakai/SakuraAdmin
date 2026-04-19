@@ -2,8 +2,8 @@ package com.sakura.boot_init.agreement.controller.publicapi;
 
 import com.sakura.boot_init.agreement.model.vo.AgreementVO;
 import com.sakura.boot_init.agreement.service.AgreementService;
-import com.sakura.boot_init.support.common.BaseResponse;
-import com.sakura.boot_init.support.common.ResultUtils;
+import com.sakura.boot_init.shared.common.BaseResponse;
+import com.sakura.boot_init.shared.common.ResultUtils;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.validation.annotation.Validated;

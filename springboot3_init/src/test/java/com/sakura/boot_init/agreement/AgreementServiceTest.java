@@ -5,14 +5,9 @@ import com.sakura.boot_init.agreement.model.dto.AgreementAddRequest;
 import com.sakura.boot_init.agreement.model.dto.AgreementQueryRequest;
 import com.sakura.boot_init.agreement.model.entity.Agreement;
 import com.sakura.boot_init.agreement.service.impl.AgreementServiceImpl;
-import com.sakura.boot_init.dict.model.entity.DictItem;
-import com.sakura.boot_init.dict.model.entity.DictType;
-import com.sakura.boot_init.dict.service.DictItemService;
-import com.sakura.boot_init.dict.service.DictTypeService;
-import com.sakura.boot_init.support.exception.BusinessException;
+import com.sakura.boot_init.dict.api.DictApi;
+import com.sakura.boot_init.shared.exception.BusinessException;
 import org.junit.jupiter.api.Test;
-
-import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,22 +27,10 @@ class AgreementServiceTest {
      * 新增协议时，同类型重复数据必须拦截。
      */
     @Test
-    void shouldRejectDuplicateAgreementTypeWhenAdding() throws Exception {
-        AgreementServiceImpl agreementService = spy(new AgreementServiceImpl());
-        DictTypeService dictTypeService = mock(DictTypeService.class);
-        DictItemService dictItemService = mock(DictItemService.class);
-        injectField(agreementService, "dictTypeService", dictTypeService);
-        injectField(agreementService, "dictItemService", dictItemService);
-
-        DictType dictType = new DictType();
-        dictType.setId(1L);
-        dictType.setDictCode("agreement_type");
-        dictType.setStatus(1);
-        DictItem dictItem = new DictItem();
-        dictItem.setDictValue("user_agreement");
-        dictItem.setStatus(1);
-        when(dictTypeService.getByDictCode("agreement_type")).thenReturn(dictType);
-        when(dictItemService.listEnabledByTypeId(1L)).thenReturn(java.util.List.of(dictItem));
+    void shouldRejectDuplicateAgreementTypeWhenAdding() {
+        DictApi dictApi = mock(DictApi.class);
+        AgreementServiceImpl agreementService = spy(new AgreementServiceImpl(dictApi));
+        when(dictApi.existsEnabledValue("agreement_type", "user_agreement")).thenReturn(true);
         doReturn(true).when(agreementService).existsByAgreementType("user_agreement", null);
 
         AgreementAddRequest request = new AgreementAddRequest();
@@ -64,7 +47,7 @@ class AgreementServiceTest {
      */
     @Test
     void shouldRejectUpdateWhenAgreementDoesNotExist() {
-        AgreementServiceImpl agreementService = spy(new AgreementServiceImpl());
+        AgreementServiceImpl agreementService = spy(newAgreementService());
         doReturn(null).when(agreementService).getById(1001L);
 
         assertThrows(BusinessException.class, () -> agreementService.assertAgreementExists(1001L));
@@ -75,7 +58,7 @@ class AgreementServiceTest {
      */
     @Test
     void shouldBuildQueryWrapperWithDefaultSort() {
-        AgreementServiceImpl agreementService = new AgreementServiceImpl();
+        AgreementServiceImpl agreementService = newAgreementService();
         AgreementQueryRequest request = new AgreementQueryRequest();
         request.setAgreementType("privacy_policy");
         request.setTitle("隐私");
@@ -94,8 +77,8 @@ class AgreementServiceTest {
      * 公共查询只返回启用协议。
      */
     @Test
-    void shouldOnlyReturnEnabledAgreementForPublicQuery() throws Exception {
-        AgreementServiceImpl agreementService = spy(new AgreementServiceImpl());
+    void shouldOnlyReturnEnabledAgreementForPublicQuery() {
+        AgreementServiceImpl agreementService = spy(newAgreementService());
         Agreement disabledAgreement = new Agreement();
         disabledAgreement.setAgreementType("privacy_policy");
         disabledAgreement.setStatus(0);
@@ -105,11 +88,9 @@ class AgreementServiceTest {
     }
 
     /**
-     * 反射注入测试依赖，避免引入 Spring 上下文。
+     * 创建协议服务测试实例，显式传入字典依赖以匹配生产构造器注入。
      */
-    private void injectField(Object target, String fieldName, Object value) throws Exception {
-        Field field = target.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(target, value);
+    private AgreementServiceImpl newAgreementService() {
+        return new AgreementServiceImpl(mock(DictApi.class));
     }
 }

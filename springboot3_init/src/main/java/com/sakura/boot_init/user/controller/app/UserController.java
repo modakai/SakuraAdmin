@@ -1,10 +1,10 @@
 package com.sakura.boot_init.user.controller.app;
 
 import com.mybatisflex.core.paginate.Page;
-import com.sakura.boot_init.support.common.BaseResponse;
-import com.sakura.boot_init.support.common.ErrorCode;
-import com.sakura.boot_init.support.common.ResultUtils;
-import com.sakura.boot_init.support.exception.ThrowUtils;
+import com.sakura.boot_init.shared.common.BaseResponse;
+import com.sakura.boot_init.shared.common.ErrorCode;
+import com.sakura.boot_init.shared.common.ResultUtils;
+import com.sakura.boot_init.shared.exception.ThrowUtils;
 import com.sakura.boot_init.user.model.dto.UserQueryRequest;
 import com.sakura.boot_init.user.model.dto.UserUpdateMyRequest;
 import com.sakura.boot_init.user.model.dto.UserUpdatePasswordRequest;

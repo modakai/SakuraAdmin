@@ -8,7 +8,7 @@ import com.sakura.boot_init.notification.model.dto.NotificationQueryRequest;
 import com.sakura.boot_init.notification.model.dto.NotificationUpdateRequest;
 import com.sakura.boot_init.notification.model.entity.Notification;
 import com.sakura.boot_init.notification.model.vo.NotificationVO;
-import com.sakura.boot_init.user.model.entity.User;
+import com.sakura.boot_init.shared.context.LoginUserInfo;
 
 import java.util.List;
 
@@ -22,27 +22,27 @@ public interface NotificationService extends IService<Notification> {
     /**
      * 新增通知。
      */
-    Long addNotification(NotificationAddRequest request, User operator);
+    Long addNotification(NotificationAddRequest request, LoginUserInfo operator);
 
     /**
      * 更新通知。
      */
-    boolean updateNotification(NotificationUpdateRequest request, User operator);
+    boolean updateNotification(NotificationUpdateRequest request, LoginUserInfo operator);
 
     /**
      * 发布通知。
      */
-    boolean publishNotification(Long id, User operator);
+    boolean publishNotification(Long id, LoginUserInfo operator);
 
     /**
      * 撤回通知。
      */
-    boolean revokeNotification(Long id, User operator);
+    boolean revokeNotification(Long id, LoginUserInfo operator);
 
     /**
      * 归档通知。
      */
-    boolean archiveNotification(Long id, User operator);
+    boolean archiveNotification(Long id, LoginUserInfo operator);
 
     /**
      * 自动模板发送。
@@ -57,27 +57,27 @@ public interface NotificationService extends IService<Notification> {
     /**
      * 获取可见通知列表。
      */
-    List<NotificationVO> listVisibleNotifications(String receiverType, User user, String type);
+    List<NotificationVO> listVisibleNotifications(String receiverType, LoginUserInfo user, String type);
 
     /**
      * 获取未读消息数量。
      */
-    long countUnreadMessages(String receiverType, User user);
+    long countUnreadMessages(String receiverType, LoginUserInfo user);
 
     /**
      * 标记单条已读。
      */
-    boolean markRead(Long notificationId, String receiverType, User user);
+    boolean markRead(Long notificationId, String receiverType, LoginUserInfo user);
 
     /**
      * 标记全部已读。
      */
-    boolean markAllRead(String receiverType, User user);
+    boolean markAllRead(String receiverType, LoginUserInfo user);
 
     /**
      * 关闭公告弹窗。
      */
-    boolean closeAnnouncement(Long notificationId, String receiverType, User user);
+    boolean closeAnnouncement(Long notificationId, String receiverType, LoginUserInfo user);
 
     /**
      * 转换返回对象。

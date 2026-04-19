@@ -1,6 +1,6 @@
 package com.sakura.boot_init.audit.model.dto;
 
-import com.sakura.boot_init.support.common.PageRequest;
+import com.sakura.boot_init.shared.common.PageRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

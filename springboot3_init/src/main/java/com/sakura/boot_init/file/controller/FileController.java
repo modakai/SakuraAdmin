@@ -2,10 +2,10 @@ package com.sakura.boot_init.file.controller;
 
 import cn.hutool.core.io.FileUtil;
 import com.sakura.boot_init.file.service.OssService;
-import com.sakura.boot_init.support.common.BaseResponse;
-import com.sakura.boot_init.support.common.ErrorCode;
-import com.sakura.boot_init.support.common.ResultUtils;
-import com.sakura.boot_init.support.exception.BusinessException;
+import com.sakura.boot_init.shared.common.BaseResponse;
+import com.sakura.boot_init.shared.common.ErrorCode;
+import com.sakura.boot_init.shared.common.ResultUtils;
+import com.sakura.boot_init.shared.exception.BusinessException;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

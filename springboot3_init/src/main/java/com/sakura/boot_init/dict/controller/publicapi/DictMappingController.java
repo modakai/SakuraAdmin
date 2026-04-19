@@ -1,7 +1,7 @@
 package com.sakura.boot_init.dict.controller.publicapi;
 
-import com.sakura.boot_init.support.common.BaseResponse;
-import com.sakura.boot_init.support.common.ResultUtils;
+import com.sakura.boot_init.shared.common.BaseResponse;
+import com.sakura.boot_init.shared.common.ResultUtils;
 import com.sakura.boot_init.dict.service.DictMappingService;
 import com.sakura.boot_init.dict.model.dto.DictBatchQueryRequest;
 import com.sakura.boot_init.dict.model.vo.DictItemSimpleVO;

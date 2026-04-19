@@ -1,8 +1,8 @@
 package com.sakura.boot_init.user.service.impl;
 
-import com.sakura.boot_init.support.auth.TokenManager;
-import com.sakura.boot_init.support.constant.UserConstant;
-import com.sakura.boot_init.support.enums.UserRoleEnum;
+import com.sakura.boot_init.infrastructure.auth.TokenManager;
+import com.sakura.boot_init.shared.constant.UserConstant;
+import com.sakura.boot_init.shared.enums.UserRoleEnum;
 import com.sakura.boot_init.user.model.vo.LoginUserVO;
 import com.sakura.boot_init.user.repository.UserMapper;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;

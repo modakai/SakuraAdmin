@@ -10,16 +10,12 @@ import com.sakura.boot_init.agreement.model.entity.Agreement;
 import com.sakura.boot_init.agreement.model.vo.AgreementVO;
 import com.sakura.boot_init.agreement.repository.AgreementMapper;
 import com.sakura.boot_init.agreement.service.AgreementService;
-import com.sakura.boot_init.dict.model.entity.DictItem;
-import com.sakura.boot_init.dict.model.entity.DictType;
-import com.sakura.boot_init.dict.service.DictItemService;
-import com.sakura.boot_init.dict.service.DictTypeService;
-import com.sakura.boot_init.support.common.ErrorCode;
-import com.sakura.boot_init.support.constant.CommonConstant;
-import com.sakura.boot_init.support.exception.BusinessException;
-import com.sakura.boot_init.support.exception.ThrowUtils;
-import com.sakura.boot_init.support.util.SqlUtils;
-import jakarta.annotation.Resource;
+import com.sakura.boot_init.dict.api.DictApi;
+import com.sakura.boot_init.shared.common.ErrorCode;
+import com.sakura.boot_init.shared.constant.CommonConstant;
+import com.sakura.boot_init.shared.exception.BusinessException;
+import com.sakura.boot_init.shared.exception.ThrowUtils;
+import com.sakura.boot_init.shared.util.SqlUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -41,11 +37,14 @@ public class AgreementServiceImpl extends ServiceImpl<AgreementMapper, Agreement
      */
     private static final String AGREEMENT_TYPE_DICT_CODE = "agreement_type";
 
-    @Resource
-    private DictTypeService dictTypeService;
+    /**
+     * 字典模块 API，用于校验协议类型是否为启用字典值。
+     */
+    private final DictApi dictApi;
 
-    @Resource
-    private DictItemService dictItemService;
+    public AgreementServiceImpl(DictApi dictApi) {
+        this.dictApi = dictApi;
+    }
 
     @Override
     public Long addAgreement(AgreementAddRequest request) {
@@ -196,11 +195,7 @@ public class AgreementServiceImpl extends ServiceImpl<AgreementMapper, Agreement
      * @param agreementType 协议类型编码
      */
     private void validateAgreementType(String agreementType) {
-        DictType dictType = dictTypeService.getByDictCode(AGREEMENT_TYPE_DICT_CODE);
-        ThrowUtils.throwIf(dictType == null, ErrorCode.NOT_FOUND_ERROR, "agreement.type.dict_not_found");
-        List<DictItem> dictItemList = dictItemService.listEnabledByTypeId(dictType.getId());
-        boolean exists = dictItemList.stream()
-                .anyMatch(item -> StringUtils.equals(item.getDictValue(), agreementType));
+        boolean exists = dictApi.existsEnabledValue(AGREEMENT_TYPE_DICT_CODE, agreementType);
         ThrowUtils.throwIf(!exists, ErrorCode.PARAMS_ERROR, "agreement.type.not_found");
     }
 }

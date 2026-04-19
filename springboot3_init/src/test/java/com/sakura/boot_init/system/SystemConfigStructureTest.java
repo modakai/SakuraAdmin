@@ -1,7 +1,7 @@
 package com.sakura.boot_init.system;
 
-import com.sakura.boot_init.support.annotation.AuthCheck;
-import com.sakura.boot_init.support.constant.UserConstant;
+import com.sakura.boot_init.shared.annotation.AuthCheck;
+import com.sakura.boot_init.shared.constant.UserConstant;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -52,9 +52,9 @@ class SystemConfigStructureTest {
      */
     private Class<?> getControllerClass() {
         try {
-            return Class.forName("com.sakura.boot_init.support.system.controller.SystemConfigController");
+            return Class.forName("com.sakura.boot_init.system.controller.SystemConfigController");
         } catch (ClassNotFoundException e) {
-            fail("缺少系统配置控制器：com.sakura.boot_init.support.system.controller.SystemConfigController");
+            fail("缺少系统配置控制器：com.sakura.boot_init.system.controller.SystemConfigController");
             return null;
         }
     }
