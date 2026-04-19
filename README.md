@@ -52,12 +52,111 @@
 - MySQL 8.x
 - Redis 6+
 
+## 快速脚手架启动
+
+项目现在提供两条启动路径：本地开发启动和 Docker Compose 一体化启动。首次体验模板时，优先推荐 Docker Compose；需要调试源码时，使用本地开发启动。
+
+### 默认初始化数据
+
+初始化数据脚本位于：
+
+```text
+springboot3_init/sql/init_data.sql
+```
+
+如果需要 PostgreSQL 版本，可使用：
+
+```text
+springboot3_init/sql/postgresql/create_table.sql
+springboot3_init/sql/postgresql/init_data.sql
+```
+
+默认管理员账号：
+
+```text
+账号：sakura
+密码：12345678
+```
+
+该账号是模板内置超级管理员，仅用于本地开发和首次体验。生产环境必须在部署后立即修改密码，或删除默认账号并创建新的管理员。
+
+### Docker Compose 一体化启动
+
+根目录提供了 `docker-compose.yml`，会编排以下服务：
+
+| 服务 | 容器名 | 默认宿主机端口 | 说明 |
+| --- | --- | --- | --- |
+| 前端 Nginx | `sakura-web` | `80` | 托管前端静态资源，并代理 `/api` |
+| 后端 API | `sakura-api` | `8101` | Spring Boot 服务 |
+| MySQL | `sakura-mysql` | `3306` | 首次启动自动执行建表和初始化数据 |
+| Redis | `sakura-redis` | `6379` | Token、在线用户和系统配置缓存 |
+
+启动命令：
+
+```bash
+docker compose up -d --build
+```
+
+Windows PowerShell 也可以使用封装脚本：
+
+```powershell
+./scripts/docker-up.ps1
+```
+
+启动后访问：
+
+```text
+前端：http://localhost
+后端：http://localhost:8101/api
+```
+
+如需修改端口、数据库密码或前端构建时的 API 地址，复制根目录 `.env.example` 为 `.env` 后修改：
+
+```bash
+cp .env.example .env
+```
+
+常用操作：
+
+```bash
+# 查看日志
+docker compose logs -f
+
+# 停止服务
+docker compose down
+
+# 删除容器和数据卷后重新执行首次初始化
+docker compose down -v
+docker compose up -d --build
+```
+
+注意：MySQL 官方镜像只会在数据目录为空时执行 `/docker-entrypoint-initdb.d` 下的 SQL。已有数据卷时，修改 `create_table.sql` 或 `init_data.sql` 不会自动重新导入，需要手动导入或删除 volume 后重建。
+
+### 本地开发脚本
+
+如果你已经在本机启动 MySQL 和 Redis，并完成 SQL 导入，可以使用：
+
+```powershell
+./scripts/dev.ps1
+```
+
+脚本会检查 `java`、`mvn`、`pnpm` 是否可用，并分别打开后端和前端开发服务窗口。脚本不会静默修改数据库，也不会删除已有数据。
+
 ### 1. 初始化 MySQL
 
 本地默认数据库名为 `sakura_boot_init`，后端开发环境默认使用 `root/root` 连接本机 MySQL：
 
 ```bash
 mysql -uroot -proot < springboot3_init/sql/create_table.sql
+mysql -uroot -proot sakura_boot_init < springboot3_init/sql/init_data.sql
+```
+
+PostgreSQL 初始化脚本在 `springboot3_init/sql/postgresql` 目录下。由于当前后端默认依赖 MySQL 驱动和 MySQL 方言，PostgreSQL 脚本主要用于结构参考或后续适配 PostgreSQL 时初始化数据库：
+
+```bash
+createdb sakura_boot_init
+psql -d sakura_boot_init -f springboot3_init/sql/postgresql/create_table.sql
+psql -d sakura_boot_init -f springboot3_init/sql/postgresql/init_data.sql
 ```
 
 如果你的 MySQL 用户名、密码或端口不同，优先在 `springboot3_init/.env.local` 覆盖后端配置，避免直接改动公共配置文件。
@@ -206,9 +305,15 @@ Redis 用于保存登录 Token 与登录用户缓存，默认 key 前缀：
 
 ## 默认账号
 
-当前仓库没有内置种子账号。
+当前仓库提供了初始化数据脚本，导入 `springboot3_init/sql/init_data.sql` 后可使用默认管理员登录。
 
-可用方式：
+默认账号：
+
+```text
+sakura / 12345678
+```
+
+其他可用方式：
 
 1. 前端访问注册页创建普通用户。
 2. 如需管理员账号，在数据库中将目标用户的 `user_role` 改为 `admin`。
@@ -273,11 +378,10 @@ java -jar target/springboot3_init-0.0.1-SNAPSHOT.jar --spring.profiles.active=pr
 
 ### 后端 Docker 镜像
 
-后端提供了 `springboot3_init/Dockerfile`。使用前请确认 Dockerfile 中的 jar 文件名与 Maven 实际产物一致。
+后端提供了 `springboot3_init/Dockerfile`，采用 Maven 多阶段构建，不需要本机提前生成 jar。
 
 ```bash
 cd springboot3_init
-mvn clean package -DskipTests
 docker build -t sakura-admin-api:latest .
 docker run --name sakura-admin-api -p 8101:8101 --env SPRING_PROFILES_ACTIVE=prod -d sakura-admin-api:latest
 ```
@@ -327,9 +431,9 @@ pnpm preview
 
 当前初始化脚本没有内置管理员。先注册一个普通账号，再把该账号的 `user_role` 更新为 `admin`。
 
-### Docker 构建找不到 jar
+### Docker 构建依赖下载慢
 
-检查 `springboot3_init/Dockerfile` 中 `ADD ./target/...jar ./app.jar` 的文件名是否与 `mvn package` 产物一致。本项目 Maven 默认产物名通常为 `springboot3_init-0.0.1-SNAPSHOT.jar`。
+后端 Dockerfile 会在构建阶段下载 Maven 依赖，前端 Dockerfile 会下载 pnpm 依赖。首次构建耗时较长是正常现象，后续构建会复用 Docker 缓存。
 
 ### pnpm install 后自动安装 Git hooks 失败
 
