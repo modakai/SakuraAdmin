@@ -25,6 +25,15 @@ spring:
   # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      # 启动后保持一定数量的空闲连接，减少首个数据库请求的建连等待。
+      minimum-idle: 5
+      # 控制最大连接数，避免连接池预热后占用过多数据库资源。
+      maximum-pool-size: 10
+      # 获取连接最长等待时间，避免数据库异常时请求长时间阻塞。
+      connection-timeout: 30000
+      # 启动时校验至少一个连接可用，把连接异常暴露在启动阶段。
+      initialization-fail-timeout: 1
 
   # 文件上传
   servlet:
