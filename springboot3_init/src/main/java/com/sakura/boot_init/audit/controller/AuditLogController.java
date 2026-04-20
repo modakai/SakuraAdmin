@@ -5,6 +5,7 @@ import com.sakura.boot_init.shared.enums.AuditOperationTypeEnum;
 import com.sakura.boot_init.audit.model.dto.AuditLogExportRequest;
 import com.sakura.boot_init.audit.model.dto.AuditLogQueryRequest;
 import com.sakura.boot_init.audit.model.entity.AuditLog;
+import com.sakura.boot_init.audit.model.excel.AuditLogExcelRow;
 import com.sakura.boot_init.audit.model.vo.AuditLogVO;
 import com.sakura.boot_init.audit.service.AuditLogService;
 import com.sakura.boot_init.shared.annotation.AuditLogRecord;
@@ -14,13 +15,11 @@ import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.common.ResultUtils;
 import com.sakura.boot_init.shared.constant.UserConstant;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
+import com.sakura.boot_init.shared.util.ExcelUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,9 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 后台审计日志接口。
@@ -79,7 +76,7 @@ public class AuditLogController {
     }
 
     /**
-     * 导出审计日志 CSV。
+     * 导出审计日志 Excel。
      */
     @PostMapping("/export")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -87,46 +84,6 @@ public class AuditLogController {
     public ResponseEntity<byte[]> exportAuditLog(@Valid @RequestBody AuditLogExportRequest request,
             HttpServletRequest httpServletRequest) {
         List<AuditLogVO> logs = auditLogService.listExportLogs(request);
-        byte[] body = buildCsv(logs).getBytes(StandardCharsets.UTF_8);
-        ContentDisposition disposition = ContentDisposition.attachment()
-                .filename("audit-logs.csv", StandardCharsets.UTF_8)
-                .build();
-        return ResponseEntity.ok()
-                .contentType(new MediaType("text", "csv", StandardCharsets.UTF_8))
-                .header(HttpHeaders.CONTENT_DISPOSITION, disposition.toString())
-                .body(body);
-    }
-
-    /**
-     * 构造 CSV 内容。
-     */
-    private String buildCsv(List<AuditLogVO> logs) {
-        String header = "id,logType,userId,accountIdentifier,ipAddress,requestPath,httpMethod,operationDescription,result,statusCode,costMillis,auditTime";
-        String rows = logs.stream()
-                .map(log -> String.join(",",
-                        csv(log.getId()),
-                        csv(log.getLogType()),
-                        csv(log.getUserId()),
-                        csv(log.getAccountIdentifier()),
-                        csv(log.getIpAddress()),
-                        csv(log.getRequestPath()),
-                        csv(log.getHttpMethod()),
-                        csv(log.getOperationDescription()),
-                        csv(log.getResult()),
-                        csv(log.getStatusCode()),
-                        csv(log.getCostMillis()),
-                        csv(log.getAuditTime())))
-                .collect(Collectors.joining("\n"));
-        return rows.isBlank() ? header + "\n" : header + "\n" + rows + "\n";
-    }
-
-    /**
-     * 转义 CSV 字段。
-     */
-    private String csv(Object value) {
-        if (value == null) {
-            return "";
-        }
-        return "\"" + String.valueOf(value).replace("\"", "\"\"") + "\"";
+        return ExcelUtils.write("audit-logs", "审计日志", AuditLogExcelRow.class, AuditLogExcelRow.fromList(logs));
     }
 }

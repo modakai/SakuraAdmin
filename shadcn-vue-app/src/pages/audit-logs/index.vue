@@ -112,7 +112,7 @@ async function handleExport() {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `audit-logs-${Date.now()}.csv`
+    link.download = `audit-logs-${Date.now()}.xlsx`
     link.click()
     URL.revokeObjectURL(url)
     toast.success('审计日志已开始导出')
@@ -152,8 +152,9 @@ function getResultVariant(value?: string) {
         刷新
       </UiButton>
       <UiButton :disabled="isExporting" @click="handleExport">
-        <DownloadIcon class="mr-1 size-4" />
-        导出
+        <LoaderCircleIcon v-if="isExporting" class="mr-1 size-4 animate-spin" />
+        <DownloadIcon v-else class="mr-1 size-4" />
+        {{ isExporting ? '导出中' : '导出' }}
       </UiButton>
     </template>
 
