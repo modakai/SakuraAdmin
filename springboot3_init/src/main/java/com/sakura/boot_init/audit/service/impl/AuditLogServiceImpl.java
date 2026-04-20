@@ -17,9 +17,9 @@ import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.CommonConstant;
 import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
+import io.github.linpeilie.Converter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -56,6 +56,11 @@ public class AuditLogServiceImpl extends ServiceImpl<AuditLogMapper, AuditLog> i
     private final AuditSanitizer auditSanitizer;
 
     /**
+     * MapStruct Plus 转换器，用于替代反射式 BeanUtils 属性复制。
+     */
+    private final Converter converter;
+
+    /**
      * 审计写入执行器，使用守护线程避免阻塞应用退出。
      */
     private final Executor auditLogExecutor = Executors.newSingleThreadExecutor(runnable -> {
@@ -64,9 +69,10 @@ public class AuditLogServiceImpl extends ServiceImpl<AuditLogMapper, AuditLog> i
         return thread;
     });
 
-    public AuditLogServiceImpl(AuditLogMapper auditLogMapper) {
+    public AuditLogServiceImpl(AuditLogMapper auditLogMapper, Converter converter) {
         this.auditLogMapper = auditLogMapper;
         this.auditSanitizer = new AuditSanitizer();
+        this.converter = converter;
     }
 
     @Override
@@ -154,9 +160,7 @@ public class AuditLogServiceImpl extends ServiceImpl<AuditLogMapper, AuditLog> i
         if (auditLog == null) {
             return null;
         }
-        AuditLogVO vo = new AuditLogVO();
-        BeanUtils.copyProperties(auditLog, vo);
-        return vo;
+        return converter.convert(auditLog, AuditLogVO.class);
     }
 
     @Override
@@ -205,8 +209,7 @@ public class AuditLogServiceImpl extends ServiceImpl<AuditLogMapper, AuditLog> i
      * 构造审计日志实体。
      */
     private AuditLog buildAuditLog(AuditLogCreateRequest request) {
-        AuditLog auditLog = new AuditLog();
-        BeanUtils.copyProperties(request, auditLog);
+        AuditLog auditLog = converter.convert(request, AuditLog.class);
         auditLog.setRequestSummary(auditSanitizer.sanitize(request.getRequestSummary()));
         auditLog.setResponseSummary(auditSanitizer.sanitize(request.getResponseSummary()));
         auditLog.setExceptionSummary(auditSanitizer.sanitize(request.getExceptionSummary()));

@@ -17,9 +17,9 @@ import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.CommonConstant;
 import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
+import io.github.linpeilie.Converter;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -39,13 +39,18 @@ public class DictItemServiceImpl extends ServiceImpl<DictItemMapper, DictItem> i
     @Resource
     private DictTypeMapper dictTypeMapper;
 
+    /**
+     * MapStruct Plus 转换器，用于替代反射式 BeanUtils 属性复制。
+     */
+    @Resource
+    private Converter converter;
+
     @Override
     public Long addDictItem(DictItemAddRequest request) {
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        DictItem dictItem = new DictItem();
-        BeanUtils.copyProperties(request, dictItem);
+        DictItem dictItem = converter.convert(request, DictItem.class);
         validDictItem(dictItem, true);
         boolean result = this.save(dictItem);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -59,8 +64,7 @@ public class DictItemServiceImpl extends ServiceImpl<DictItemMapper, DictItem> i
         }
         DictItem oldDictItem = this.getById(request.getId());
         ThrowUtils.throwIf(oldDictItem == null, ErrorCode.NOT_FOUND_ERROR);
-        DictItem dictItem = new DictItem();
-        BeanUtils.copyProperties(request, dictItem);
+        DictItem dictItem = converter.convert(request, DictItem.class);
         validDictItem(dictItem, false);
         return this.updateById(dictItem);
     }
@@ -152,9 +156,7 @@ public class DictItemServiceImpl extends ServiceImpl<DictItemMapper, DictItem> i
         if (dictItem == null) {
             return null;
         }
-        DictItemVO dictItemVO = new DictItemVO();
-        BeanUtils.copyProperties(dictItem, dictItemVO);
-        return dictItemVO;
+        return converter.convert(dictItem, DictItemVO.class);
     }
 
     @Override

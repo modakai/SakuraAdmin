@@ -11,7 +11,8 @@ import org.springframework.stereotype.Component;
  * @author sakura
  * @from sakura
  */
-@Component
+// 显式指定项目内 Bean 名称，避免与第三方自动配置中的 springContextUtils 冲突。
+@Component("sakuraSpringContextUtils")
 public class SpringContextUtils implements ApplicationContextAware {
 
     private static ApplicationContext applicationContext;

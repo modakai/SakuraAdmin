@@ -1,5 +1,7 @@
 package com.sakura.boot_init.observability.model.vo;
 
+import com.sakura.boot_init.observability.model.entity.ObservabilityEvent;
+import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,6 +13,7 @@ import java.util.Date;
  * @author Sakura
  */
 @Data
+@AutoMapper(target = ObservabilityEvent.class)
 public class ObservabilityEventVO implements Serializable {
 
     private Long id;

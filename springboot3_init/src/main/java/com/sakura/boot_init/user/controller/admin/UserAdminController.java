@@ -16,11 +16,11 @@ import com.sakura.boot_init.user.model.dto.UserQueryRequest;
 import com.sakura.boot_init.user.model.dto.UserUpdateRequest;
 import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.service.UserService;
+import io.github.linpeilie.Converter;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.util.DigestUtils;
 import org.springframework.validation.annotation.Validated;
@@ -48,6 +48,12 @@ public class UserAdminController {
     private ApplicationEventPublisher applicationEventPublisher;
 
     /**
+     * MapStruct Plus 转换器，用于替代反射式 BeanUtils 属性复制。
+     */
+    @Resource
+    private Converter converter;
+
+    /**
      * 创建用户。
      *
      * @param userAddRequest 创建请求
@@ -58,8 +64,7 @@ public class UserAdminController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @AuditLogRecord(description = "创建用户", module = "用户管理", operationType = AuditOperationTypeEnum.CREATE)
     public BaseResponse<Long> addUser(@Valid @RequestBody UserAddRequest userAddRequest, HttpServletRequest request) {
-        User user = new User();
-        BeanUtils.copyProperties(userAddRequest, user);
+        User user = converter.convert(userAddRequest, User.class);
 
         // 后台创建用户时，初始化默认密码。
         String defaultPassword = UserConstant.DEFAULT_PASSWORD;

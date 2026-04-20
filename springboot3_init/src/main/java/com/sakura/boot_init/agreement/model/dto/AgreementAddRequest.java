@@ -1,5 +1,7 @@
 package com.sakura.boot_init.agreement.model.dto;
 
+import com.sakura.boot_init.agreement.model.entity.Agreement;
+import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -13,6 +15,7 @@ import java.io.Serializable;
  * @author Sakura
  */
 @Data
+@AutoMapper(target = Agreement.class, reverseConvertGenerate = false)
 public class AgreementAddRequest implements Serializable {
 
     /**

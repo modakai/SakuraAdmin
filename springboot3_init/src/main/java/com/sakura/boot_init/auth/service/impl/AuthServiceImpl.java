@@ -16,11 +16,11 @@ import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.shared.util.NetUtils;
 import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.repository.UserMapper;
+import io.github.linpeilie.Converter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -56,15 +56,21 @@ public class AuthServiceImpl implements AuthService {
      */
     private final OnlineUserService onlineUserService;
 
-    public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager) {
-        this(userMapper, tokenManager, null, null);
+    /**
+     * MapStruct Plus 转换器，用于替代反射式 BeanUtils 属性复制。
+     */
+    private final Converter converter;
+
+    public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager, Converter converter) {
+        this(userMapper, tokenManager, converter, null, null);
     }
 
     @Autowired
-    public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager, AuditApi auditApi,
+    public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager, Converter converter, AuditApi auditApi,
             OnlineUserService onlineUserService) {
         this.userMapper = userMapper;
         this.tokenManager = tokenManager;
+        this.converter = converter;
         this.auditApi = auditApi;
         this.onlineUserService = onlineUserService;
     }
@@ -228,9 +234,7 @@ public class AuthServiceImpl implements AuthService {
         if (user == null) {
             return null;
         }
-        LoginUserVO loginUserVO = new LoginUserVO();
-        BeanUtils.copyProperties(user, loginUserVO);
-        return loginUserVO;
+        return converter.convert(user, LoginUserVO.class);
     }
 
     /**

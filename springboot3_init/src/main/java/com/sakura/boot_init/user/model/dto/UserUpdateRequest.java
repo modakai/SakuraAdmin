@@ -1,5 +1,7 @@
 package com.sakura.boot_init.user.model.dto;
 
+import com.sakura.boot_init.user.model.entity.User;
+import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
@@ -12,6 +14,7 @@ import java.io.Serializable;
  * @author Sakura
  */
 @Data
+@AutoMapper(target = User.class, reverseConvertGenerate = false)
 public class UserUpdateRequest implements Serializable {
 
     /**

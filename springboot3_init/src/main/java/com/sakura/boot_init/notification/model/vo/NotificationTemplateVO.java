@@ -1,5 +1,7 @@
 package com.sakura.boot_init.notification.model.vo;
 
+import com.sakura.boot_init.notification.model.entity.NotificationTemplate;
+import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,6 +13,7 @@ import java.util.Date;
  * @author Sakura
  */
 @Data
+@AutoMapper(target = NotificationTemplate.class)
 public class NotificationTemplateVO implements Serializable {
 
     /**

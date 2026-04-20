@@ -17,10 +17,10 @@ import com.sakura.boot_init.observability.service.ObservabilityEventService;
 import com.sakura.boot_init.observability.support.ObservabilitySanitizer;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
+import io.github.linpeilie.Converter;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -78,9 +78,16 @@ public class ObservabilityEventServiceImpl extends ServiceImpl<ObservabilityEven
      */
     private final ObservabilitySanitizer sanitizer = new ObservabilitySanitizer();
 
-    public ObservabilityEventServiceImpl(ObservabilityEventMapper eventMapper, ObservabilityProperties properties) {
+    /**
+     * MapStruct Plus 转换器，用于替代反射式 BeanUtils 属性复制。
+     */
+    private final Converter converter;
+
+    public ObservabilityEventServiceImpl(ObservabilityEventMapper eventMapper, ObservabilityProperties properties,
+            Converter converter) {
         this.eventMapper = eventMapper;
         this.properties = properties;
+        this.converter = converter;
     }
 
     @Override
@@ -205,9 +212,7 @@ public class ObservabilityEventServiceImpl extends ServiceImpl<ObservabilityEven
         if (event == null) {
             return null;
         }
-        ObservabilityEventVO vo = new ObservabilityEventVO();
-        BeanUtils.copyProperties(event, vo);
-        return vo;
+        return converter.convert(event, ObservabilityEventVO.class);
     }
 
     /**

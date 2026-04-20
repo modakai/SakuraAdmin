@@ -16,8 +16,8 @@ import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.model.vo.UserVO;
 import com.sakura.boot_init.user.repository.UserMapper;
 import com.sakura.boot_init.user.service.UserService;
+import io.github.linpeilie.Converter;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -42,8 +42,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     private final LoginUserCache loginUserCache;
 
-    public UserServiceImpl(LoginUserCache loginUserCache) {
+    /**
+     * MapStruct Plus 转换器，用于替代反射式 BeanUtils 属性复制。
+     */
+    private final Converter converter;
+
+    public UserServiceImpl(LoginUserCache loginUserCache, Converter converter) {
         this.loginUserCache = loginUserCache;
+        this.converter = converter;
     }
 
     @Override
@@ -51,9 +57,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             return null;
         }
-        UserVO userVO = new UserVO();
-        BeanUtils.copyProperties(user, userVO);
-        return userVO;
+        return converter.convert(user, UserVO.class);
     }
 
     @Override
@@ -145,8 +149,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                         && UserConstant.STATUS_DISABLED.equals(userUpdateRequest.getStatus()),
                 ErrorCode.FORBIDDEN_ERROR, "内置超级管理员 sakura 不允许禁用");
 
-        User user = new User();
-        BeanUtils.copyProperties(userUpdateRequest, user);
+        User user = converter.convert(userUpdateRequest, User.class);
         boolean result = this.updateById(user);
         if (result) {
             loginUserCache.evict(userUpdateRequest.getId());

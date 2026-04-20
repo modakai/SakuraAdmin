@@ -1,5 +1,7 @@
 package com.sakura.boot_init.notification.model.dto;
 
+import com.sakura.boot_init.notification.model.entity.Notification;
+import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -13,6 +15,7 @@ import java.util.List;
  * @author Sakura
  */
 @Data
+@AutoMapper(target = Notification.class, reverseConvertGenerate = false)
 public class NotificationAddRequest implements Serializable {
 
     /**

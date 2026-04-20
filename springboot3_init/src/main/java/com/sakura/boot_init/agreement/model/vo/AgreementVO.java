@@ -1,5 +1,7 @@
 package com.sakura.boot_init.agreement.model.vo;
 
+import com.sakura.boot_init.agreement.model.entity.Agreement;
+import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,6 +13,7 @@ import java.util.Date;
  * @author Sakura
  */
 @Data
+@AutoMapper(target = Agreement.class)
 public class AgreementVO implements Serializable {
 
     /**

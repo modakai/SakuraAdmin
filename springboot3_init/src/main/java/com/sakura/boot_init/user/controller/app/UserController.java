@@ -13,11 +13,11 @@ import com.sakura.boot_init.user.model.dto.UserUpdatePasswordRequest;
 import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.model.vo.UserVO;
 import com.sakura.boot_init.user.service.UserService;
+import io.github.linpeilie.Converter;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-import org.springframework.beans.BeanUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,6 +39,12 @@ public class UserController {
 
     @Resource
     private UserService userService;
+
+    /**
+     * MapStruct Plus 转换器，用于替代反射式 BeanUtils 属性复制。
+     */
+    @Resource
+    private Converter converter;
 
     /**
      * 根据 id 获取用户包装类。
@@ -88,8 +94,7 @@ public class UserController {
     public BaseResponse<Boolean> updateMyUser(@Valid @RequestBody UserUpdateMyRequest userUpdateMyRequest,
             HttpServletRequest request) {
         User loginUser = getCurrentLoginUser();
-        User user = new User();
-        BeanUtils.copyProperties(userUpdateMyRequest, user);
+        User user = converter.convert(userUpdateMyRequest, User.class);
         user.setId(loginUser.getId());
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);

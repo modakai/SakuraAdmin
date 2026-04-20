@@ -13,9 +13,9 @@ import com.sakura.boot_init.notification.service.NotificationTemplateService;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
+import io.github.linpeilie.Converter;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -36,11 +36,16 @@ public class NotificationTemplateServiceImpl extends ServiceImpl<NotificationTem
     @Resource
     private NotificationTemplateRenderer templateRenderer;
 
+    /**
+     * MapStruct Plus 转换器，用于替代反射式 BeanUtils 属性复制。
+     */
+    @Resource
+    private Converter converter;
+
     @Override
     public Long addTemplate(NotificationTemplateAddRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
-        NotificationTemplate template = new NotificationTemplate();
-        BeanUtils.copyProperties(request, template);
+        NotificationTemplate template = converter.convert(request, NotificationTemplate.class);
         validTemplate(template);
         if (template.getEnabled() == null) {
             template.setEnabled(0);
@@ -54,8 +59,7 @@ public class NotificationTemplateServiceImpl extends ServiceImpl<NotificationTem
     public boolean updateTemplate(NotificationTemplateUpdateRequest request) {
         ThrowUtils.throwIf(request == null || request.getId() == null || request.getId() <= 0, ErrorCode.PARAMS_ERROR);
         ThrowUtils.throwIf(this.getById(request.getId()) == null, ErrorCode.NOT_FOUND_ERROR);
-        NotificationTemplate template = new NotificationTemplate();
-        BeanUtils.copyProperties(request, template);
+        NotificationTemplate template = converter.convert(request, NotificationTemplate.class);
         validTemplate(template);
         return this.updateById(template);
     }
@@ -100,9 +104,7 @@ public class NotificationTemplateServiceImpl extends ServiceImpl<NotificationTem
         if (template == null) {
             return null;
         }
-        NotificationTemplateVO vo = new NotificationTemplateVO();
-        BeanUtils.copyProperties(template, vo);
-        return vo;
+        return converter.convert(template, NotificationTemplateVO.class);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.sakura.boot_init.user.model.vo;
 
+import com.sakura.boot_init.user.model.entity.User;
+import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -12,6 +14,7 @@ import java.util.Date;
  * @from sakura
  */
 @Data
+@AutoMapper(target = User.class)
 public class UserVO implements Serializable {
 
     /**

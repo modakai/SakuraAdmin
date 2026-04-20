@@ -26,9 +26,9 @@ import com.sakura.boot_init.shared.constant.CommonConstant;
 import com.sakura.boot_init.shared.context.LoginUserInfo;
 import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
+import io.github.linpeilie.Converter;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,12 +62,17 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     @Resource
     private NotificationDomainServiceImpl domainService;
 
+    /**
+     * MapStruct Plus 转换器，用于替代反射式 BeanUtils 属性复制。
+     */
+    @Resource
+    private Converter converter;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long addNotification(NotificationAddRequest request, LoginUserInfo operator) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
-        Notification notification = new Notification();
-        BeanUtils.copyProperties(request, notification);
+        Notification notification = converter.convert(request, Notification.class);
         notification.setStatus(NotificationStatusEnum.DRAFT.getValue());
         if (operator != null) {
             notification.setCreateUserId(operator.userId());
@@ -90,8 +95,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
         ThrowUtils.throwIf(oldNotification == null, ErrorCode.NOT_FOUND_ERROR);
         ThrowUtils.throwIf(!NotificationStatusEnum.DRAFT.getValue().equals(oldNotification.getStatus()),
                 ErrorCode.OPERATION_ERROR, "notification.only_draft_can_update");
-        Notification notification = new Notification();
-        BeanUtils.copyProperties(request, notification);
+        Notification notification = converter.convert(request, Notification.class);
         if (operator != null) {
             notification.setUpdateUserId(operator.userId());
         }
@@ -269,8 +273,7 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
         if (notification == null) {
             return null;
         }
-        NotificationVO vo = new NotificationVO();
-        BeanUtils.copyProperties(notification, vo);
+        NotificationVO vo = converter.convert(notification, NotificationVO.class);
         vo.setTargetRoles(notificationTargetService.listRoleTargets(notification.getId()));
         vo.setTargetUserIds(notificationTargetService.listUserTargets(notification.getId()));
         return vo;

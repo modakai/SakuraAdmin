@@ -1,5 +1,7 @@
 package com.sakura.boot_init.dict.model.dto;
 
+import com.sakura.boot_init.dict.model.entity.DictItem;
+import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -13,6 +15,7 @@ import java.io.Serializable;
  * @author sakura
  */
 @Data
+@AutoMapper(target = DictItem.class, reverseConvertGenerate = false)
 public class DictItemUpdateRequest implements Serializable {
 
     /**

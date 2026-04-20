@@ -1,5 +1,7 @@
 package com.sakura.boot_init.audit.model.dto;
 
+import com.sakura.boot_init.audit.model.entity.AuditLog;
+import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 
 import java.util.Date;
@@ -10,6 +12,7 @@ import java.util.Date;
  * @author Sakura
  */
 @Data
+@AutoMapper(target = AuditLog.class, reverseConvertGenerate = false)
 public class AuditLogCreateRequest {
 
     /**

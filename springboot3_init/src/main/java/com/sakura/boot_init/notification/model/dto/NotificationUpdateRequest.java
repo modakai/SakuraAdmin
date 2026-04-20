@@ -1,5 +1,7 @@
 package com.sakura.boot_init.notification.model.dto;
 
+import com.sakura.boot_init.notification.model.entity.Notification;
+import io.github.linpeilie.annotations.AutoMapper;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,6 +13,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
+@AutoMapper(target = Notification.class, reverseConvertGenerate = false)
 public class NotificationUpdateRequest extends NotificationAddRequest {
 
     /**

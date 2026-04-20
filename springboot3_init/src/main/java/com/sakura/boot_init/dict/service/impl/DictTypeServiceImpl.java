@@ -16,9 +16,9 @@ import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.CommonConstant;
 import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
+import io.github.linpeilie.Converter;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -44,13 +44,18 @@ public class DictTypeServiceImpl extends ServiceImpl<DictTypeMapper, DictType> i
     @Resource
     private DictItemService dictItemService;
 
+    /**
+     * MapStruct Plus 转换器，用于替代反射式 BeanUtils 属性复制。
+     */
+    @Resource
+    private Converter converter;
+
     @Override
     public Long addDictType(DictTypeAddRequest request) {
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        DictType dictType = new DictType();
-        BeanUtils.copyProperties(request, dictType);
+        DictType dictType = converter.convert(request, DictType.class);
         validDictType(dictType, true);
         boolean result = this.save(dictType);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -64,8 +69,7 @@ public class DictTypeServiceImpl extends ServiceImpl<DictTypeMapper, DictType> i
         }
         DictType oldDictType = this.getById(request.getId());
         ThrowUtils.throwIf(oldDictType == null, ErrorCode.NOT_FOUND_ERROR);
-        DictType dictType = new DictType();
-        BeanUtils.copyProperties(request, dictType);
+        DictType dictType = converter.convert(request, DictType.class);
         validDictType(dictType, false);
         return this.updateById(dictType);
     }
@@ -146,9 +150,7 @@ public class DictTypeServiceImpl extends ServiceImpl<DictTypeMapper, DictType> i
         if (dictType == null) {
             return null;
         }
-        DictTypeVO dictTypeVO = new DictTypeVO();
-        BeanUtils.copyProperties(dictType, dictTypeVO);
-        return dictTypeVO;
+        return converter.convert(dictType, DictTypeVO.class);
     }
 
     @Override

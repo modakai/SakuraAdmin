@@ -1,5 +1,7 @@
 package com.sakura.boot_init.dict.model.vo;
 
+import com.sakura.boot_init.dict.model.entity.DictType;
+import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,6 +13,7 @@ import java.util.Date;
  * @author sakura
  */
 @Data
+@AutoMapper(target = DictType.class)
 public class DictTypeVO implements Serializable {
 
     /**

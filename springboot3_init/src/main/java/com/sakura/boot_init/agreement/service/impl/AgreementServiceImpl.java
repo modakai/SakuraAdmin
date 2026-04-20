@@ -16,8 +16,8 @@ import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.CommonConstant;
 import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
+import io.github.linpeilie.Converter;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -44,8 +44,14 @@ public class AgreementServiceImpl extends ServiceImpl<AgreementMapper, Agreement
      */
     private final DictApi dictApi;
 
-    public AgreementServiceImpl(DictApi dictApi) {
+    /**
+     * MapStruct Plus 转换器，用于替代反射式 BeanUtils 属性复制。
+     */
+    private final Converter converter;
+
+    public AgreementServiceImpl(DictApi dictApi, Converter converter) {
         this.dictApi = dictApi;
+        this.converter = converter;
     }
 
     @Override
@@ -53,8 +59,7 @@ public class AgreementServiceImpl extends ServiceImpl<AgreementMapper, Agreement
         if (request == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        Agreement agreement = new Agreement();
-        BeanUtils.copyProperties(request, agreement);
+        Agreement agreement = converter.convert(request, Agreement.class);
         validAgreement(agreement, true);
         boolean result = this.save(agreement);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -67,8 +72,7 @@ public class AgreementServiceImpl extends ServiceImpl<AgreementMapper, Agreement
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         assertAgreementExists(request.getId());
-        Agreement agreement = new Agreement();
-        BeanUtils.copyProperties(request, agreement);
+        Agreement agreement = converter.convert(request, Agreement.class);
         validAgreement(agreement, false);
         return this.updateById(agreement);
     }
@@ -152,9 +156,7 @@ public class AgreementServiceImpl extends ServiceImpl<AgreementMapper, Agreement
         if (agreement == null) {
             return null;
         }
-        AgreementVO agreementVO = new AgreementVO();
-        BeanUtils.copyProperties(agreement, agreementVO);
-        return agreementVO;
+        return converter.convert(agreement, AgreementVO.class);
     }
 
     @Override
