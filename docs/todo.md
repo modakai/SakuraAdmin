@@ -17,7 +17,7 @@
 
 ## P2 优化扩展
 - [x] 全局Loading与请求防抖
-- [ ] Fesod Excel导入导出
+- [x] Fesod Excel导入导出
 - [x] 前后端多环境配置
 - [x] 项目README开发部署文档
 - [x] 后端TokenManager中的属性参数管理。（token请求头名称、请求头前缀、有效期，token密钥即对应的随机生成字符和数量）

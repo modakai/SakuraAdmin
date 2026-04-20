@@ -3,7 +3,7 @@
  */
 @ApplicationModule(
         displayName = "通知模块",
-        allowedDependencies = { "shared", "user::api" }
+        allowedDependencies = { "shared", "user::api", "observability::api" }
 )
 package com.sakura.boot_init.notification;
 

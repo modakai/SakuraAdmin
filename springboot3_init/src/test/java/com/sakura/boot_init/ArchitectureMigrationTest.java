@@ -50,7 +50,7 @@ class ArchitectureMigrationTest {
                         String packageName = path.getFileName().toString();
                         // notification 和 audit 是跨页面使用的独立业务域。
                         return !List.of("shared", "infrastructure", "system", "user", "auth", "dict", "file",
-                                "wxmp", "agreement", "notification", "audit").contains(packageName);
+                                "wxmp", "agreement", "notification", "audit", "observability").contains(packageName);
                     })
                     .toList();
 

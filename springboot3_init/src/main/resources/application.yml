@@ -116,3 +116,29 @@ oss:
 logging:
   pattern:
     dateformat: yyyy-MM-dd HH:mm:ss
+
+# Actuator 仅作为后端采集源，前端统一访问 /admin/observability/** 聚合接口。
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+
+# 可观测性与运维面板配置。
+observability:
+  request-monitor-enabled: true
+  slow-api-threshold-millis: 1000
+  login-failure-window-seconds: 600
+  login-failure-ip-threshold: 10
+  login-failure-account-threshold: 10
+  alert-cooldown-seconds: 1800
+  event-retention-days: 30
+  memory-warning-percent: 80
+  memory-critical-percent: 90
+  disk-warning-percent: 80
+  disk-critical-percent: 90
+  cpu-warning-percent: 80
+  cpu-critical-percent: 90

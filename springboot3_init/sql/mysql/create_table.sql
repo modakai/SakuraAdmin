@@ -192,3 +192,31 @@ create table if not exists sys_audit_log
     key idx_operation (business_module, operation_type)
 ) comment '审计日志' collate = utf8mb4_unicode_ci;
 
+create table if not exists sys_observability_event
+(
+    id                 bigint                             not null comment 'id' primary key,
+    event_type         varchar(64)                        not null comment '事件类型',
+    event_level        varchar(32)                        null comment '事件级别',
+    title              varchar(128)                       null comment '事件标题',
+    subject            varchar(255)                       null comment '事件主体',
+    request_path       varchar(512)                       null comment '请求路径',
+    http_method        varchar(16)                        null comment 'HTTP方法',
+    status_code        int                                null comment '状态码',
+    duration_millis    bigint                             null comment '耗时毫秒',
+    user_id            bigint                             null comment '用户id',
+    account_identifier varchar(128)                       null comment '账号标识',
+    ip_address         varchar(64)                        null comment 'IP地址',
+    exception_summary  varchar(1024)                      null comment '异常摘要',
+    detail             varchar(2000)                      null comment '事件详情',
+    audit_log_id       bigint                             null comment '关联审计日志id',
+    notification_id    bigint                             null comment '关联通知id',
+    event_time         datetime default CURRENT_TIMESTAMP not null comment '事件时间',
+    create_time        datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time        datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    is_delete          tinyint  default 0                 not null comment '是否删除',
+    key idx_observe_type_time (event_type, event_time),
+    key idx_observe_level_time (event_level, event_time),
+    key idx_observe_path_time (request_path, event_time),
+    key idx_observe_ip_time (ip_address, event_time),
+    key idx_observe_account_time (account_identifier, event_time)
+) comment '运维观测事件' collate = utf8mb4_unicode_ci;

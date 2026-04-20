@@ -1,4 +1,4 @@
-import { BellDotIcon, CreditCardIcon, FileCode2Icon, FileTextIcon, LayoutDashboardIcon, PaletteIcon, ScrollTextIcon, SettingsIcon, SlidersHorizontalIcon, UserIcon, UsersIcon, WrenchIcon } from '@lucide/vue'
+import { ActivityIcon, BellDotIcon, CreditCardIcon, FileCode2Icon, FileTextIcon, LayoutDashboardIcon, PaletteIcon, ScrollTextIcon, SettingsIcon, ShieldAlertIcon, SlidersHorizontalIcon, UserIcon, UsersIcon, WrenchIcon } from '@lucide/vue'
 import { useI18n } from 'vue-i18n'
 
 import type { NavGroup } from '@/components/app-sidebar/types'
@@ -39,6 +39,16 @@ export function buildAdminNavGroups(t: (key: string) => string): NavGroup[] {
             { id: 'online-users', title: '在线用户', url: '/online-users', icon: UsersIcon },
             { id: 'dicts', title: t('menu.system.dicts'), url: '/dicts', icon: WrenchIcon },
             { id: 'agreements', title: t('menu.system.agreements'), url: '/agreements', icon: FileTextIcon },
+            {
+              id: 'observability',
+              title: '运维监控',
+              icon: ActivityIcon,
+              items: [
+                { id: 'observability-system-status', title: '系统状态', url: '/observability/system-status', icon: ActivityIcon },
+                { id: 'observability-api-monitor', title: '接口监控', url: '/observability/api-monitor', icon: ScrollTextIcon },
+                { id: 'observability-security-events', title: '安全事件', url: '/observability/security-events', icon: ShieldAlertIcon },
+              ],
+            },
             {
               id: 'system-settings',
               title: t('menu.settings.title'),

@@ -187,3 +187,49 @@ create index if not exists idx_audit_request_path on public.sys_audit_log (reque
 create index if not exists idx_audit_http_method on public.sys_audit_log (http_method);
 create index if not exists idx_audit_result_time on public.sys_audit_log (result, audit_time);
 create index if not exists idx_audit_operation on public.sys_audit_log (business_module, operation_type);
+
+create table if not exists public.sys_observability_event
+(
+    id                 bigint primary key,
+    event_type         varchar(64) not null,
+    event_level        varchar(32),
+    title              varchar(128),
+    subject            varchar(255),
+    request_path       varchar(512),
+    http_method        varchar(16),
+    status_code        integer,
+    duration_millis    bigint,
+    user_id            bigint,
+    account_identifier varchar(128),
+    ip_address         varchar(64),
+    exception_summary  varchar(1024),
+    detail             varchar(2000),
+    audit_log_id       bigint,
+    notification_id    bigint,
+    event_time         timestamp default CURRENT_TIMESTAMP not null,
+    create_time        timestamp default CURRENT_TIMESTAMP not null,
+    update_time        timestamp default CURRENT_TIMESTAMP not null,
+    is_delete          smallint  default 0 not null
+);
+comment on table public.sys_observability_event is '运维观测事件';
+comment on column public.sys_observability_event.event_type is '事件类型';
+comment on column public.sys_observability_event.event_level is '事件级别';
+comment on column public.sys_observability_event.title is '事件标题';
+comment on column public.sys_observability_event.subject is '事件主体';
+comment on column public.sys_observability_event.request_path is '请求路径';
+comment on column public.sys_observability_event.http_method is 'HTTP方法';
+comment on column public.sys_observability_event.status_code is '状态码';
+comment on column public.sys_observability_event.duration_millis is '耗时毫秒';
+comment on column public.sys_observability_event.user_id is '用户id';
+comment on column public.sys_observability_event.account_identifier is '账号标识';
+comment on column public.sys_observability_event.ip_address is 'IP地址';
+comment on column public.sys_observability_event.exception_summary is '异常摘要';
+comment on column public.sys_observability_event.detail is '事件详情';
+comment on column public.sys_observability_event.audit_log_id is '关联审计日志id';
+comment on column public.sys_observability_event.notification_id is '关联通知id';
+comment on column public.sys_observability_event.event_time is '事件时间';
+create index if not exists idx_observe_type_time on public.sys_observability_event (event_type, event_time);
+create index if not exists idx_observe_level_time on public.sys_observability_event (event_level, event_time);
+create index if not exists idx_observe_path_time on public.sys_observability_event (request_path, event_time);
+create index if not exists idx_observe_ip_time on public.sys_observability_event (ip_address, event_time);
+create index if not exists idx_observe_account_time on public.sys_observability_event (account_identifier, event_time);

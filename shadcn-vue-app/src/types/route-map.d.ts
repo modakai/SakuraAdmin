@@ -240,6 +240,27 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/observability/api-monitor': RouteRecordInfo<
+      '/observability/api-monitor',
+      '/observability/api-monitor',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/observability/security-events': RouteRecordInfo<
+      '/observability/security-events',
+      '/observability/security-events',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/observability/system-status': RouteRecordInfo<
+      '/observability/system-status',
+      '/observability/system-status',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/online-users/': RouteRecordInfo<
       '/online-users/',
       '/online-users',
@@ -513,6 +534,24 @@ declare module 'vue-router/auto-routes' {
     'src/pages/notifications/index.vue': {
       routes:
         | '/notifications/'
+      views:
+        | never
+    }
+    'src/pages/observability/api-monitor.vue': {
+      routes:
+        | '/observability/api-monitor'
+      views:
+        | never
+    }
+    'src/pages/observability/security-events.vue': {
+      routes:
+        | '/observability/security-events'
+      views:
+        | never
+    }
+    'src/pages/observability/system-status.vue': {
+      routes:
+        | '/observability/system-status'
       views:
         | never
     }
