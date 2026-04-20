@@ -31,6 +31,8 @@ export const useAuthStore = defineStore('user', () => {
     clearSession,
   }
 }, {
-  // 登录态需要在刷新后保留，满足混合模板体验。
-  persist: true,
+  // 登录态必须跨浏览器重启保留，避免 localStorage 中有 token 时仍被路由守卫当作游客。
+  persist: {
+    storage: localStorage,
+  },
 })

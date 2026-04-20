@@ -42,5 +42,8 @@ export const useAdminAppearancePreferencesStore = defineStore('admin-appearance-
     resetPreferences,
   }
 }, {
-  persist: true,
+  // 外观偏好属于当前浏览器的长期设置，关闭浏览器后仍需要从 localStorage 恢复。
+  persist: {
+    storage: localStorage,
+  },
 })
