@@ -4,6 +4,7 @@ import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.sakura.boot_init.observability.config.ObservabilityProperties;
+import com.sakura.boot_init.observability.enums.ObservabilityEventLevelEnum;
 import com.sakura.boot_init.observability.enums.ObservabilityEventTypeEnum;
 import com.sakura.boot_init.observability.model.dto.ObservabilityEventQueryRequest;
 import com.sakura.boot_init.observability.model.dto.RequestObservationCommand;
@@ -17,6 +18,7 @@ import com.sakura.boot_init.observability.support.ObservabilitySanitizer;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
+import jakarta.annotation.PreDestroy;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -27,8 +29,11 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -42,13 +47,19 @@ public class ObservabilityEventServiceImpl extends ServiceImpl<ObservabilityEven
         implements ObservabilityEventService {
 
     /**
-     * 异步写入执行器，避免观测事件影响主请求。
+     * 异步事件队列容量。
      */
-    private final Executor eventExecutor = Executors.newSingleThreadExecutor(runnable -> {
+    private static final int EVENT_QUEUE_CAPACITY = 1000;
+
+    /**
+     * 异步写入执行器，避免观测事件影响主请求；队列有界，避免数据库异常时拖垮业务线程。
+     */
+    private final ExecutorService eventExecutor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+            new ArrayBlockingQueue<>(EVENT_QUEUE_CAPACITY), runnable -> {
         Thread thread = new Thread(runnable, "observability-event-writer");
         thread.setDaemon(true);
         return thread;
-    });
+    }, new ThreadPoolExecutor.AbortPolicy());
 
     /**
      * 运维事件 Mapper。
@@ -93,6 +104,21 @@ public class ObservabilityEventServiceImpl extends ServiceImpl<ObservabilityEven
         event.setDetail(sanitizer.sanitize(event.getDetail()));
         eventMapper.insertSelective(event);
         return event;
+    }
+
+    @Override
+    public void saveEventAsync(ObservabilityEvent event) {
+        try {
+            eventExecutor.execute(() -> {
+                try {
+                    saveEvent(event);
+                } catch (Exception e) {
+                    log.error("save observability event failed", e);
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            log.warn("observability event queue is full, event dropped: {}", event == null ? null : event.getTitle());
+        }
     }
 
     @Override
@@ -220,7 +246,9 @@ public class ObservabilityEventServiceImpl extends ServiceImpl<ObservabilityEven
         ObservabilityEvent event = new ObservabilityEvent();
         ObservabilityEventTypeEnum resolvedType = resolveRequestEventType(command, type);
         event.setEventType(resolvedType.getValue());
-        event.setEventLevel(ObservabilityEventTypeEnum.API_ERROR == resolvedType ? "error" : "warning");
+        event.setEventLevel(ObservabilityEventTypeEnum.API_ERROR == resolvedType
+                ? ObservabilityEventLevelEnum.ERROR.getValue()
+                : ObservabilityEventLevelEnum.WARNING.getValue());
         event.setTitle(resolveRequestEventTitle(resolvedType));
         event.setSubject(command.getRequestPath());
         event.setRequestPath(command.getRequestPath());
@@ -263,13 +291,7 @@ public class ObservabilityEventServiceImpl extends ServiceImpl<ObservabilityEven
      * 异步安全写入事件。
      */
     private void saveSafely(ObservabilityEvent event) {
-        eventExecutor.execute(() -> {
-            try {
-                saveEvent(event);
-            } catch (Exception e) {
-                log.error("save observability event failed", e);
-            }
-        });
+        saveEventAsync(event);
     }
 
     /**
@@ -280,5 +302,13 @@ public class ObservabilityEventServiceImpl extends ServiceImpl<ObservabilityEven
             return null;
         }
         return sanitizer.sanitize(throwable.getClass().getSimpleName() + ": " + throwable.getMessage());
+    }
+
+    /**
+     * 关闭异步事件执行器。
+     */
+    @PreDestroy
+    public void shutdownEventExecutor() {
+        eventExecutor.shutdown();
     }
 }

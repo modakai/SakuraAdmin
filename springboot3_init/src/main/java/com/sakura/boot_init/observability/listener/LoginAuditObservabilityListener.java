@@ -4,6 +4,7 @@ import com.sakura.boot_init.audit.api.LoginAuditCommand;
 import com.sakura.boot_init.audit.api.LoginAuditSubmittedEvent;
 import com.sakura.boot_init.observability.api.ObservabilityAlertRaisedEvent;
 import com.sakura.boot_init.observability.config.ObservabilityProperties;
+import com.sakura.boot_init.observability.enums.ObservabilityEventLevelEnum;
 import com.sakura.boot_init.observability.enums.ObservabilityEventTypeEnum;
 import com.sakura.boot_init.observability.model.entity.ObservabilityEvent;
 import com.sakura.boot_init.observability.service.ObservabilityEventService;
@@ -85,7 +86,7 @@ public class LoginAuditObservabilityListener {
     private void saveLoginFailureEvent(LoginAuditCommand command, long ipCount, long accountCount) {
         ObservabilityEvent event = new ObservabilityEvent();
         event.setEventType(ObservabilityEventTypeEnum.LOGIN_FAILURE.getValue());
-        event.setEventLevel("warning");
+        event.setEventLevel(ObservabilityEventLevelEnum.WARNING.getValue());
         event.setTitle("登录失败");
         event.setSubject(command.ipAddress());
         event.setUserId(command.userId());
@@ -94,7 +95,7 @@ public class LoginAuditObservabilityListener {
         event.setDurationMillis(command.costMillis());
         event.setDetail("IP 失败次数：" + ipCount + "，账号失败次数：" + accountCount + "，原因：" + command.failureReason());
         event.setEventTime(new Date());
-        eventService.saveEvent(event);
+        eventService.saveEventAsync(event);
     }
 
     /**
@@ -108,20 +109,20 @@ public class LoginAuditObservabilityListener {
         RedisUtil.setCacheObject(cooldownKey, "1", properties.getAlertCooldownSeconds(), TimeUnit.SECONDS);
         ObservabilityEvent event = new ObservabilityEvent();
         event.setEventType(ObservabilityEventTypeEnum.ABNORMAL_IP.getValue());
-        event.setEventLevel("error");
+        event.setEventLevel(ObservabilityEventLevelEnum.ERROR.getValue());
         event.setTitle("高频登录失败");
         event.setSubject(subject);
         event.setAccountIdentifier(command.accountIdentifier());
         event.setIpAddress(command.ipAddress());
         event.setDetail("规则：" + ruleCode + "，主体：" + subject + "，窗口内失败次数：" + count);
         event.setEventTime(new Date());
-        eventService.saveEvent(event);
+        eventService.saveEventAsync(event);
         eventPublisher.publishEvent(new ObservabilityAlertRaisedEvent(
                 ruleCode,
                 subject,
                 "高频登录失败",
                 "检测到 " + subject + " 在短时间内登录失败 " + count + " 次，请及时检查。",
-                "error",
+                ObservabilityEventLevelEnum.ERROR.getValue(),
                 Map.of("subject", subject, "count", count, "ipAddress", command.ipAddress()),
                 new Date()
         ));

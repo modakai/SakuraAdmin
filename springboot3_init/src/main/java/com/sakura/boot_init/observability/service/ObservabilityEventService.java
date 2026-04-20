@@ -29,6 +29,11 @@ public interface ObservabilityEventService extends IService<ObservabilityEvent> 
     ObservabilityEvent saveEvent(ObservabilityEvent event);
 
     /**
+     * 异步保存运维事件。
+     */
+    void saveEventAsync(ObservabilityEvent event);
+
+    /**
      * 查询慢接口事件。
      */
     Page<ObservabilityEventVO> listSlowApiEvents(ObservabilityEventQueryRequest request);
