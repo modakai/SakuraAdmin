@@ -82,33 +82,32 @@ watch(open, async (value) => {
   }
   const detailResult = await refetchDetail()
   if (detailResult.data?.data) {
-    // 显式回填详情，避免缓存命中时仅靠 watch 导致表单显示默认值。
-    form.id = detailResult.data.data.id
-    form.dictTypeId = detailResult.data.data.dictTypeId
-    form.dictLabel = detailResult.data.data.dictLabel
-    form.dictValue = detailResult.data.data.dictValue
-    form.sortOrder = detailResult.data.data.sortOrder ?? 0
-    form.status = detailResult.data.data.status
-    form.tagType = detailResult.data.data.tagType ?? ''
-    form.remark = detailResult.data.data.remark ?? ''
-    form.extJson = detailResult.data.data.extJson ?? ''
+    // 初次挂载即打开时，主动请求后的结果需要立即写入表单。
+    fillForm(detailResult.data.data)
   }
-})
+}, { immediate: true })
 
 watch(detailData, (value) => {
   if (!open.value || !value?.data) {
     return
   }
-  form.id = value.data.id
-  form.dictTypeId = value.data.dictTypeId
-  form.dictLabel = value.data.dictLabel
-  form.dictValue = value.data.dictValue
-  form.sortOrder = value.data.sortOrder ?? 0
-  form.status = value.data.status
-  form.tagType = value.data.tagType ?? ''
-  form.remark = value.data.remark ?? ''
-  form.extJson = value.data.extJson ?? ''
+  fillForm(value.data)
 }, { immediate: true })
+
+/**
+ * 使用字典明细详情填充表单，保证编辑弹窗挂载即打开时也能回显。
+ */
+function fillForm(data: DictItemForm) {
+  form.id = data.id
+  form.dictTypeId = data.dictTypeId
+  form.dictLabel = data.dictLabel
+  form.dictValue = data.dictValue
+  form.sortOrder = data.sortOrder ?? 0
+  form.status = data.status
+  form.tagType = data.tagType ?? ''
+  form.remark = data.remark ?? ''
+  form.extJson = data.extJson ?? ''
+}
 
 /**
  * 切换类型后要重置默认表单并继续绑定当前选中的类型 id。
