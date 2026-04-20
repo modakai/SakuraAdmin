@@ -14,7 +14,15 @@ import {
   isAuthExpiredCode,
   resolveHttpErrorAction,
 } from '@/utils/api-response'
+import {
+  getRequestDebounceKey,
+  registerRequestDebounce,
+  startGlobalLoading,
+} from '@/utils/request-control'
 import { buildApiRequestHeaders } from '@/utils/request-locale'
+
+const finishLoadingMap = new WeakMap<object, () => void>()
+const REQUEST_DEBOUNCE_DELAY = 500
 
 /**
  * 根据异常动作统一执行前端跳转或提示。
@@ -37,13 +45,44 @@ function handleHttpError(status: number, message?: string) {
   toast.error(action.message)
 }
 
+/**
+ * 判断当前请求是否应纳入防抖，FormData 上传允许连续提交不同文件。
+ */
+function shouldDebounceRequest(options: Record<string, any>) {
+  if (options.debounce === false) {
+    return false
+  }
+  return !(typeof FormData !== 'undefined' && options.body instanceof FormData)
+}
+
+/**
+ * 结束当前请求的全局 Loading，保证成功、失败和请求错误路径都能释放计数。
+ */
+function finishTrackedLoading(options: object) {
+  const finish = finishLoadingMap.get(options)
+  if (!finish) {
+    return
+  }
+
+  finish()
+  finishLoadingMap.delete(options)
+}
+
 const apiFetch = ofetch.create({
   baseURL: API_BASE_URL,
   timeout: API_TIMEOUT ?? false,
-  onRequest: ({ options }) => {
+  onRequest: ({ request, options }) => {
     const authStore = useAuthStore(pinia)
     const token = authStore.session.token
     const headers = buildApiRequestHeaders(appLocale.value, token ?? undefined)
+    const requestOptions = options as Record<string, any>
+
+    if (shouldDebounceRequest(requestOptions)) {
+      const debounceKey = getRequestDebounceKey(String(request), requestOptions)
+      if (!registerRequestDebounce(debounceKey, REQUEST_DEBOUNCE_DELAY)) {
+        throw new Error('重复请求已拦截，请稍后再试。')
+      }
+    }
 
     // 保留调用方显式传入的请求头，再补充统一鉴权和语言信息。
     if (options.headers) {
@@ -51,10 +90,15 @@ const apiFetch = ofetch.create({
       customHeaders.forEach((value, key) => headers.set(key, value))
     }
 
+    finishLoadingMap.set(options, startGlobalLoading())
     options.headers = headers
   },
-  onRequestError: (_error) => {},
-  onResponse: ({ response }) => {
+  onRequestError: ({ options }) => {
+    finishTrackedLoading(options)
+  },
+  onResponse: ({ response, options }) => {
+    finishTrackedLoading(options)
+
     const body = response._data
     if (!body || typeof body.code !== 'number') {
       return
@@ -74,7 +118,9 @@ const apiFetch = ofetch.create({
 
     throw createApiBusinessError(body)
   },
-  onResponseError: ({ response }) => {
+  onResponseError: ({ response, options }) => {
+    finishTrackedLoading(options)
+
     if (typeof window === 'undefined') {
       return
     }

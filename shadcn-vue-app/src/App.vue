@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import GlobalRequestLoading from '@/components/global-request-loading.vue'
 import Loading from '@/components/loading.vue'
 import { Toaster } from '@/components/ui/sonner'
 </script>
 
 <template>
   <Toaster />
+  <GlobalRequestLoading />
 
   <Suspense>
     <router-view v-slot="{ Component, route }">
