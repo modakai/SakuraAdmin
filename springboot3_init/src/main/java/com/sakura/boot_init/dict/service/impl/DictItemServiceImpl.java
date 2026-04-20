@@ -1,6 +1,7 @@
 package com.sakura.boot_init.dict.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import com.mybatisflex.core.query.QueryColumn;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.sakura.boot_init.dict.model.dto.DictItemAddRequest;
@@ -16,7 +17,6 @@ import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.CommonConstant;
 import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
-import com.sakura.boot_init.shared.util.SqlUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.sakura.boot_init.dict.model.entity.table.DictItemTableDef.DICT_ITEM;
 
 /**
  * 字典明细服务实现
@@ -79,46 +81,68 @@ public class DictItemServiceImpl extends ServiceImpl<DictItemMapper, DictItem> i
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
         }
         QueryWrapper queryWrapper = QueryWrapper.create();
-        queryWrapper.eq("id", queryRequest.getId(), queryRequest.getId() != null);
-        queryWrapper.eq("dict_type_id", queryRequest.getDictTypeId(), queryRequest.getDictTypeId() != null);
-        queryWrapper.like("dict_label", queryRequest.getDictLabel(), StringUtils.isNotBlank(queryRequest.getDictLabel()));
-        queryWrapper.like("dict_value", queryRequest.getDictValue(), StringUtils.isNotBlank(queryRequest.getDictValue()));
-        queryWrapper.eq("status", queryRequest.getStatus(), queryRequest.getStatus() != null);
-        queryWrapper.orderBy("sort_order", true);
-        queryWrapper.orderBy("id", false);
-        if (SqlUtils.validSortField(queryRequest.getSortField())) {
-            queryWrapper.orderBy(queryRequest.getSortField(),
-                    CommonConstant.SORT_ORDER_ASC.equals(queryRequest.getSortOrder()));
+        queryWrapper.where(DICT_ITEM.ID.eq(queryRequest.getId(), queryRequest.getId() != null));
+        queryWrapper.and(DICT_ITEM.DICT_TYPE_ID.eq(queryRequest.getDictTypeId(), queryRequest.getDictTypeId() != null));
+        queryWrapper.and(DICT_ITEM.DICT_LABEL.like(queryRequest.getDictLabel(),
+                StringUtils.isNotBlank(queryRequest.getDictLabel())));
+        queryWrapper.and(DICT_ITEM.DICT_VALUE.like(queryRequest.getDictValue(),
+                StringUtils.isNotBlank(queryRequest.getDictValue())));
+        queryWrapper.and(DICT_ITEM.STATUS.eq(queryRequest.getStatus(), queryRequest.getStatus() != null));
+        queryWrapper.orderBy(DICT_ITEM.SORT_ORDER, true);
+        queryWrapper.orderBy(DICT_ITEM.ID, false);
+        QueryColumn sortColumn = resolveSortColumn(queryRequest.getSortField());
+        if (sortColumn != null) {
+            queryWrapper.orderBy(sortColumn, CommonConstant.SORT_ORDER_ASC.equals(queryRequest.getSortOrder()));
         }
         return queryWrapper;
+    }
+
+    /**
+     * 将客户端排序字段转换为字典明细表 APT 字段。
+     */
+    private QueryColumn resolveSortColumn(String sortField) {
+        if (StringUtils.isBlank(sortField)) {
+            return null;
+        }
+        return switch (sortField) {
+            case "id" -> DICT_ITEM.ID;
+            case "dict_type_id" -> DICT_ITEM.DICT_TYPE_ID;
+            case "dict_label" -> DICT_ITEM.DICT_LABEL;
+            case "dict_value" -> DICT_ITEM.DICT_VALUE;
+            case "status" -> DICT_ITEM.STATUS;
+            case "sort_order" -> DICT_ITEM.SORT_ORDER;
+            case "create_time" -> DICT_ITEM.CREATE_TIME;
+            case "update_time" -> DICT_ITEM.UPDATE_TIME;
+            default -> null;
+        };
     }
 
     @Override
     public long countEnabledByTypeId(Long dictTypeId) {
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .eq("dict_type_id", dictTypeId)
-                .eq("is_delete", 0);
+                .where(DICT_ITEM.DICT_TYPE_ID.eq(dictTypeId))
+                .and(DICT_ITEM.IS_DELETE.eq(0));
         return this.count(queryWrapper);
     }
 
     @Override
     public List<DictItem> listEnabledByTypeId(Long dictTypeId) {
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .eq("dict_type_id", dictTypeId)
-                .eq("status", 1)
-                .eq("is_delete", 0)
-                .orderBy("sort_order", true)
-                .orderBy("id", false);
+                .where(DICT_ITEM.DICT_TYPE_ID.eq(dictTypeId))
+                .and(DICT_ITEM.STATUS.eq(1))
+                .and(DICT_ITEM.IS_DELETE.eq(0))
+                .orderBy(DICT_ITEM.SORT_ORDER, true)
+                .orderBy(DICT_ITEM.ID, false);
         return this.list(queryWrapper);
     }
 
     @Override
     public boolean existsByTypeAndValue(Long dictTypeId, String dictValue, Long excludeId) {
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .eq("dict_type_id", dictTypeId)
-                .eq("dict_value", dictValue);
+                .where(DICT_ITEM.DICT_TYPE_ID.eq(dictTypeId))
+                .and(DICT_ITEM.DICT_VALUE.eq(dictValue));
         if (excludeId != null) {
-            queryWrapper.ne("id", excludeId);
+            queryWrapper.and(DICT_ITEM.ID.ne(excludeId));
         }
         return this.count(queryWrapper) > 0;
     }

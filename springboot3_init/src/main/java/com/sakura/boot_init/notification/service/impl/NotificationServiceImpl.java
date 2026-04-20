@@ -1,6 +1,7 @@
 package com.sakura.boot_init.notification.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import com.mybatisflex.core.query.QueryColumn;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.sakura.boot_init.notification.enums.NotificationReceiverTypeEnum;
@@ -25,7 +26,6 @@ import com.sakura.boot_init.shared.constant.CommonConstant;
 import com.sakura.boot_init.shared.context.LoginUserInfo;
 import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
-import com.sakura.boot_init.shared.util.SqlUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.sakura.boot_init.notification.model.entity.table.NotificationTableDef.NOTIFICATION;
 
 /**
  * 通知公告服务实现。
@@ -163,31 +165,57 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     public QueryWrapper getQueryWrapper(NotificationQueryRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         QueryWrapper queryWrapper = QueryWrapper.create();
-        queryWrapper.eq("id", request.getId(), request.getId() != null);
-        queryWrapper.eq("type", request.getType(), StringUtils.isNotBlank(request.getType()));
-        queryWrapper.like("title", request.getTitle(), StringUtils.isNotBlank(request.getTitle()));
-        queryWrapper.eq("status", request.getStatus(), StringUtils.isNotBlank(request.getStatus()));
-        queryWrapper.eq("receiver_type", request.getReceiverType(), StringUtils.isNotBlank(request.getReceiverType()));
-        queryWrapper.eq("target_type", request.getTargetType(), StringUtils.isNotBlank(request.getTargetType()));
-        queryWrapper.ge("publish_time", request.getPublishStartTime(), request.getPublishStartTime() != null);
-        queryWrapper.le("publish_time", request.getPublishEndTime(), request.getPublishEndTime() != null);
-        if (SqlUtils.validSortField(request.getSortField())) {
-            queryWrapper.orderBy(request.getSortField(), CommonConstant.SORT_ORDER_ASC.equals(request.getSortOrder()));
+        queryWrapper.where(NOTIFICATION.ID.eq(request.getId(), request.getId() != null));
+        queryWrapper.and(NOTIFICATION.TYPE.eq(request.getType(), StringUtils.isNotBlank(request.getType())));
+        queryWrapper.and(NOTIFICATION.TITLE.like(request.getTitle(), StringUtils.isNotBlank(request.getTitle())));
+        queryWrapper.and(NOTIFICATION.STATUS.eq(request.getStatus(), StringUtils.isNotBlank(request.getStatus())));
+        queryWrapper.and(NOTIFICATION.RECEIVER_TYPE.eq(request.getReceiverType(),
+                StringUtils.isNotBlank(request.getReceiverType())));
+        queryWrapper.and(NOTIFICATION.TARGET_TYPE.eq(request.getTargetType(), StringUtils.isNotBlank(request.getTargetType())));
+        queryWrapper.and(NOTIFICATION.PUBLISH_TIME.ge(request.getPublishStartTime(), request.getPublishStartTime() != null));
+        queryWrapper.and(NOTIFICATION.PUBLISH_TIME.le(request.getPublishEndTime(), request.getPublishEndTime() != null));
+        QueryColumn sortColumn = resolveSortColumn(request.getSortField());
+        if (sortColumn != null) {
+            queryWrapper.orderBy(sortColumn, CommonConstant.SORT_ORDER_ASC.equals(request.getSortOrder()));
         } else {
-            queryWrapper.orderBy("id", false);
+            queryWrapper.orderBy(NOTIFICATION.ID, false);
         }
         return queryWrapper;
+    }
+
+    /**
+     * 将客户端排序字段转换为通知表 APT 字段。
+     */
+    private QueryColumn resolveSortColumn(String sortField) {
+        if (StringUtils.isBlank(sortField)) {
+            return null;
+        }
+        return switch (sortField) {
+            case "id" -> NOTIFICATION.ID;
+            case "type" -> NOTIFICATION.TYPE;
+            case "title" -> NOTIFICATION.TITLE;
+            case "status" -> NOTIFICATION.STATUS;
+            case "receiver_type" -> NOTIFICATION.RECEIVER_TYPE;
+            case "target_type" -> NOTIFICATION.TARGET_TYPE;
+            case "pinned" -> NOTIFICATION.PINNED;
+            case "publish_time" -> NOTIFICATION.PUBLISH_TIME;
+            case "effective_time" -> NOTIFICATION.EFFECTIVE_TIME;
+            case "expire_time" -> NOTIFICATION.EXPIRE_TIME;
+            case "create_time" -> NOTIFICATION.CREATE_TIME;
+            case "update_time" -> NOTIFICATION.UPDATE_TIME;
+            default -> null;
+        };
     }
 
     @Override
     public List<NotificationVO> listVisibleNotifications(String receiverType, LoginUserInfo user, String type) {
         ThrowUtils.throwIf(user == null || user.userId() == null, ErrorCode.NOT_LOGIN_ERROR);
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .eq("status", NotificationStatusEnum.PUBLISHED.getValue())
-                .eq("type", type, StringUtils.isNotBlank(type))
-                .orderBy("pinned", false)
-                .orderBy("publish_time", false)
-                .orderBy("id", false);
+                .where(NOTIFICATION.STATUS.eq(NotificationStatusEnum.PUBLISHED.getValue()))
+                .and(NOTIFICATION.TYPE.eq(type, StringUtils.isNotBlank(type)))
+                .orderBy(NOTIFICATION.PINNED, false)
+                .orderBy(NOTIFICATION.PUBLISH_TIME, false)
+                .orderBy(NOTIFICATION.ID, false);
         Date now = new Date();
         return this.list(queryWrapper).stream()
                 .filter(notification -> NotificationReceiverTypeEnum.matches(notification.getReceiverType(), receiverType))

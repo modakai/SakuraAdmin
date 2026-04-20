@@ -1,6 +1,7 @@
 package com.sakura.boot_init.agreement.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import com.mybatisflex.core.query.QueryColumn;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.sakura.boot_init.agreement.model.dto.AgreementAddRequest;
@@ -15,7 +16,6 @@ import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.CommonConstant;
 import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
-import com.sakura.boot_init.shared.util.SqlUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.sakura.boot_init.agreement.model.entity.table.AgreementTableDef.AGREEMENT;
 
 /**
  * 协议内容服务实现。
@@ -83,25 +85,45 @@ public class AgreementServiceImpl extends ServiceImpl<AgreementMapper, Agreement
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "agreement.param.null");
         }
         QueryWrapper queryWrapper = QueryWrapper.create();
-        queryWrapper.eq("id", queryRequest.getId(), queryRequest.getId() != null);
-        queryWrapper.eq("agreement_type", queryRequest.getAgreementType(), StringUtils.isNotBlank(queryRequest.getAgreementType()));
-        queryWrapper.like("title", queryRequest.getTitle(), StringUtils.isNotBlank(queryRequest.getTitle()));
-        queryWrapper.eq("status", queryRequest.getStatus(), queryRequest.getStatus() != null);
-        queryWrapper.orderBy("sort_order", true);
-        queryWrapper.orderBy("id", false);
-        if (SqlUtils.validSortField(queryRequest.getSortField())) {
-            queryWrapper.orderBy(queryRequest.getSortField(),
-                    CommonConstant.SORT_ORDER_ASC.equals(queryRequest.getSortOrder()));
+        queryWrapper.where(AGREEMENT.ID.eq(queryRequest.getId(), queryRequest.getId() != null));
+        queryWrapper.and(AGREEMENT.AGREEMENT_TYPE.eq(queryRequest.getAgreementType(),
+                StringUtils.isNotBlank(queryRequest.getAgreementType())));
+        queryWrapper.and(AGREEMENT.TITLE.like(queryRequest.getTitle(), StringUtils.isNotBlank(queryRequest.getTitle())));
+        queryWrapper.and(AGREEMENT.STATUS.eq(queryRequest.getStatus(), queryRequest.getStatus() != null));
+        queryWrapper.orderBy(AGREEMENT.SORT_ORDER, true);
+        queryWrapper.orderBy(AGREEMENT.ID, false);
+        QueryColumn sortColumn = resolveSortColumn(queryRequest.getSortField());
+        if (sortColumn != null) {
+            queryWrapper.orderBy(sortColumn, CommonConstant.SORT_ORDER_ASC.equals(queryRequest.getSortOrder()));
         }
         return queryWrapper;
+    }
+
+    /**
+     * 将客户端排序字段转换为协议表 APT 字段。
+     */
+    private QueryColumn resolveSortColumn(String sortField) {
+        if (StringUtils.isBlank(sortField)) {
+            return null;
+        }
+        return switch (sortField) {
+            case "id" -> AGREEMENT.ID;
+            case "agreement_type" -> AGREEMENT.AGREEMENT_TYPE;
+            case "title" -> AGREEMENT.TITLE;
+            case "status" -> AGREEMENT.STATUS;
+            case "sort_order" -> AGREEMENT.SORT_ORDER;
+            case "create_time" -> AGREEMENT.CREATE_TIME;
+            case "update_time" -> AGREEMENT.UPDATE_TIME;
+            default -> null;
+        };
     }
 
     @Override
     public boolean existsByAgreementType(String agreementType, Long excludeId) {
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .eq("agreement_type", agreementType);
+                .where(AGREEMENT.AGREEMENT_TYPE.eq(agreementType));
         if (excludeId != null) {
-            queryWrapper.ne("id", excludeId);
+            queryWrapper.and(AGREEMENT.ID.ne(excludeId));
         }
         return this.count(queryWrapper) > 0;
     }
@@ -112,7 +134,7 @@ public class AgreementServiceImpl extends ServiceImpl<AgreementMapper, Agreement
             return null;
         }
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .eq("agreement_type", agreementType);
+                .where(AGREEMENT.AGREEMENT_TYPE.eq(agreementType));
         return this.getOne(queryWrapper);
     }
 

@@ -1,6 +1,7 @@
 package com.sakura.boot_init.audit.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import com.mybatisflex.core.query.QueryColumn;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.sakura.boot_init.audit.enums.AuditLogResultEnum;
@@ -16,7 +17,6 @@ import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.CommonConstant;
 import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
-import com.sakura.boot_init.shared.util.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
+import static com.sakura.boot_init.audit.model.entity.table.AuditLogTableDef.AUDIT_LOG;
 
 /**
  * 审计日志服务实现。
@@ -94,24 +96,57 @@ public class AuditLogServiceImpl extends ServiceImpl<AuditLogMapper, AuditLog> i
     public QueryWrapper getQueryWrapper(AuditLogQueryRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         QueryWrapper queryWrapper = QueryWrapper.create();
-        queryWrapper.eq("log_type", request.getLogType(), StringUtils.isNotBlank(request.getLogType()));
-        queryWrapper.eq("user_id", request.getUserId(), request.getUserId() != null);
-        queryWrapper.like("account_identifier", request.getAccountIdentifier(), StringUtils.isNotBlank(request.getAccountIdentifier()));
-        queryWrapper.eq("ip_address", request.getIpAddress(), StringUtils.isNotBlank(request.getIpAddress()));
-        queryWrapper.like("request_path", request.getRequestPath(), StringUtils.isNotBlank(request.getRequestPath()));
-        queryWrapper.eq("http_method", request.getHttpMethod(), StringUtils.isNotBlank(request.getHttpMethod()));
-        queryWrapper.eq("result", request.getResult(), StringUtils.isNotBlank(request.getResult()));
-        queryWrapper.like("operation_description", request.getOperationDescription(), StringUtils.isNotBlank(request.getOperationDescription()));
-        queryWrapper.eq("business_module", request.getBusinessModule(), StringUtils.isNotBlank(request.getBusinessModule()));
-        queryWrapper.eq("operation_type", request.getOperationType(), StringUtils.isNotBlank(request.getOperationType()));
-        queryWrapper.ge("audit_time", request.getAuditStartTime(), request.getAuditStartTime() != null);
-        queryWrapper.le("audit_time", request.getAuditEndTime(), request.getAuditEndTime() != null);
-        if (SqlUtils.validSortField(request.getSortField())) {
-            queryWrapper.orderBy(request.getSortField(), CommonConstant.SORT_ORDER_ASC.equals(request.getSortOrder()));
+        queryWrapper.where(AUDIT_LOG.LOG_TYPE.eq(request.getLogType(), StringUtils.isNotBlank(request.getLogType())));
+        queryWrapper.and(AUDIT_LOG.USER_ID.eq(request.getUserId(), request.getUserId() != null));
+        queryWrapper.and(AUDIT_LOG.ACCOUNT_IDENTIFIER.like(request.getAccountIdentifier(),
+                StringUtils.isNotBlank(request.getAccountIdentifier())));
+        queryWrapper.and(AUDIT_LOG.IP_ADDRESS.eq(request.getIpAddress(), StringUtils.isNotBlank(request.getIpAddress())));
+        queryWrapper.and(AUDIT_LOG.REQUEST_PATH.like(request.getRequestPath(),
+                StringUtils.isNotBlank(request.getRequestPath())));
+        queryWrapper.and(AUDIT_LOG.HTTP_METHOD.eq(request.getHttpMethod(), StringUtils.isNotBlank(request.getHttpMethod())));
+        queryWrapper.and(AUDIT_LOG.RESULT.eq(request.getResult(), StringUtils.isNotBlank(request.getResult())));
+        queryWrapper.and(AUDIT_LOG.OPERATION_DESCRIPTION.like(request.getOperationDescription(),
+                StringUtils.isNotBlank(request.getOperationDescription())));
+        queryWrapper.and(AUDIT_LOG.BUSINESS_MODULE.eq(request.getBusinessModule(),
+                StringUtils.isNotBlank(request.getBusinessModule())));
+        queryWrapper.and(AUDIT_LOG.OPERATION_TYPE.eq(request.getOperationType(),
+                StringUtils.isNotBlank(request.getOperationType())));
+        queryWrapper.and(AUDIT_LOG.AUDIT_TIME.ge(request.getAuditStartTime(), request.getAuditStartTime() != null));
+        queryWrapper.and(AUDIT_LOG.AUDIT_TIME.le(request.getAuditEndTime(), request.getAuditEndTime() != null));
+        QueryColumn sortColumn = resolveSortColumn(request.getSortField());
+        if (sortColumn != null) {
+            queryWrapper.orderBy(sortColumn, CommonConstant.SORT_ORDER_ASC.equals(request.getSortOrder()));
         } else {
-            queryWrapper.orderBy("audit_time", false).orderBy("id", false);
+            queryWrapper.orderBy(AUDIT_LOG.AUDIT_TIME, false).orderBy(AUDIT_LOG.ID, false);
         }
         return queryWrapper;
+    }
+
+    /**
+     * 将客户端排序字段转换为审计日志表 APT 字段。
+     */
+    private QueryColumn resolveSortColumn(String sortField) {
+        if (StringUtils.isBlank(sortField)) {
+            return null;
+        }
+        return switch (sortField) {
+            case "id" -> AUDIT_LOG.ID;
+            case "log_type" -> AUDIT_LOG.LOG_TYPE;
+            case "user_id" -> AUDIT_LOG.USER_ID;
+            case "account_identifier" -> AUDIT_LOG.ACCOUNT_IDENTIFIER;
+            case "ip_address" -> AUDIT_LOG.IP_ADDRESS;
+            case "request_path" -> AUDIT_LOG.REQUEST_PATH;
+            case "http_method" -> AUDIT_LOG.HTTP_METHOD;
+            case "result" -> AUDIT_LOG.RESULT;
+            case "operation_description" -> AUDIT_LOG.OPERATION_DESCRIPTION;
+            case "business_module" -> AUDIT_LOG.BUSINESS_MODULE;
+            case "operation_type" -> AUDIT_LOG.OPERATION_TYPE;
+            case "audit_time" -> AUDIT_LOG.AUDIT_TIME;
+            case "cost_millis" -> AUDIT_LOG.COST_MILLIS;
+            case "create_time" -> AUDIT_LOG.CREATE_TIME;
+            case "update_time" -> AUDIT_LOG.UPDATE_TIME;
+            default -> null;
+        };
     }
 
     @Override

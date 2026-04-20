@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.sakura.boot_init.notification.model.entity.table.NotificationTargetTableDef.NOTIFICATION_TARGET;
+
 /**
  * 通知目标服务实现。
  *
@@ -24,7 +26,7 @@ public class NotificationTargetServiceImpl extends ServiceImpl<NotificationTarge
 
     @Override
     public void replaceTargets(Long notificationId, String targetType, List<String> roles, List<Long> userIds) {
-        QueryWrapper deleteWrapper = QueryWrapper.create().eq("notification_id", notificationId);
+        QueryWrapper deleteWrapper = QueryWrapper.create().where(NOTIFICATION_TARGET.NOTIFICATION_ID.eq(notificationId));
         this.remove(deleteWrapper);
         if (NotificationTargetTypeEnum.ROLE.getValue().equals(targetType) && CollUtil.isNotEmpty(roles)) {
             this.saveBatch(roles.stream().map(role -> buildTarget(notificationId, targetType, role)).collect(Collectors.toList()));
@@ -38,16 +40,16 @@ public class NotificationTargetServiceImpl extends ServiceImpl<NotificationTarge
     @Override
     public List<String> listRoleTargets(Long notificationId) {
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .eq("notification_id", notificationId)
-                .eq("target_type", NotificationTargetTypeEnum.ROLE.getValue());
+                .where(NOTIFICATION_TARGET.NOTIFICATION_ID.eq(notificationId))
+                .and(NOTIFICATION_TARGET.TARGET_TYPE.eq(NotificationTargetTypeEnum.ROLE.getValue()));
         return this.list(queryWrapper).stream().map(NotificationTarget::getTargetValue).collect(Collectors.toList());
     }
 
     @Override
     public List<Long> listUserTargets(Long notificationId) {
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .eq("notification_id", notificationId)
-                .eq("target_type", NotificationTargetTypeEnum.USER.getValue());
+                .where(NOTIFICATION_TARGET.NOTIFICATION_ID.eq(notificationId))
+                .and(NOTIFICATION_TARGET.TARGET_TYPE.eq(NotificationTargetTypeEnum.USER.getValue()));
         List<Long> result = new ArrayList<>();
         for (NotificationTarget target : this.list(queryWrapper)) {
             result.add(Long.valueOf(target.getTargetValue()));

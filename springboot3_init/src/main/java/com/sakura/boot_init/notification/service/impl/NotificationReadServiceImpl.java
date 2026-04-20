@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
+import static com.sakura.boot_init.notification.model.entity.table.NotificationReadTableDef.NOTIFICATION_READ;
+
 /**
  * 通知阅读状态服务实现。
  *
@@ -59,9 +61,9 @@ public class NotificationReadServiceImpl extends ServiceImpl<NotificationReadMap
      */
     private NotificationRead getReadRecord(Long notificationId, String receiverType, Long userId) {
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .eq("notification_id", notificationId)
-                .eq("receiver_type", receiverType)
-                .eq("user_id", userId);
+                .where(NOTIFICATION_READ.NOTIFICATION_ID.eq(notificationId))
+                .and(NOTIFICATION_READ.RECEIVER_TYPE.eq(receiverType))
+                .and(NOTIFICATION_READ.USER_ID.eq(userId));
         return this.getOne(queryWrapper);
     }
 

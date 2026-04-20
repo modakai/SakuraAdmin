@@ -1,6 +1,7 @@
 package com.sakura.boot_init.user.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import com.mybatisflex.core.query.QueryColumn;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.sakura.boot_init.infrastructure.auth.LoginUserCache;
@@ -9,7 +10,6 @@ import com.sakura.boot_init.shared.constant.CommonConstant;
 import com.sakura.boot_init.shared.constant.UserConstant;
 import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
-import com.sakura.boot_init.shared.util.SqlUtils;
 import com.sakura.boot_init.user.model.dto.UserQueryRequest;
 import com.sakura.boot_init.user.model.dto.UserUpdateRequest;
 import com.sakura.boot_init.user.model.entity.User;
@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.util.DigestUtils;
+
+import static com.sakura.boot_init.user.model.entity.table.UserTableDef.USER;
 
 /**
  * 用户服务实现
@@ -77,18 +79,41 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String sortField = userQueryRequest.getSortField();
         String sortOrder = userQueryRequest.getSortOrder();
         QueryWrapper queryWrapper = QueryWrapper.create();
-        queryWrapper.eq("id", id, id != null);
-        queryWrapper.eq("union_id", unionId, StringUtils.isNotBlank(unionId));
-        queryWrapper.eq("mp_open_id", mpOpenId, StringUtils.isNotBlank(mpOpenId));
-        queryWrapper.eq("user_role", userRole, StringUtils.isNotBlank(userRole));
-        queryWrapper.eq("status", status, status != null);
-        queryWrapper.like("user_profile", userProfile, StringUtils.isNotBlank(userProfile));
-        queryWrapper.like("user_name", userName, StringUtils.isNotBlank(userName));
-        if (SqlUtils.validSortField(sortField)) {
-            // MyBatis-Flex 的排序条件需要显式判断后再追加
-            queryWrapper.orderBy(sortField, CommonConstant.SORT_ORDER_ASC.equals(sortOrder));
+        queryWrapper.where(USER.ID.eq(id, id != null));
+        queryWrapper.and(USER.UNION_ID.eq(unionId, StringUtils.isNotBlank(unionId)));
+        queryWrapper.and(USER.MP_OPEN_ID.eq(mpOpenId, StringUtils.isNotBlank(mpOpenId)));
+        queryWrapper.and(USER.USER_ROLE.eq(userRole, StringUtils.isNotBlank(userRole)));
+        queryWrapper.and(USER.STATUS.eq(status, status != null));
+        queryWrapper.and(USER.USER_PROFILE.like(userProfile, StringUtils.isNotBlank(userProfile)));
+        queryWrapper.and(USER.USER_NAME.like(userName, StringUtils.isNotBlank(userName)));
+        QueryColumn sortColumn = resolveSortColumn(sortField);
+        if (sortColumn != null) {
+            // MyBatis-Flex 排序统一使用 APT 字段，避免直接拼接客户端字段名。
+            queryWrapper.orderBy(sortColumn, CommonConstant.SORT_ORDER_ASC.equals(sortOrder));
         }
         return queryWrapper;
+    }
+
+    /**
+     * 将客户端排序字段转换为用户表 APT 字段。
+     */
+    private QueryColumn resolveSortColumn(String sortField) {
+        if (StringUtils.isBlank(sortField)) {
+            return null;
+        }
+        return switch (sortField) {
+            case "id" -> USER.ID;
+            case "union_id" -> USER.UNION_ID;
+            case "mp_open_id" -> USER.MP_OPEN_ID;
+            case "user_role" -> USER.USER_ROLE;
+            case "status" -> USER.STATUS;
+            case "user_profile" -> USER.USER_PROFILE;
+            case "user_name" -> USER.USER_NAME;
+            case "user_account" -> USER.USER_ACCOUNT;
+            case "create_time" -> USER.CREATE_TIME;
+            case "update_time" -> USER.UPDATE_TIME;
+            default -> null;
+        };
     }
 
     @Override

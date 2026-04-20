@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.sakura.boot_init.notification.model.entity.table.NotificationTemplateTableDef.NOTIFICATION_TEMPLATE;
+
 /**
  * 消息通知模板服务实现。
  *
@@ -74,9 +76,9 @@ public class NotificationTemplateServiceImpl extends ServiceImpl<NotificationTem
             return null;
         }
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .eq("event_type", eventType)
-                .eq("enabled", 1)
-                .orderBy("id", false);
+                .where(NOTIFICATION_TEMPLATE.EVENT_TYPE.eq(eventType))
+                .and(NOTIFICATION_TEMPLATE.ENABLED.eq(1))
+                .orderBy(NOTIFICATION_TEMPLATE.ID, false);
         return this.getOne(queryWrapper);
     }
 
@@ -84,10 +86,12 @@ public class NotificationTemplateServiceImpl extends ServiceImpl<NotificationTem
     public QueryWrapper getQueryWrapper(NotificationTemplateQueryRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         QueryWrapper queryWrapper = QueryWrapper.create();
-        queryWrapper.like("template_code", request.getTemplateCode(), StringUtils.isNotBlank(request.getTemplateCode()));
-        queryWrapper.eq("event_type", request.getEventType(), StringUtils.isNotBlank(request.getEventType()));
-        queryWrapper.eq("enabled", request.getEnabled(), request.getEnabled() != null);
-        queryWrapper.orderBy("id", false);
+        queryWrapper.where(NOTIFICATION_TEMPLATE.TEMPLATE_CODE.like(request.getTemplateCode(),
+                StringUtils.isNotBlank(request.getTemplateCode())));
+        queryWrapper.and(NOTIFICATION_TEMPLATE.EVENT_TYPE.eq(request.getEventType(),
+                StringUtils.isNotBlank(request.getEventType())));
+        queryWrapper.and(NOTIFICATION_TEMPLATE.ENABLED.eq(request.getEnabled(), request.getEnabled() != null));
+        queryWrapper.orderBy(NOTIFICATION_TEMPLATE.ID, false);
         return queryWrapper;
     }
 

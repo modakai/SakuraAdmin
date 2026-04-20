@@ -1,6 +1,7 @@
 package com.sakura.boot_init.dict.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import com.mybatisflex.core.query.QueryColumn;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import com.sakura.boot_init.dict.model.dto.DictTypeAddRequest;
@@ -15,7 +16,6 @@ import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.CommonConstant;
 import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
-import com.sakura.boot_init.shared.util.SqlUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.sakura.boot_init.dict.model.entity.table.DictTypeTableDef.DICT_TYPE;
 
 /**
  * 字典类型服务实现
@@ -86,25 +88,45 @@ public class DictTypeServiceImpl extends ServiceImpl<DictTypeMapper, DictType> i
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
         }
         QueryWrapper queryWrapper = QueryWrapper.create();
-        queryWrapper.eq("id", queryRequest.getId(), queryRequest.getId() != null);
-        queryWrapper.like("dict_code", queryRequest.getDictCode(), StringUtils.isNotBlank(queryRequest.getDictCode()));
-        queryWrapper.like("dict_name", queryRequest.getDictName(), StringUtils.isNotBlank(queryRequest.getDictName()));
-        queryWrapper.eq("status", queryRequest.getStatus(), queryRequest.getStatus() != null);
-        if (SqlUtils.validSortField(queryRequest.getSortField())) {
-            queryWrapper.orderBy(queryRequest.getSortField(),
-                    CommonConstant.SORT_ORDER_ASC.equals(queryRequest.getSortOrder()));
+        queryWrapper.where(DICT_TYPE.ID.eq(queryRequest.getId(), queryRequest.getId() != null));
+        queryWrapper.and(DICT_TYPE.DICT_CODE.like(queryRequest.getDictCode(),
+                StringUtils.isNotBlank(queryRequest.getDictCode())));
+        queryWrapper.and(DICT_TYPE.DICT_NAME.like(queryRequest.getDictName(),
+                StringUtils.isNotBlank(queryRequest.getDictName())));
+        queryWrapper.and(DICT_TYPE.STATUS.eq(queryRequest.getStatus(), queryRequest.getStatus() != null));
+        QueryColumn sortColumn = resolveSortColumn(queryRequest.getSortField());
+        if (sortColumn != null) {
+            queryWrapper.orderBy(sortColumn, CommonConstant.SORT_ORDER_ASC.equals(queryRequest.getSortOrder()));
         } else {
-            queryWrapper.orderBy("id", false);
+            queryWrapper.orderBy(DICT_TYPE.ID, false);
         }
         return queryWrapper;
+    }
+
+    /**
+     * 将客户端排序字段转换为字典类型表 APT 字段。
+     */
+    private QueryColumn resolveSortColumn(String sortField) {
+        if (StringUtils.isBlank(sortField)) {
+            return null;
+        }
+        return switch (sortField) {
+            case "id" -> DICT_TYPE.ID;
+            case "dict_code" -> DICT_TYPE.DICT_CODE;
+            case "dict_name" -> DICT_TYPE.DICT_NAME;
+            case "status" -> DICT_TYPE.STATUS;
+            case "create_time" -> DICT_TYPE.CREATE_TIME;
+            case "update_time" -> DICT_TYPE.UPDATE_TIME;
+            default -> null;
+        };
     }
 
     @Override
     public boolean existsByDictCode(String dictCode, Long excludeId) {
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .eq("dict_code", dictCode);
+                .where(DICT_TYPE.DICT_CODE.eq(dictCode));
         if (excludeId != null) {
-            queryWrapper.ne("id", excludeId);
+            queryWrapper.and(DICT_TYPE.ID.ne(excludeId));
         }
         return this.count(queryWrapper) > 0;
     }
@@ -115,7 +137,7 @@ public class DictTypeServiceImpl extends ServiceImpl<DictTypeMapper, DictType> i
             return null;
         }
         QueryWrapper queryWrapper = QueryWrapper.create()
-                .eq("dict_code", dictCode);
+                .where(DICT_TYPE.DICT_CODE.eq(dictCode));
         return this.getOne(queryWrapper);
     }
 

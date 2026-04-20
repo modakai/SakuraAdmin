@@ -25,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+import static com.sakura.boot_init.user.model.entity.table.UserTableDef.USER;
+
 /**
  * 认证服务实现。
  *
@@ -83,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         synchronized (userAccount.intern()) {
-            QueryWrapper queryWrapper = QueryWrapper.create().eq("user_account", userAccount);
+            QueryWrapper queryWrapper = QueryWrapper.create().where(USER.USER_ACCOUNT.eq(userAccount));
             long count = userMapper.selectCountByQuery(queryWrapper);
             if (count > 0) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "auth.account.duplicate");
@@ -119,8 +121,8 @@ public class AuthServiceImpl implements AuthService {
             }
 
             QueryWrapper queryWrapper = QueryWrapper.create()
-                    .eq("user_account", userAccount)
-                    .eq("user_password", encryptPassword(userPassword));
+                    .where(USER.USER_ACCOUNT.eq(userAccount))
+                    .and(USER.USER_PASSWORD.eq(encryptPassword(userPassword)));
             User user = userMapper.selectOneByQuery(queryWrapper);
             if (user == null) {
                 log.info("user login failed, userAccount cannot match userPassword");
@@ -145,7 +147,7 @@ public class AuthServiceImpl implements AuthService {
         String unionId = wxOAuth2UserInfo.getUnionId();
         String mpOpenId = wxOAuth2UserInfo.getOpenid();
         synchronized (unionId.intern()) {
-            QueryWrapper queryWrapper = QueryWrapper.create().eq("union_id", unionId);
+            QueryWrapper queryWrapper = QueryWrapper.create().where(USER.UNION_ID.eq(unionId));
             User user = userMapper.selectOneByQuery(queryWrapper);
             if (user != null) {
                 validateUserLoginStatus(user);

@@ -17,8 +17,8 @@ import com.sakura.boot_init.observability.service.ObservabilityEventService;
 import com.sakura.boot_init.observability.support.ObservabilitySanitizer;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.exception.ThrowUtils;
-import lombok.extern.slf4j.Slf4j;
 import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -35,6 +35,8 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.sakura.boot_init.observability.model.entity.table.ObservabilityEventTableDef.OBSERVABILITY_EVENT;
 
 /**
  * 运维观测事件服务实现。
@@ -125,9 +127,9 @@ public class ObservabilityEventServiceImpl extends ServiceImpl<ObservabilityEven
     public Page<ObservabilityEventVO> listSlowApiEvents(ObservabilityEventQueryRequest request) {
         ObservabilityEventQueryRequest query = request == null ? new ObservabilityEventQueryRequest() : request;
         QueryWrapper wrapper = getBaseQueryWrapper(query)
-                .eq("event_type", ObservabilityEventTypeEnum.SLOW_API.getValue())
-                .orderBy("event_time", false)
-                .orderBy("duration_millis", false);
+                .and(OBSERVABILITY_EVENT.EVENT_TYPE.eq(ObservabilityEventTypeEnum.SLOW_API.getValue()))
+                .orderBy(OBSERVABILITY_EVENT.EVENT_TIME, false)
+                .orderBy(OBSERVABILITY_EVENT.DURATION_MILLIS, false);
         Page<ObservabilityEvent> page = this.page(Page.of(query.getPage(), query.getPageSize()), wrapper);
         Page<ObservabilityEventVO> voPage = new Page<>(page.getPageNumber(), page.getPageSize(), page.getTotalRow());
         voPage.setRecords(page.getRecords().stream().map(this::getEventVO).collect(Collectors.toList()));
@@ -138,12 +140,12 @@ public class ObservabilityEventServiceImpl extends ServiceImpl<ObservabilityEven
     public Page<ObservabilityEventVO> listSecurityEvents(ObservabilityEventQueryRequest request) {
         ObservabilityEventQueryRequest query = request == null ? new ObservabilityEventQueryRequest() : request;
         QueryWrapper wrapper = getBaseQueryWrapper(query)
-                .in("event_type", List.of(
+                .and(OBSERVABILITY_EVENT.EVENT_TYPE.in(List.of(
                         ObservabilityEventTypeEnum.LOGIN_FAILURE.getValue(),
                         ObservabilityEventTypeEnum.ABNORMAL_IP.getValue(),
                         ObservabilityEventTypeEnum.FORCE_LOGOUT.getValue(),
-                        ObservabilityEventTypeEnum.SECURITY_ALERT.getValue()))
-                .orderBy("event_time", false);
+                        ObservabilityEventTypeEnum.SECURITY_ALERT.getValue())))
+                .orderBy(OBSERVABILITY_EVENT.EVENT_TIME, false);
         Page<ObservabilityEvent> page = this.page(Page.of(query.getPage(), query.getPageSize()), wrapper);
         Page<ObservabilityEventVO> voPage = new Page<>(page.getPageNumber(), page.getPageSize(), page.getTotalRow());
         voPage.setRecords(page.getRecords().stream().map(this::getEventVO).collect(Collectors.toList()));
@@ -153,8 +155,8 @@ public class ObservabilityEventServiceImpl extends ServiceImpl<ObservabilityEven
     @Override
     public ApiSummaryVO getApiSummary(ObservabilityEventQueryRequest request) {
         QueryWrapper wrapper = getBaseQueryWrapper(request == null ? new ObservabilityEventQueryRequest() : request);
-        List<ObservabilityEvent> events = this.list(wrapper.in("event_type", List.of(
-                ObservabilityEventTypeEnum.SLOW_API.getValue(), ObservabilityEventTypeEnum.API_ERROR.getValue())));
+        List<ObservabilityEvent> events = this.list(wrapper.and(OBSERVABILITY_EVENT.EVENT_TYPE.in(List.of(
+                ObservabilityEventTypeEnum.SLOW_API.getValue(), ObservabilityEventTypeEnum.API_ERROR.getValue()))));
         ApiSummaryVO vo = new ApiSummaryVO();
         vo.setSlowApiCount(events.stream()
                 .filter(event -> ObservabilityEventTypeEnum.SLOW_API.getValue().equals(event.getEventType()))
@@ -175,8 +177,8 @@ public class ObservabilityEventServiceImpl extends ServiceImpl<ObservabilityEven
     @Override
     public List<ErrorTrendBucketVO> listErrorTrend(ObservabilityEventQueryRequest request) {
         QueryWrapper wrapper = getBaseQueryWrapper(request == null ? new ObservabilityEventQueryRequest() : request)
-                .eq("event_type", ObservabilityEventTypeEnum.API_ERROR.getValue())
-                .orderBy("event_time", true);
+                .and(OBSERVABILITY_EVENT.EVENT_TYPE.eq(ObservabilityEventTypeEnum.API_ERROR.getValue()))
+                .orderBy(OBSERVABILITY_EVENT.EVENT_TIME, true);
         Map<String, ErrorTrendBucketVO> bucketMap = new LinkedHashMap<>();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:00");
         for (ObservabilityEvent event : this.list(wrapper)) {
@@ -213,13 +215,15 @@ public class ObservabilityEventServiceImpl extends ServiceImpl<ObservabilityEven
      */
     private QueryWrapper getBaseQueryWrapper(ObservabilityEventQueryRequest request) {
         QueryWrapper wrapper = QueryWrapper.create();
-        wrapper.eq("event_type", request.getEventType(), StringUtils.isNotBlank(request.getEventType()));
-        wrapper.eq("event_level", request.getEventLevel(), StringUtils.isNotBlank(request.getEventLevel()));
-        wrapper.like("request_path", request.getRequestPath(), StringUtils.isNotBlank(request.getRequestPath()));
-        wrapper.eq("ip_address", request.getIpAddress(), StringUtils.isNotBlank(request.getIpAddress()));
-        wrapper.like("account_identifier", request.getAccountIdentifier(), StringUtils.isNotBlank(request.getAccountIdentifier()));
-        wrapper.ge("event_time", request.getStartTime(), request.getStartTime() != null);
-        wrapper.le("event_time", request.getEndTime(), request.getEndTime() != null);
+        wrapper.where(OBSERVABILITY_EVENT.EVENT_TYPE.eq(request.getEventType(), StringUtils.isNotBlank(request.getEventType())));
+        wrapper.and(OBSERVABILITY_EVENT.EVENT_LEVEL.eq(request.getEventLevel(), StringUtils.isNotBlank(request.getEventLevel())));
+        wrapper.and(OBSERVABILITY_EVENT.REQUEST_PATH.like(request.getRequestPath(),
+                StringUtils.isNotBlank(request.getRequestPath())));
+        wrapper.and(OBSERVABILITY_EVENT.IP_ADDRESS.eq(request.getIpAddress(), StringUtils.isNotBlank(request.getIpAddress())));
+        wrapper.and(OBSERVABILITY_EVENT.ACCOUNT_IDENTIFIER.like(request.getAccountIdentifier(),
+                StringUtils.isNotBlank(request.getAccountIdentifier())));
+        wrapper.and(OBSERVABILITY_EVENT.EVENT_TIME.ge(request.getStartTime(), request.getStartTime() != null));
+        wrapper.and(OBSERVABILITY_EVENT.EVENT_TIME.le(request.getEndTime(), request.getEndTime() != null));
         return wrapper;
     }
 
