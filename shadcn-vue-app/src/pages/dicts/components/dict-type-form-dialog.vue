@@ -156,7 +156,8 @@ async function handleSubmit() {
       <div v-else class="grid gap-4 py-2">
         <div class="space-y-2">
           <UiLabel>{{ t('pages.dicts.columns.dictCode') }}</UiLabel>
-          <UiInput v-model="form.dictCode" :placeholder="t('pages.dicts.typeForm.codePlaceholder')" />
+          <!-- 字典编码创建后作为稳定标识，编辑时不允许修改。 -->
+          <UiInput v-model="form.dictCode" :disabled="isEdit" :placeholder="t('pages.dicts.typeForm.codePlaceholder')" />
         </div>
 
         <div class="space-y-2">
