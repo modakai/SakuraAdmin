@@ -167,7 +167,7 @@ async function handleSubmit() {
       </UiButton>
     </UiDialogTrigger>
 
-    <UiDialogContent class="max-w-4xl max-h-[90vh] overflow-y-auto">
+    <UiDialogContent class="max-h-[92vh] w-[calc(100vw-2rem)] max-w-6xl overflow-y-auto sm:max-w-6xl">
       <UiDialogHeader>
         <UiDialogTitle>{{ isEdit ? '编辑协议' : '新增协议' }}</UiDialogTitle>
         <UiDialogDescription>
@@ -233,7 +233,8 @@ async function handleSubmit() {
 
         <div class="space-y-2">
           <UiLabel>协议内容</UiLabel>
-          <AgreementRichEditor v-model="form.content" />
+          <!-- 为长协议正文预留更大的编辑区域，减少频繁滚动。 -->
+          <AgreementRichEditor v-model="form.content" :height="520" />
         </div>
       </div>
 

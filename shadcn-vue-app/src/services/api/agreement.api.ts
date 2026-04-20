@@ -15,6 +15,11 @@ import { useApiFetch } from '@/composables/use-fetch'
 import type { IResponse } from '../types/response.type'
 
 /**
+ * 协议类型对应字典类型中的 agreement 协议分类。
+ */
+export const AGREEMENT_TYPE_DICT_CODE = 'agreement'
+
+/**
  * 获取协议分页列表。
  */
 export function useGetAgreementPageQuery(query: AgreementQuery) {
@@ -74,7 +79,7 @@ export function useGetAgreementTypeOptionsQuery() {
     queryKey: ['agreement-type-options'],
     queryFn: async () => await apiFetch<IResponse<DictOption[]>>('/dict/map', {
       method: 'get',
-      query: { dictCode: 'agreement_type' },
+      query: { dictCode: AGREEMENT_TYPE_DICT_CODE },
     }),
   })
 }

@@ -35,7 +35,7 @@ public class AgreementServiceImpl extends ServiceImpl<AgreementMapper, Agreement
     /**
      * 协议类型字典编码。
      */
-    private static final String AGREEMENT_TYPE_DICT_CODE = "agreement_type";
+    private static final String AGREEMENT_TYPE_DICT_CODE = "agreement";
 
     /**
      * 字典模块 API，用于校验协议类型是否为启用字典值。
