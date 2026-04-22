@@ -234,7 +234,18 @@ public class AuthServiceImpl implements AuthService {
         if (user == null) {
             return null;
         }
-        return converter.convert(user, LoginUserVO.class);
+        // 登录用户视图手写映射，避免 MapStruct Plus 在 user 模块生成依赖 auth 模块的 mapper。
+        LoginUserVO loginUserVO = new LoginUserVO();
+        loginUserVO.setId(user.getId());
+        loginUserVO.setUserAccount(user.getUserAccount());
+        loginUserVO.setUserName(user.getUserName());
+        loginUserVO.setUserAvatar(user.getUserAvatar());
+        loginUserVO.setUserProfile(user.getUserProfile());
+        loginUserVO.setUserRole(user.getUserRole());
+        loginUserVO.setStatus(user.getStatus());
+        loginUserVO.setCreateTime(user.getCreateTime());
+        loginUserVO.setUpdateTime(user.getUpdateTime());
+        return loginUserVO;
     }
 
     /**

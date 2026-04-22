@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { toast } from 'vue-sonner'
-
 import { BasicPage } from '@/components/global-layout'
 import { Button } from '@/components/ui/button'
+import { useGetDashboardStatisticsQuery } from '@/services/api/dashboard.api'
 
 import OverviewContent from './components/overview-content.vue'
 
@@ -14,6 +13,9 @@ const tabs = ref([
 ])
 
 const activeTab = ref(tabs.value[0].value)
+const dashboardQuery = useGetDashboardStatisticsQuery()
+
+const statistics = computed(() => dashboardQuery.data.value?.data)
 </script>
 
 <template>
@@ -24,11 +26,10 @@ const activeTab = ref(tabs.value[0].value)
   >
     <template #actions>
       <Button
-        @click="() => toast('hello', {
-          position: 'top-center',
-        })"
+        :disabled="dashboardQuery.isFetching.value"
+        @click="() => dashboardQuery.refetch()"
       >
-        {{ $t('download') }}
+        刷新数据
       </Button>
     </template>
 
@@ -43,7 +44,13 @@ const activeTab = ref(tabs.value[0].value)
         </UiTabsTrigger>
       </UiTabsList>
       <UiTabsContent value="overview" class="space-y-4">
-        <OverviewContent />
+        <OverviewContent
+          :statistics="statistics"
+          :loading="dashboardQuery.isLoading.value"
+          :fetching="dashboardQuery.isFetching.value"
+          :error="dashboardQuery.error.value"
+          @retry="dashboardQuery.refetch"
+        />
       </UiTabsContent>
     </UiTabs>
   </BasicPage>

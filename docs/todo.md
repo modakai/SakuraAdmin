@@ -17,7 +17,7 @@
 
 ## P2 优化扩展
 - [x] 全局Loading与请求防抖
-- [ ] 引入Mapstruct
+- [x] 引入Mapstruct
 - [x] Fesod Excel导入导出
 - [x] 前后端多环境配置
 - [x] 项目README开发部署文档
