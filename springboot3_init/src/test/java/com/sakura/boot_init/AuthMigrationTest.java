@@ -94,12 +94,15 @@ class AuthMigrationTest {
         TokenManager tokenManager = new TokenManager(createDefaultTokenProperties());
         MockHttpServletRequest primaryRequest = new MockHttpServletRequest();
         MockHttpServletRequest compatibilityRequest = new MockHttpServletRequest();
+        MockHttpServletRequest lowerCaseBearerRequest = new MockHttpServletRequest();
 
         primaryRequest.addHeader("Authorization", "Bearer main-token");
         compatibilityRequest.addHeader("token", "legacy-token");
+        lowerCaseBearerRequest.addHeader("Authorization", "bearer lower-token");
 
         assertEquals("main-token", tokenManager.resolveToken(primaryRequest));
         assertEquals("legacy-token", tokenManager.resolveToken(compatibilityRequest));
+        assertEquals("lower-token", tokenManager.resolveToken(lowerCaseBearerRequest));
     }
 
     /**

@@ -49,6 +49,11 @@ spring:
       database: 1
       timeout: 5000
 
+# 数据库预热默认关闭，需要时通过 datasource.warmup.enabled=true 显式开启。
+datasource:
+  warmup:
+    enabled: false
+
 token:
   header-name: Authorization
   header-prefix: "Bearer "

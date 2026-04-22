@@ -22,9 +22,18 @@ mybatis-flex:
   configuration:
     log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
 
+# 数据库预热默认关闭，需要时通过 datasource.warmup.enabled=true 显式开启。
+datasource:
+  warmup:
+    enabled: true
+
+# 日志配置
 logging:
   level:
+#    mybatis-flex 日志配置
     com.sakura.boot_init.user.repository: debug
+    com.sakura.boot_init.notification.repository: debug
+    com.sakura.boot_init.observability.repository: debug
     com.sakura.boot_init.agreement.repository: debug
     com.sakura.boot_init.dict.repository: debug
     com.sakura.boot_init.audit.repository: debug

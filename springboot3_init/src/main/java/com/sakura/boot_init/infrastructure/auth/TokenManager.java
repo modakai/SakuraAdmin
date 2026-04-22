@@ -167,7 +167,8 @@ public class TokenManager {
             return StringUtils.trim(tokenHeaderValue);
         }
         if (StringUtils.startsWithIgnoreCase(tokenHeaderValue, tokenProperties.getHeaderPrefix())) {
-            return StringUtils.trim(StringUtils.substringAfter(tokenHeaderValue, tokenProperties.getHeaderPrefix()));
+            // 前缀判断已经忽略大小写，截取时也必须按同一套规则处理，不能再依赖大小写敏感的 substringAfter。
+            return StringUtils.trim(tokenHeaderValue.substring(tokenProperties.getHeaderPrefix().length()));
         }
         return null;
     }

@@ -1,6 +1,11 @@
 {
   "properties": [
     {
+      "name": "datasource.warmup.enabled",
+      "type": "java.lang.Boolean",
+      "description": "是否在应用启动后异步预热数据库连接池。默认关闭，避免数据库不可用时阻塞启动。"
+    },
+    {
       "name": "cos.client.accessKey",
       "type": "java.lang.String",
       "description": "Description for cos.client.accessKey."
