@@ -117,7 +117,7 @@ The system SHALL link high-risk observability events with audit logging and syst
 
 ### Requirement: Operations frontend pages
 
-The system SHALL provide backend administrator pages for system status, API monitoring and security events.
+The system SHALL provide backend administrator pages for system status, API monitoring and security events, while keeping Dashboard business statistics out of the observability operations pages.
 
 #### Scenario: Administrator opens system status page
 
@@ -134,6 +134,11 @@ The system SHALL provide backend administrator pages for system status, API moni
 - **WHEN** an authorized administrator opens the security event page
 - **THEN** the page displays login failure statistics, abnormal IP records, force logout records and related notification or audit entry links when available
 
+#### Scenario: Administrator opens business Dashboard page
+
+- **WHEN** an authorized administrator opens the business Dashboard page for user, notification, operation log, login trend, and recent operation summaries
+- **THEN** the page uses the Dashboard statistics API rather than observability operations APIs
+
 ### Requirement: Sensitive data protection
 
 The system SHALL sanitize observability events before storage and presentation.
@@ -147,4 +152,3 @@ The system SHALL sanitize observability events before storage and presentation.
 
 - **WHEN** an exception includes a full stack trace
 - **THEN** the system stores only a bounded exception type and message summary in observability event records
-
