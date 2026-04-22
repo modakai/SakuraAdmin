@@ -38,7 +38,8 @@ public class AuthInterceptor {
         }
         UserRoleEnum mustRoleEnum = UserRoleEnum.getEnumByValue(mustRole);
         if (mustRoleEnum == null) {
-            return joinPoint.proceed();
+            // 配置的角色值无法解析时必须默认拒绝，避免鉴权注解失效导致接口被误放行。
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
 
         UserRoleEnum userRoleEnum = UserRoleEnum.getEnumByValue(loginUser.userRole());
