@@ -1,0 +1,92 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #f6f7fb;
+}
+
+html[data-theme="dark"],
+html[data-theme="dark"] body,
+html[data-theme="dark"] #app {
+  background: #101014;
+}
+
+body {
+  color: #1f2937;
+  font-family:
+    "Segoe UI",
+    "Microsoft YaHei",
+    "PingFang SC",
+    system-ui,
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.admin-page {
+  min-height: 100vh;
+}
+
+.admin-main {
+  min-height: calc(100vh - 64px);
+  padding: var(--admin-page-space, 18px);
+  background:
+    radial-gradient(circle at top right, rgba(24, 160, 88, 0.08), transparent 32%),
+    #f6f7fb;
+}
+
+html[data-theme="dark"] .admin-main {
+  background:
+    radial-gradient(circle at top right, rgba(24, 160, 88, 0.16), transparent 32%),
+    #101014;
+}
+
+html[data-density="compact"] {
+  --admin-page-space: 12px;
+}
+
+.admin-card {
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(31, 41, 55, 0.05);
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.table-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@media (max-width: 980px) {
+  .filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-main {
+    padding: 12px;
+  }
+
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
