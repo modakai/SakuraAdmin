@@ -6,7 +6,12 @@ import MetricCard from '../components/admin/MetricCard.vue'
 import EChartPanel from '../components/admin/EChartPanel.vue'
 import { errorTrend, slowApis, type ObservabilityEventItem } from '../mock/admin'
 
-const query = reactive({ requestPath: '', ipAddress: '' })
+const query = reactive({
+  requestPath: '',
+  ipAddress: '',
+  // Naive UI Date Picker 使用时间戳数组表示日期时间范围。
+  timeRange: null as [number, number] | null,
+})
 const columns = [
   { title: '路径', key: 'requestPath' },
   { title: '方法', key: 'httpMethod' },
@@ -66,7 +71,13 @@ const errorTrendOption = computed(() => ({
       <div class="filter-grid">
         <n-input v-model:value="query.requestPath" placeholder="请求路径" />
         <n-input v-model:value="query.ipAddress" placeholder="IP 地址" />
-        <n-input type="datetime-local" />
+        <n-date-picker
+          v-model:value="query.timeRange"
+          type="datetimerange"
+          clearable
+          start-placeholder="开始时间"
+          end-placeholder="结束时间"
+        />
         <n-button type="primary">查询</n-button>
       </div>
     </n-card>
