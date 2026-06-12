@@ -52,6 +52,28 @@
 - MySQL 8.x
 - Redis 6+
 
+## 复制模板初始化新项目
+
+当前仓库提供 `scripts/init-project.ps1`，用于把模板复制后的项目名、后端包名、数据库名、端口、Docker 容器名、前端标题和默认管理员信息批量初始化。
+
+建议先执行 DryRun：
+
+```powershell
+.\scripts\init-project.ps1 `
+  -ProjectName "DemoApp" `
+  -JavaPackage "com.sakura.demo" `
+  -DatabaseName "demo_app" `
+  -BackendPort 8201 `
+  -FrontendPort 5174 `
+  -AppTitle "Demo App" `
+  -DockerPrefix "demo-app" `
+  -AdminUsername "admin" `
+  -AdminPassword "ChangeMe123!" `
+  -DryRun
+```
+
+确认输出无误后去掉 `-DryRun` 执行真实初始化。详细说明见 `docs/new-project-init.md`。
+
 ## 快速脚手架启动
 
 项目现在提供两条启动路径：本地开发启动和 Docker Compose 一体化启动。首次体验模板时，优先推荐 Docker Compose；需要调试源码时，使用本地开发启动。

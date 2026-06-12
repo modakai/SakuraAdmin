@@ -55,6 +55,10 @@ export default defineConfig({
       dts: 'src/types/auto-import-components.d.ts',
     }),
   ],
+  server: {
+    // 初始化脚本会替换该端口，确保复制模板后前端开发服务地址可预测。
+    port: 5173,
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
