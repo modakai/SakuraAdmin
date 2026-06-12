@@ -37,6 +37,15 @@ spring:
       connection-timeout: 30000
       # 启动时校验至少一个连接可用，把连接异常暴露在启动阶段。
       initialization-fail-timeout: 1
+  flyway:
+    # 默认启用 Flyway，由应用启动时执行数据库版本化迁移。
+    enabled: true
+    # 默认配置使用 MySQL 迁移脚本；PostgreSQL 通过 postgres profile 覆盖。
+    locations: classpath:db/migration/mysql
+    # 允许接管已经用旧 SQL 初始化过的非空库，避免重放初始化脚本覆盖现有数据。
+    baseline-on-migrate: true
+    # 旧 SQL 已包含建表和初始化数据，因此已有库从 V2 作为基线继续演进。
+    baseline-version: 2
 
   # 文件上传
   servlet:

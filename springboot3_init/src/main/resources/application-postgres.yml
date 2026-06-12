@@ -1,0 +1,28 @@
+# PostgreSQL 环境配置文件。
+# 默认 profile 仍使用 MySQL；需要验证 PostgreSQL 时使用 --spring.profiles.active=postgres。
+server:
+  port: 8101
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/sakura_boot_init
+    username: postgres
+    password: postgres
+  flyway:
+    # PostgreSQL 使用独立 SQL 方言迁移目录，避免与 MySQL 脚本混用。
+    locations: classpath:db/migration/postgresql
+    # 已有 PostgreSQL 库也按 V2 基线接管，后续新增迁移从 V3 开始。
+    baseline-on-migrate: true
+    baseline-version: 2
+  data:
+    redis:
+      database: 1
+      host: localhost
+      port: 6379
+      timeout: 5000
+      password:
+
+mybatis-flex:
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl

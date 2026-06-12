@@ -13,8 +13,6 @@ services:
       - "${MYSQL_PORT:-3306}:3306"
     volumes:
       - sakura-mysql-data:/var/lib/mysql
-      - ./springboot3_init/sql/create_table.sql:/docker-entrypoint-initdb.d/01-create-table.sql:ro
-      - ./springboot3_init/sql/init_data.sql:/docker-entrypoint-initdb.d/02-init-data.sql:ro
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -48,8 +46,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      redis-init:
-        condition: service_completed_successfully
     environment:
       # Spring Boot 支持通过环境变量覆盖 application-prod.yml。
       SPRING_PROFILES_ACTIVE: prod
@@ -69,6 +65,8 @@ services:
       WX_MP_SECRET: ${WX_MP_SECRET:-}
       WX_OPEN_APP_ID: ${WX_OPEN_APP_ID:-}
       WX_OPEN_APP_SECRET: ${WX_OPEN_APP_SECRET:-}
+      # 数据库结构和初始化数据由 Flyway 在 API 启动阶段迁移。
+      SPRING_FLYWAY_LOCATIONS: classpath:db/migration/mysql
     ports:
       - "${API_PORT:-8101}:8101"
 

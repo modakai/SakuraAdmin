@@ -140,8 +140,13 @@ function Get-TargetFiles {
         'springboot3_init\pom.xml',
         'springboot3_init\src\main\resources\application.yml',
         'springboot3_init\src\main\resources\application-dev.yml',
+        'springboot3_init\src\main\resources\application-postgres.yml',
         'springboot3_init\src\main\resources\application-prod.yml',
         'springboot3_init\src\main\resources\application-test.yml',
+        'springboot3_init\src\main\resources\db\migration\mysql\V1__create_schema.sql',
+        'springboot3_init\src\main\resources\db\migration\mysql\V2__seed_initial_data.sql',
+        'springboot3_init\src\main\resources\db\migration\postgresql\V1__create_schema.sql',
+        'springboot3_init\src\main\resources\db\migration\postgresql\V2__seed_initial_data.sql',
         'springboot3_init\sql\mysql\create_table.sql',
         'springboot3_init\sql\mysql\init_data.sql',
         'springboot3_init\sql\postgresql\create_table.sql',
@@ -363,13 +368,17 @@ $rules = @(
     New-ReplacementRule -Old $TemplatePackagePath -New $NewPackagePath
     New-ReplacementRule -Old "'$TemplateAdminUsername'" -New "'$AdminUsername'" -PathPatterns @(
         'README.md',
+        'springboot3_init\src\main\resources\db\migration\mysql\V2__seed_initial_data.sql',
+        'springboot3_init\src\main\resources\db\migration\postgresql\V2__seed_initial_data.sql',
         'springboot3_init\sql\mysql\init_data.sql',
         'springboot3_init\sql\postgresql\init_data.sql'
     )
     New-ReplacementRule -Old '默认超级管理员账号：sakura，密码：' -New "默认超级管理员账号：$AdminUsername，密码：" -PathPatterns @(
+        'springboot3_init\src\main\resources\db\migration\postgresql\V2__seed_initial_data.sql',
         'springboot3_init\sql\postgresql\init_data.sql'
     )
     New-ReplacementRule -Old '账号：sakura，密码：' -New "账号：$AdminUsername，密码：" -PathPatterns @(
+        'springboot3_init\src\main\resources\db\migration\mysql\V2__seed_initial_data.sql',
         'springboot3_init\sql\mysql\init_data.sql'
     )
     New-ReplacementRule -Old "账号：$TemplateAdminUsername" -New "账号：$AdminUsername" -PathPatterns @('README.md')
@@ -387,12 +396,16 @@ $rules = @(
     )
     New-ReplacementRule -Old $TemplateAdminPassword -New $AdminPassword -PathPatterns @(
         'README.md',
+        'springboot3_init\src\main\resources\db\migration\mysql\V2__seed_initial_data.sql',
+        'springboot3_init\src\main\resources\db\migration\postgresql\V2__seed_initial_data.sql',
         'springboot3_init\sql\mysql\init_data.sql',
         'springboot3_init\sql\postgresql\init_data.sql',
         'shadcn-vue-app\src\pages\auth\components\login-form.vue',
         'shadcn-vue-app\src\plugins\i18n\*.json'
     )
     New-ReplacementRule -Old $TemplatePasswordHash -New $AdminPasswordHash -PathPatterns @(
+        'springboot3_init\src\main\resources\db\migration\mysql\V2__seed_initial_data.sql',
+        'springboot3_init\src\main\resources\db\migration\postgresql\V2__seed_initial_data.sql',
         'springboot3_init\sql\mysql\init_data.sql',
         'springboot3_init\sql\postgresql\init_data.sql'
     )

@@ -23,6 +23,8 @@
 - Spring Boot 3.5.4
 - MyBatis-Flex
 - MySQL 8.x
+- PostgreSQL 兼容迁移脚本
+- Flyway
 - Redis
 - Lombok
 - Hutool
@@ -78,20 +80,21 @@
 
 项目现在提供两条启动路径：本地开发启动和 Docker Compose 一体化启动。首次体验模板时，优先推荐 Docker Compose；需要调试源码时，使用本地开发启动。
 
-### 默认初始化数据
+### 数据库迁移与默认初始化数据
 
-初始化数据脚本位于：
-
-```text
-springboot3_init/sql/init_data.sql
-```
-
-如果需要 PostgreSQL 版本，可使用：
+后端接入 Flyway，应用启动时会自动执行数据库结构和初始化数据迁移。默认 MySQL 迁移脚本位于：
 
 ```text
-springboot3_init/sql/postgresql/create_table.sql
-springboot3_init/sql/postgresql/init_data.sql
+springboot3_init/src/main/resources/db/migration/mysql
 ```
+
+PostgreSQL 迁移脚本位于：
+
+```text
+springboot3_init/src/main/resources/db/migration/postgresql
+```
+
+已有数据库如果曾经用旧 SQL 初始化过，Flyway 会按 `baseline-version=2` 接管，后续新增迁移从 `V3__...sql` 开始。迁移记录可在业务库的 `flyway_schema_history` 表中查看。
 
 默认管理员账号：
 
@@ -110,7 +113,7 @@ springboot3_init/sql/postgresql/init_data.sql
 | --- | --- | --- | --- |
 | 前端 Nginx | `sakura-web` | `80` | 托管前端静态资源，并代理 `/api` |
 | 后端 API | `sakura-api` | `8101` | Spring Boot 服务 |
-| MySQL | `sakura-mysql` | `3306` | 首次启动自动执行建表和初始化数据 |
+| MySQL | `sakura-mysql` | `3306` | 提供业务数据库，结构和初始化数据由 API 启动时的 Flyway 迁移完成 |
 | Redis | `sakura-redis` | `6379` | Token、在线用户和系统配置缓存 |
 
 启动命令：
@@ -152,11 +155,11 @@ docker compose down -v
 docker compose up -d --build
 ```
 
-注意：MySQL 官方镜像只会在数据目录为空时执行 `/docker-entrypoint-initdb.d` 下的 SQL。已有数据卷时，修改 `create_table.sql` 或 `init_data.sql` 不会自动重新导入，需要手动导入或删除 volume 后重建。
+注意：数据库结构和初始化数据由 Flyway 管理。已有数据卷不会自动重放 V1/V2 初始化脚本；如果需要重新体验首次初始化，可删除 volume 后重建，或手动清理数据库和 `flyway_schema_history` 后再启动。
 
 ### 本地开发脚本
 
-如果你已经在本机启动 MySQL 和 Redis，并完成 SQL 导入，可以使用：
+如果你已经在本机启动 MySQL 和 Redis，可以使用：
 
 ```powershell
 ./scripts/dev.ps1
@@ -164,24 +167,23 @@ docker compose up -d --build
 
 脚本会检查 `java`、`mvn`、`pnpm` 是否可用，并分别打开后端和前端开发服务窗口。脚本不会静默修改数据库，也不会删除已有数据。
 
-### 1. 初始化 MySQL
+### 1. 初始化数据库
 
-本地默认数据库名为 `sakura_boot_init`，后端开发环境默认使用 `root/root` 连接本机 MySQL：
+本地默认数据库名为 `sakura_boot_init`，后端开发环境默认使用 `root/root` 连接本机 MySQL。请先创建空数据库，表结构和初始化数据会在后端启动时由 Flyway 自动迁移：
 
 ```bash
-mysql -uroot -proot < springboot3_init/sql/create_table.sql
-mysql -uroot -proot sakura_boot_init < springboot3_init/sql/init_data.sql
+mysql -uroot -proot -e "create database if not exists sakura_boot_init character set utf8mb4 collate utf8mb4_unicode_ci;"
 ```
 
-PostgreSQL 初始化脚本在 `springboot3_init/sql/postgresql` 目录下。由于当前后端默认依赖 MySQL 驱动和 MySQL 方言，PostgreSQL 脚本主要用于结构参考或后续适配 PostgreSQL 时初始化数据库：
+如需验证 PostgreSQL，先创建空库，然后使用 `postgres` profile 启动后端：
 
 ```bash
 createdb sakura_boot_init
-psql -d sakura_boot_init -f springboot3_init/sql/postgresql/create_table.sql
-psql -d sakura_boot_init -f springboot3_init/sql/postgresql/init_data.sql
+cd springboot3_init
+mvn spring-boot:run -Dspring-boot.run.profiles=postgres
 ```
 
-如果你的 MySQL 用户名、密码或端口不同，优先在 `springboot3_init/.env.local` 覆盖后端配置，避免直接改动公共配置文件。
+如果你的数据库用户名、密码或端口不同，优先在 `springboot3_init/.env.local` 覆盖后端配置，避免直接改动公共配置文件。旧的 `springboot3_init/sql/mysql` 和 `springboot3_init/sql/postgresql` 目录仅作为历史初始化脚本参考。
 
 ### 2. 启动 Redis
 
@@ -304,17 +306,18 @@ oss.bucketName=sakura-init
 | `OSS_ACCESS_KEY` | OSS AccessKey |
 | `OSS_SECRET_KEY` | OSS SecretKey |
 
-## MySQL / Redis 初始化
+## 数据库 / Redis 初始化
 
-### MySQL
+### 数据库
 
-初始化脚本：
+数据库迁移脚本：
 
 ```text
-springboot3_init/sql/create_table.sql
+springboot3_init/src/main/resources/db/migration/mysql
+springboot3_init/src/main/resources/db/migration/postgresql
 ```
 
-脚本会创建数据库 `sakura_boot_init` 并创建业务表。当前脚本只包含建库建表，不包含默认用户数据。
+应用启动时由 Flyway 自动执行迁移，并在业务库中维护 `flyway_schema_history`。已有旧 SQL 初始化过的库会按 V2 基线接管，不会重新执行建表和初始化数据脚本。
 
 ### Redis
 
@@ -327,7 +330,7 @@ Redis 用于保存登录 Token 与登录用户缓存，默认 key 前缀：
 
 ## 默认账号
 
-当前仓库提供了初始化数据脚本，导入 `springboot3_init/sql/init_data.sql` 后可使用默认管理员登录。
+当前仓库通过 Flyway V2 初始化数据创建默认管理员，空库首次启动后可直接登录。
 
 默认账号：
 
@@ -451,7 +454,7 @@ pnpm preview
 
 ### 没有管理员账号
 
-当前初始化脚本没有内置管理员。先注册一个普通账号，再把该账号的 `user_role` 更新为 `admin`。
+确认后端已成功执行 Flyway V2 初始化数据，可检查 `flyway_schema_history` 和 `user` 表。若是已有旧库被基线接管，Flyway 不会重放初始化数据；此时可先注册一个普通账号，再把该账号的 `user_role` 更新为 `admin`。
 
 ### Docker 构建依赖下载慢
 
