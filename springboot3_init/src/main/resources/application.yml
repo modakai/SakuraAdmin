@@ -24,7 +24,6 @@ spring:
     import:
       - optional:file:.env[.properties]
       - optional:file:.env.${spring.profiles.active}[.properties]
-      - optional:file:.env.local[.properties]
   # 数据库配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
