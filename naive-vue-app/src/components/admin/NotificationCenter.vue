@@ -1,21 +1,38 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { NotificationsOutline } from '@vicons/ionicons5'
-import { notifications } from '../../mock/admin'
+import { getClientNotifications, getUnreadCount, markAllNotificationsRead, markNotificationRead } from '../../services/api'
+import type { NotificationItem } from '../../services/types'
 
-const unreadIds = ref(new Set(notifications.filter(item => item.status === 'published').map(item => item.id)))
-const unreadCount = computed(() => unreadIds.value.size)
+const notifications = ref<NotificationItem[]>([])
+const unreadCount = ref(0)
+const loading = ref(false)
+const hasNotifications = computed(() => notifications.value.length > 0)
 
-function markRead(id: number) {
-  // 使用 Set 复制触发 Vue 响应式更新。
-  const next = new Set(unreadIds.value)
-  next.delete(id)
-  unreadIds.value = next
+async function loadNotifications() {
+  loading.value = true
+  try {
+    // 顶栏通知中心只读取后台接收端消息，避免展示脱离后端状态的数据。
+    const [items, count] = await Promise.all([getClientNotifications('admin'), getUnreadCount('admin')])
+    notifications.value = items
+    unreadCount.value = count
+  }
+  finally {
+    loading.value = false
+  }
 }
 
-function markAllRead() {
-  unreadIds.value = new Set()
+async function markRead(id: number) {
+  await markNotificationRead(id, 'admin')
+  await loadNotifications()
 }
+
+async function markAllRead() {
+  await markAllNotificationsRead('admin')
+  await loadNotifications()
+}
+
+onMounted(loadNotifications)
 </script>
 
 <template>
@@ -30,13 +47,14 @@ function markAllRead() {
 
     <div class="notice-head">
       <strong>通知中心</strong>
-      <n-button text size="small" @click="markAllRead">全部已读</n-button>
+      <n-button text size="small" :loading="loading" @click="markAllRead">全部已读</n-button>
     </div>
-    <n-list hoverable>
+    <n-empty v-if="!hasNotifications" description="暂无通知" />
+    <n-list v-else hoverable>
       <n-list-item v-for="item in notifications" :key="item.id">
         <n-thing :title="item.title" :description="`${item.receiverType} · ${item.updateTime}`">
           <template #header-extra>
-            <n-tag v-if="unreadIds.has(item.id)" size="small" type="success" @click="markRead(item.id)">未读</n-tag>
+            <n-tag v-if="!item.read" size="small" type="success" @click="markRead(item.id)">未读</n-tag>
             <n-tag v-else size="small">已读</n-tag>
           </template>
         </n-thing>

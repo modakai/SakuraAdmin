@@ -1,23 +1,66 @@
 <script setup lang="ts">
-import { h, ref } from 'vue'
+import { h, onMounted, reactive, ref } from 'vue'
 import { NButton, useDialog, useMessage } from 'naive-ui'
 import PageShell from '../components/admin/PageShell.vue'
-import { onlineUsers, type OnlineUserItem } from '../mock/admin'
+import { forceLogoutOnlineUser, getOnlineUserPage } from '../services/api'
+import type { OnlineUserItem } from '../services/types'
 
 const message = useMessage()
 const dialog = useDialog()
-const rows = ref<OnlineUserItem[]>([...onlineUsers])
+const loading = ref(false)
+const rows = ref<OnlineUserItem[]>([])
+const total = ref(0)
+const query = reactive({ userAccount: '', userName: '', userRole: '', loginIp: '' })
+const pagination = reactive({
+  page: 1,
+  pageSize: 10,
+  itemCount: 0,
+  onUpdatePage: (page: number) => {
+    pagination.page = page
+    loadRows()
+  },
+})
+
+async function loadRows() {
+  loading.value = true
+  try {
+    // 在线用户来自 Redis 会话仓库，页面不再使用静态 mock 会话。
+    const page = await getOnlineUserPage({ page: pagination.page, pageSize: pagination.pageSize, ...query })
+    rows.value = page.records
+    total.value = page.totalRow
+    pagination.itemCount = page.totalRow
+  }
+  catch (error: any) {
+    rows.value = []
+    total.value = 0
+    pagination.itemCount = 0
+    message.error(error?.message || '加载在线用户失败')
+  }
+  finally {
+    loading.value = false
+  }
+}
+
+function handleSearch() {
+  pagination.page = 1
+  loadRows()
+}
 
 function forceLogout(row: OnlineUserItem) {
-  // 在线用户页面只模拟强退动作，不调用真实会话服务。
   dialog.warning({
     title: '强制下线',
-    content: `确认强制 ${row.userAccount} 下线？`,
+    content: `确认强制 ${row.userAccount || row.sessionId} 下线？`,
     positiveText: '强退',
     negativeText: '取消',
-    onPositiveClick: () => {
-      rows.value = rows.value.filter(item => item.id !== row.id)
-      message.success('用户已下线')
+    onPositiveClick: async () => {
+      try {
+        await forceLogoutOnlineUser(row.sessionId)
+        message.success('用户已下线')
+        await loadRows()
+      }
+      catch (error: any) {
+        message.error(error?.message || '强制下线失败')
+      }
     },
   })
 }
@@ -27,19 +70,31 @@ const columns = [
   { title: '昵称', key: 'userName' },
   { title: '角色', key: 'userRole' },
   { title: '登录 IP', key: 'loginIp' },
-  { title: '登录地点', key: 'loginLocation' },
+  { title: '客户端', key: 'clientInfo' },
   { title: '登录时间', key: 'loginTime' },
+  { title: '最后访问', key: 'lastAccessTime' },
   { title: '操作', key: 'actions', render: (row: OnlineUserItem) => h(NButton, { size: 'small', type: 'warning', ghost: true, onClick: () => forceLogout(row) }, { default: () => '强制下线' }) },
 ]
+
+onMounted(loadRows)
 </script>
 
 <template>
-  <PageShell title="在线用户" description="查看当前后台在线会话，并支持 mock 强制下线。">
+  <PageShell title="在线用户" description="查看当前后台在线会话，并支持强制下线。">
     <template #actions>
-      <n-button @click="message.success('在线用户已刷新')">刷新</n-button>
+      <n-button :loading="loading" @click="loadRows">刷新</n-button>
     </template>
-    <n-card class="admin-card" title="在线会话">
-      <n-data-table :columns="columns" :data="rows" :pagination="{ pageSize: 10 }" />
+    <n-card class="admin-card" title="筛选条件">
+      <div class="filter-grid">
+        <n-input v-model:value="query.userAccount" placeholder="账号" clearable @keyup.enter="handleSearch" />
+        <n-input v-model:value="query.userName" placeholder="昵称" clearable @keyup.enter="handleSearch" />
+        <n-input v-model:value="query.userRole" placeholder="角色" clearable @keyup.enter="handleSearch" />
+        <n-input v-model:value="query.loginIp" placeholder="登录 IP" clearable @keyup.enter="handleSearch" />
+        <n-button type="primary" @click="handleSearch">查询</n-button>
+      </div>
+    </n-card>
+    <n-card class="admin-card" title="在线会话" style="margin-top: 16px">
+      <n-data-table :columns="columns" :data="rows" :loading="loading" :pagination="pagination" remote />
     </n-card>
   </PageShell>
 </template>

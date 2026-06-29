@@ -1,53 +1,133 @@
 <script setup lang="ts">
-import { computed, h, reactive, ref } from 'vue'
+import { computed, h, onMounted, reactive, ref, watch } from 'vue'
 import { NButton, NSpace, NTag, useMessage } from 'naive-ui'
 import PageShell from '../components/admin/PageShell.vue'
-import { dictItems, dictTypes, nextId, type DictItemItem, type DictTypeItem } from '../mock/admin'
+import {
+  createDictItem,
+  createDictType,
+  deleteDictItemById,
+  deleteDictTypeById,
+  getDictItemPage,
+  getDictTypePage,
+  updateDictItem,
+  updateDictType,
+} from '../services/api'
+import type { DictItemItem, DictTypeItem, EntityId } from '../services/types'
 
 const message = useMessage()
-const types = ref<DictTypeItem[]>([...dictTypes])
-const items = ref<DictItemItem[]>([...dictItems])
-const selectedTypeId = ref(types.value[0]?.id ?? 0)
+const typeLoading = ref(false)
+const itemLoading = ref(false)
+const types = ref<DictTypeItem[]>([])
+const items = ref<DictItemItem[]>([])
+const selectedTypeId = ref<EntityId>('')
 const typeFormOpen = ref(false)
 const itemFormOpen = ref(false)
-const typeForm = reactive<DictTypeItem>({ id: 0, dictCode: '', dictName: '', status: 1, remark: '' })
-const itemForm = reactive<DictItemItem>({ id: 0, dictTypeId: selectedTypeId.value, dictLabel: '', dictValue: '', status: 1 })
+const typeForm = reactive<Partial<DictTypeItem>>({ id: '', dictCode: '', dictName: '', status: 1, remark: '' })
+const itemForm = reactive<Partial<DictItemItem>>({ id: '', dictTypeId: '', dictLabel: '', dictValue: '', sortOrder: 10, status: 1, tagType: '', remark: '' })
 const typeQuery = reactive({ keyword: '', status: null as null | number })
 const itemQuery = reactive({ keyword: '', status: null as null | number })
+const typePagination = reactive({
+  page: 1,
+  pageSize: 10,
+  itemCount: 0,
+  onUpdatePage: (page: number) => {
+    typePagination.page = page
+    loadTypes()
+  },
+})
+const itemPagination = reactive({
+  page: 1,
+  pageSize: 10,
+  itemCount: 0,
+  onUpdatePage: (page: number) => {
+    itemPagination.page = page
+    loadItems()
+  },
+})
 
-const filteredTypes = computed(() => types.value.filter((item) => {
-  const keyword = typeQuery.keyword.trim()
-  const matchKeyword = !keyword || item.dictCode.includes(keyword) || item.dictName.includes(keyword) || item.remark.includes(keyword)
-  const matchStatus = typeQuery.status === null || item.status === typeQuery.status
-  return matchKeyword && matchStatus
-}))
 const selectedType = computed(() => types.value.find(item => item.id === selectedTypeId.value) ?? null)
-const selectedItems = computed(() => items.value.filter((item) => {
-  const keyword = itemQuery.keyword.trim()
-  const matchType = item.dictTypeId === selectedTypeId.value
-  const matchKeyword = !keyword || item.dictLabel.includes(keyword) || item.dictValue.includes(keyword)
-  const matchStatus = itemQuery.status === null || item.status === itemQuery.status
-  return matchType && matchKeyword && matchStatus
-}))
 const enabledTypeCount = computed(() => types.value.filter(item => item.status === 1).length)
 const enabledItemCount = computed(() => items.value.filter(item => item.status === 1).length)
 
+async function loadTypes() {
+  typeLoading.value = true
+  try {
+    // 后端编码和名称条件按 AND 组合，快速搜索只映射名称，避免误过滤。
+    const keyword = typeQuery.keyword.trim()
+    const page = await getDictTypePage({
+      page: typePagination.page,
+      pageSize: typePagination.pageSize,
+      dictName: keyword,
+      status: typeQuery.status,
+    })
+    types.value = page.records
+    typePagination.itemCount = page.totalRow
+    if (!selectedTypeId.value && page.records.length > 0) {
+      selectedTypeId.value = page.records[0].id
+    }
+  }
+  catch (error: any) {
+    types.value = []
+    typePagination.itemCount = 0
+    message.error(error?.message || '加载字典类型失败')
+  }
+  finally {
+    typeLoading.value = false
+  }
+}
+
+async function loadItems() {
+  if (!selectedTypeId.value) {
+    items.value = []
+    return
+  }
+  itemLoading.value = true
+  try {
+    const page = await getDictItemPage({
+      page: itemPagination.page,
+      pageSize: itemPagination.pageSize,
+      dictTypeId: selectedTypeId.value,
+      dictLabel: itemQuery.keyword.trim(),
+      status: itemQuery.status,
+    })
+    items.value = page.records
+    itemPagination.itemCount = page.totalRow
+  }
+  catch (error: any) {
+    items.value = []
+    itemPagination.itemCount = 0
+    message.error(error?.message || '加载字典项失败')
+  }
+  finally {
+    itemLoading.value = false
+  }
+}
+
 function openTypeForm(row?: DictTypeItem) {
-  // 字典类型和字典项分开编辑，贴近源项目左右分栏结构。
-  Object.assign(typeForm, row ?? { id: 0, dictCode: '', dictName: '', status: 1, remark: '' })
+  // 编辑和新增共用同一表单，保存时按 id 判断调用新增或更新接口。
+  Object.assign(typeForm, row ?? { id: '', dictCode: '', dictName: '', status: 1, remark: '' })
   typeFormOpen.value = true
 }
 
-function saveType() {
-  if (typeForm.id) {
-    const index = types.value.findIndex(item => item.id === typeForm.id)
-    types.value[index] = { ...typeForm }
+async function saveType() {
+  if (!typeForm.dictCode || !typeForm.dictName) {
+    message.error('字典编码和名称不能为空')
+    return
   }
-  else {
-    types.value.push({ ...typeForm, id: nextId(types.value) })
+  try {
+    if (typeForm.id) {
+      await updateDictType(typeForm)
+    }
+    else {
+      await createDictType(typeForm)
+    }
+    message.success('字典类型已保存')
+    typeFormOpen.value = false
+    await loadTypes()
   }
-  message.success('字典类型已保存')
-  typeFormOpen.value = false
+  catch (error: any) {
+    message.error(error?.message || '保存字典类型失败')
+  }
 }
 
 function openItemForm(row?: DictItemItem) {
@@ -55,42 +135,67 @@ function openItemForm(row?: DictItemItem) {
     message.error('请先选择字典类型')
     return
   }
-  Object.assign(itemForm, row ?? { id: 0, dictTypeId: selectedTypeId.value, dictLabel: '', dictValue: '', status: 1 })
+  Object.assign(itemForm, row ?? { id: '', dictTypeId: selectedTypeId.value, dictLabel: '', dictValue: '', sortOrder: 10, status: 1, tagType: '', remark: '' })
   itemFormOpen.value = true
 }
 
-function saveItem() {
-  if (itemForm.id) {
-    const index = items.value.findIndex(item => item.id === itemForm.id)
-    items.value[index] = { ...itemForm }
+async function saveItem() {
+  if (!itemForm.dictLabel || !itemForm.dictValue) {
+    message.error('字典项标签和值不能为空')
+    return
   }
-  else {
-    items.value.push({ ...itemForm, id: nextId(items.value) })
+  try {
+    if (itemForm.id) {
+      await updateDictItem(itemForm)
+    }
+    else {
+      await createDictItem(itemForm)
+    }
+    message.success('字典项已保存')
+    itemFormOpen.value = false
+    await loadItems()
   }
-  message.success('字典项已保存')
-  itemFormOpen.value = false
+  catch (error: any) {
+    message.error(error?.message || '保存字典项失败')
+  }
 }
 
-function deleteType(row: DictTypeItem) {
-  types.value = types.value.filter(item => item.id !== row.id)
-  items.value = items.value.filter(item => item.dictTypeId !== row.id)
-  selectedTypeId.value = types.value[0]?.id ?? 0
-  message.success('字典类型已删除')
+async function deleteType(row: DictTypeItem) {
+  try {
+    await deleteDictTypeById(row.id)
+    message.success('字典类型已删除')
+    selectedTypeId.value = ''
+    await loadTypes()
+    await loadItems()
+  }
+  catch (error: any) {
+    message.error(error?.message || '删除字典类型失败')
+  }
 }
 
-function deleteItem(row: DictItemItem) {
-  items.value = items.value.filter(item => item.id !== row.id)
-  message.success('字典项已删除')
+async function deleteItem(row: DictItemItem) {
+  try {
+    await deleteDictItemById(row.id)
+    message.success('字典项已删除')
+    await loadItems()
+  }
+  catch (error: any) {
+    message.error(error?.message || '删除字典项失败')
+  }
 }
 
 function resetTypeQuery() {
   typeQuery.keyword = ''
   typeQuery.status = null
+  typePagination.page = 1
+  loadTypes()
 }
 
 function resetItemQuery() {
   itemQuery.keyword = ''
   itemQuery.status = null
+  itemPagination.page = 1
+  loadItems()
 }
 
 const typeColumns = [
@@ -103,9 +208,17 @@ const typeColumns = [
 const itemColumns = [
   { title: '标签', key: 'dictLabel' },
   { title: '值', key: 'dictValue' },
+  { title: '排序', key: 'sortOrder' },
   { title: '状态', key: 'status', render: (row: DictItemItem) => h(NTag, { type: row.status ? 'success' : 'default' }, { default: () => row.status ? '启用' : '停用' }) },
   { title: '操作', key: 'actions', render: (row: DictItemItem) => h(NSpace, { justify: 'end' }, { default: () => [h(NButton, { size: 'small', onClick: () => openItemForm(row) }, { default: () => '编辑' }), h(NButton, { size: 'small', type: 'error', ghost: true, onClick: () => deleteItem(row) }, { default: () => '删除' })] }) },
 ]
+
+watch(selectedTypeId, () => {
+  itemPagination.page = 1
+  loadItems()
+})
+
+onMounted(loadTypes)
 </script>
 
 <template>
@@ -133,24 +246,22 @@ const itemColumns = [
     <div class="dict-workspace">
       <n-card class="admin-card dict-card" title="字典类型">
         <div class="dict-toolbar">
-          <n-input v-model:value="typeQuery.keyword" placeholder="搜索编码、名称或备注" clearable />
-          <n-select
-            v-model:value="typeQuery.status"
-            clearable
-            placeholder="状态"
-            :options="[{ label: '启用', value: 1 }, { label: '停用', value: 0 }]"
-          />
+          <n-input v-model:value="typeQuery.keyword" placeholder="搜索编码或名称" clearable @keyup.enter="loadTypes" />
+          <n-select v-model:value="typeQuery.status" clearable placeholder="状态" :options="[{ label: '启用', value: 1 }, { label: '停用', value: 0 }]" />
+          <n-button type="primary" @click="loadTypes">查询</n-button>
           <n-button @click="resetTypeQuery">重置</n-button>
         </div>
         <n-data-table
           :columns="typeColumns"
-          :data="filteredTypes"
+          :data="types"
+          :loading="typeLoading"
           :row-key="(row: DictTypeItem) => row.id"
           :row-props="(row: DictTypeItem) => ({
             class: row.id === selectedTypeId ? 'dict-row dict-row--active' : 'dict-row',
             onClick: () => selectedTypeId = row.id,
           })"
-          :pagination="{ pageSize: 6 }"
+          :pagination="typePagination"
+          remote
         />
       </n-card>
 
@@ -169,22 +280,18 @@ const itemColumns = [
           </n-space>
         </div>
         <div class="dict-toolbar">
-          <n-input v-model:value="itemQuery.keyword" placeholder="搜索标签或值" clearable />
-          <n-select
-            v-model:value="itemQuery.status"
-            clearable
-            placeholder="状态"
-            :options="[{ label: '启用', value: 1 }, { label: '停用', value: 0 }]"
-          />
+          <n-input v-model:value="itemQuery.keyword" placeholder="搜索标签或值" clearable @keyup.enter="loadItems" />
+          <n-select v-model:value="itemQuery.status" clearable placeholder="状态" :options="[{ label: '启用', value: 1 }, { label: '停用', value: 0 }]" />
+          <n-button type="primary" @click="loadItems">查询</n-button>
           <n-button @click="resetItemQuery">重置</n-button>
         </div>
-        <n-data-table :columns="itemColumns" :data="selectedItems" :pagination="{ pageSize: 6 }" />
+        <n-data-table :columns="itemColumns" :data="items" :loading="itemLoading" :pagination="itemPagination" remote />
       </n-card>
     </div>
 
     <n-modal v-model:show="typeFormOpen" preset="card" title="字典类型" style="width: 520px">
       <n-form :model="typeForm" label-placement="left" label-width="88">
-        <n-form-item label="编码"><n-input v-model:value="typeForm.dictCode" /></n-form-item>
+        <n-form-item label="编码"><n-input v-model:value="typeForm.dictCode" :disabled="!!typeForm.id" /></n-form-item>
         <n-form-item label="名称"><n-input v-model:value="typeForm.dictName" /></n-form-item>
         <n-form-item label="启用"><n-switch :value="typeForm.status === 1" @update:value="(value: boolean) => typeForm.status = value ? 1 : 0" /></n-form-item>
         <n-form-item label="备注"><n-input v-model:value="typeForm.remark" type="textarea" /></n-form-item>
@@ -196,7 +303,9 @@ const itemColumns = [
       <n-form :model="itemForm" label-placement="left" label-width="88">
         <n-form-item label="标签"><n-input v-model:value="itemForm.dictLabel" /></n-form-item>
         <n-form-item label="值"><n-input v-model:value="itemForm.dictValue" /></n-form-item>
+        <n-form-item label="排序"><n-input-number v-model:value="itemForm.sortOrder" /></n-form-item>
         <n-form-item label="启用"><n-switch :value="itemForm.status === 1" @update:value="(value: boolean) => itemForm.status = value ? 1 : 0" /></n-form-item>
+        <n-form-item label="备注"><n-input v-model:value="itemForm.remark" type="textarea" /></n-form-item>
       </n-form>
       <template #footer><n-space justify="end"><n-button @click="itemFormOpen = false">取消</n-button><n-button type="primary" @click="saveItem">保存</n-button></n-space></template>
     </n-modal>
@@ -224,7 +333,7 @@ const itemColumns = [
 
 .dict-toolbar {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) 120px auto;
+  grid-template-columns: minmax(180px, 1fr) 120px auto auto;
   gap: 10px;
   margin-bottom: 14px;
 }

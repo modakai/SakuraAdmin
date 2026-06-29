@@ -76,9 +76,8 @@ const menuOptions = [
 
 const selectedKey = computed(() => route.path)
 
-function logout() {
-  // 本地 mock 登出只清理浏览器保存的登录态。
-  session.logout()
+async function logout() {
+  await session.logout()
   message.success('已退出后台')
   router.push('/login')
 }

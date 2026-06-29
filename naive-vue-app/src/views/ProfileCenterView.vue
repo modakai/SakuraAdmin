@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { computed, reactive, watchEffect } from 'vue'
 import { useMessage } from 'naive-ui'
 import PageShell from '../components/admin/PageShell.vue'
+import CommonImageUpload from '../components/upload/CommonImageUpload.vue'
+import { updateMyPassword, updateMyUser } from '../services/api'
 import { useAppearanceStore } from '../stores/appearance'
 import { useSessionStore } from '../stores/session'
 
@@ -11,10 +13,10 @@ const appearance = useAppearanceStore()
 
 const profile = reactive({
   name: session.user.name,
-  email: session.user.email,
-  phone: '138****2026',
-  department: '平台运营部',
-  bio: '负责后台运营、系统配置和安全审计。',
+  account: session.user.account,
+  role: session.user.role,
+  bio: session.user.profile,
+  avatar: session.user.avatar,
 })
 
 const passwordForm = reactive({
@@ -23,20 +25,43 @@ const passwordForm = reactive({
   confirmPassword: '',
 })
 
-const loginLogs = [
-  { time: '2026-06-07 19:40:12', ip: '127.0.0.1', location: '本机', status: '成功' },
-  { time: '2026-06-06 18:20:10', ip: '10.0.0.18', location: '内网', status: '成功' },
-  { time: '2026-06-05 09:31:44', ip: '203.0.113.8', location: '未知', status: '失败' },
-]
+const avatarUploadModel = computed({
+  get: () => profile.avatar ? [profile.avatar] : [],
+  set: (urls: string[]) => {
+    // 头像上传组件对外使用数组模型，个人资料接口只保存单个头像 URL。
+    profile.avatar = urls[0] ?? ''
+  },
+})
+const avatarInitial = computed(() => {
+  // 头像图片不可用时使用姓名首字母兜底，避免空名称导致页面渲染异常。
+  return profile.name.trim().slice(0, 1) || 'S'
+})
 
-function saveProfile() {
-  // 本地 mock 保存，同时更新顶部展示名称。
-  session.user.name = profile.name
-  session.user.email = profile.email
-  message.success('个人资料已保存')
+watchEffect(() => {
+  // 登录态刷新后同步到表单，避免顶部用户信息和个人中心信息不一致。
+  profile.name = session.user.name
+  profile.account = session.user.account
+  profile.role = session.user.role
+  profile.bio = session.user.profile
+  profile.avatar = session.user.avatar
+})
+
+async function saveProfile() {
+  try {
+    await updateMyUser({
+      userName: profile.name,
+      userAvatar: profile.avatar,
+      userProfile: profile.bio,
+    })
+    await session.refreshCurrentUser()
+    message.success('个人资料已保存')
+  }
+  catch (error: any) {
+    message.error(error?.message || '保存个人资料失败')
+  }
 }
 
-function updatePassword() {
+async function updatePassword() {
   if (!passwordForm.oldPassword || !passwordForm.newPassword) {
     message.error('请填写当前密码和新密码')
     return
@@ -45,23 +70,30 @@ function updatePassword() {
     message.error('两次新密码不一致')
     return
   }
-  Object.assign(passwordForm, { oldPassword: '', newPassword: '', confirmPassword: '' })
-  message.success('密码已更新，mock 环境不会真实修改后端密码')
+  try {
+    await updateMyPassword(passwordForm.oldPassword, passwordForm.newPassword, passwordForm.confirmPassword)
+    Object.assign(passwordForm, { oldPassword: '', newPassword: '', confirmPassword: '' })
+    message.success('密码已更新')
+  }
+  catch (error: any) {
+    message.error(error?.message || '更新密码失败')
+  }
 }
 </script>
 
 <template>
-  <PageShell title="个人中心" description="后台管理员的资料、安全设置、界面偏好和最近登录记录。">
+  <PageShell title="个人中心" description="后台管理员的资料、安全设置和界面偏好。">
     <n-grid :cols="3" :x-gap="16" :y-gap="16" responsive="screen">
       <n-grid-item span="1">
         <n-card class="admin-card profile-card">
-          <n-avatar :size="72" color="#18a058">{{ profile.name.slice(0, 1) }}</n-avatar>
+          <n-avatar v-if="profile.avatar" :size="72" :src="profile.avatar" color="#18a058" />
+          <n-avatar v-else :size="72" color="#18a058">{{ avatarInitial }}</n-avatar>
           <h2>{{ profile.name }}</h2>
-          <p>{{ session.user.role }}</p>
+          <p>{{ profile.role }}</p>
           <n-descriptions :column="1" bordered size="small">
-            <n-descriptions-item label="邮箱">{{ profile.email }}</n-descriptions-item>
-            <n-descriptions-item label="部门">{{ profile.department }}</n-descriptions-item>
-            <n-descriptions-item label="手机号">{{ profile.phone }}</n-descriptions-item>
+            <n-descriptions-item label="账号">{{ profile.account }}</n-descriptions-item>
+            <n-descriptions-item label="角色">{{ profile.role }}</n-descriptions-item>
+            <n-descriptions-item label="简介">{{ profile.bio || '-' }}</n-descriptions-item>
           </n-descriptions>
         </n-card>
       </n-grid-item>
@@ -72,9 +104,15 @@ function updatePassword() {
             <n-card class="admin-card">
               <n-form :model="profile" label-placement="left" label-width="86">
                 <n-form-item label="姓名"><n-input v-model:value="profile.name" /></n-form-item>
-                <n-form-item label="邮箱"><n-input v-model:value="profile.email" /></n-form-item>
-                <n-form-item label="手机号"><n-input v-model:value="profile.phone" /></n-form-item>
-                <n-form-item label="部门"><n-input v-model:value="profile.department" /></n-form-item>
+                <n-form-item label="账号"><n-input v-model:value="profile.account" disabled /></n-form-item>
+                <n-form-item label="头像">
+                  <CommonImageUpload
+                    v-model="avatarUploadModel"
+                    variant="avatar"
+                    :max="1"
+                    tips="支持 jpeg、jpg、svg、png、webp，单张不超过 1MB"
+                  />
+                </n-form-item>
                 <n-form-item label="简介"><n-input v-model:value="profile.bio" type="textarea" :rows="4" /></n-form-item>
               </n-form>
               <n-space justify="end"><n-button type="primary" @click="saveProfile">保存资料</n-button></n-space>
@@ -108,20 +146,6 @@ function updatePassword() {
                   </n-radio-group>
                 </n-form-item>
               </n-form>
-            </n-card>
-          </n-tab-pane>
-
-          <n-tab-pane name="logs" tab="最近登录">
-            <n-card class="admin-card">
-              <n-data-table
-                :columns="[
-                  { title: '时间', key: 'time' },
-                  { title: 'IP', key: 'ip' },
-                  { title: '地点', key: 'location' },
-                  { title: '状态', key: 'status' },
-                ]"
-                :data="loginLogs"
-              />
             </n-card>
           </n-tab-pane>
         </n-tabs>

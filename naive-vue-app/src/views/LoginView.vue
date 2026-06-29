@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import { useSessionStore } from '../stores/session'
@@ -8,12 +8,26 @@ const router = useRouter()
 const message = useMessage()
 const session = useSessionStore()
 const form = reactive({ account: 'sakura', password: '12345678' })
+const loading = ref(false)
 
-function handleLogin() {
-  // 复刻后台入口，不接真实认证接口。
-  session.login()
-  message.success('已进入 mock 后台')
-  router.push('/dashboard')
+async function handleLogin() {
+  if (!form.account || !form.password) {
+    message.error('请输入账号和密码')
+    return
+  }
+  loading.value = true
+  try {
+    // 登录成功后保存后端 token，后续后台接口会自动携带鉴权请求头。
+    await session.login(form.account, form.password)
+    message.success('已进入后台')
+    router.push('/dashboard')
+  }
+  catch (error: any) {
+    message.error(error?.message || '登录失败')
+  }
+  finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -33,7 +47,7 @@ function handleLogin() {
           <n-form-item label="密码">
             <n-input v-model:value="form.password" type="password" show-password-on="click" />
           </n-form-item>
-          <n-button type="primary" block size="large" @click="handleLogin">进入后台</n-button>
+          <n-button type="primary" block size="large" :loading="loading" @click="handleLogin">进入后台</n-button>
         </n-form>
       </n-card>
     </section>

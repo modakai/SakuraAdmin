@@ -1,59 +1,39 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useMessage } from 'naive-ui'
 import PageShell from '../components/admin/PageShell.vue'
 import MetricCard from '../components/admin/MetricCard.vue'
 import EChartPanel from '../components/admin/EChartPanel.vue'
+import { getDashboardStatistics } from '../services/api'
+import type { DashboardStatistics } from '../services/types'
 
+const message = useMessage()
 const loading = ref(false)
-const cards = [
-  { title: '用户总数', value: 1280, hint: '较昨日 +24' },
-  { title: '今日活跃', value: 326, hint: '活跃率 25.5%' },
-  { title: '通知触达', value: '93.8%', hint: '近 24 小时' },
-  { title: '慢接口', value: 12, hint: '需要关注' },
-]
+const statistics = ref<DashboardStatistics | null>(null)
 
-const workspaceTrend = [
-  { day: '周一', visits: 420, activeUsers: 168 },
-  { day: '周二', visits: 680, activeUsers: 231 },
-  { day: '周三', visits: 520, activeUsers: 206 },
-  { day: '周四', visits: 760, activeUsers: 284 },
-  { day: '周五', visits: 610, activeUsers: 246 },
-  { day: '周六', visits: 910, activeUsers: 326 },
-  { day: '周日', visits: 740, activeUsers: 298 },
-]
-
-const moduleUsage = [
-  { name: '用户管理', value: 32 },
-  { name: '通知公告', value: 24 },
-  { name: '审计日志', value: 18 },
-  { name: '运维监控', value: 16 },
-  { name: '字典协议', value: 10 },
-]
+const cards = computed(() => [
+  { title: '用户总数', value: statistics.value?.summary.userTotalCount ?? 0, hint: '当前未删除用户' },
+  { title: '今日新增', value: statistics.value?.summary.todayNewUserCount ?? 0, hint: '今日注册用户' },
+  { title: '通知数量', value: statistics.value?.summary.notificationCount ?? 0, hint: '已发布通知公告' },
+  { title: '操作日志', value: statistics.value?.summary.operationLogCount ?? 0, hint: '后台审计记录' },
+])
 
 const trendOption = computed(() => ({
-  color: ['#18a058', '#2080f0'],
+  color: ['#18a058'],
   tooltip: { trigger: 'axis' },
-  legend: { top: 0, data: ['访问量', '活跃用户'] },
-  grid: { top: 42, right: 22, bottom: 28, left: 42 },
+  grid: { top: 24, right: 22, bottom: 28, left: 42 },
   xAxis: {
     type: 'category',
-    data: workspaceTrend.map(item => item.day),
+    data: (statistics.value?.loginTrend ?? []).map(item => item.label),
   },
   yAxis: { type: 'value' },
   series: [
     {
-      name: '访问量',
-      type: 'bar',
-      barWidth: 18,
-      itemStyle: { borderRadius: [5, 5, 0, 0] },
-      data: workspaceTrend.map(item => item.visits),
-    },
-    {
-      name: '活跃用户',
+      name: '登录次数',
       type: 'line',
       smooth: true,
       symbolSize: 7,
-      data: workspaceTrend.map(item => item.activeUsers),
+      data: (statistics.value?.loginTrend ?? []).map(item => item.loginCount),
     },
   ],
 }))
@@ -64,25 +44,35 @@ const moduleUsageOption = computed(() => ({
   legend: { bottom: 0 },
   series: [
     {
-      name: '模块使用',
+      name: '操作模块',
       type: 'pie',
       radius: ['42%', '68%'],
       center: ['50%', '43%'],
-      avoidLabelOverlap: true,
-      data: moduleUsage,
+      data: (statistics.value?.recentOperations ?? []).slice(0, 6).map(item => ({ name: item.module || '未知模块', value: 1 })),
     },
   ],
 }))
 
-function refresh() {
-  // mock 刷新只模拟后台工作台的刷新反馈。
+async function refresh() {
   loading.value = true
-  window.setTimeout(() => (loading.value = false), 600)
+  try {
+    // 工作台聚合数据来自后端 dashboard 统计接口。
+    statistics.value = await getDashboardStatistics()
+  }
+  catch (error: any) {
+    statistics.value = null
+    message.error(error?.message || '加载工作台失败')
+  }
+  finally {
+    loading.value = false
+  }
 }
+
+onMounted(refresh)
 </script>
 
 <template>
-  <PageShell title="workspace" description="workspace description">
+  <PageShell title="工作台" description="后台关键指标、登录趋势和最近操作概览。">
     <template #actions>
       <n-button type="primary" :loading="loading" @click="refresh">刷新数据</n-button>
     </template>
@@ -94,22 +84,28 @@ function refresh() {
         </div>
         <n-grid class="dashboard-section" :cols="2" :x-gap="16" :y-gap="16" responsive="screen">
           <n-grid-item>
-            <n-card class="admin-card" title="访问趋势">
+            <n-card class="admin-card" title="登录趋势">
               <EChartPanel :option="trendOption" />
             </n-card>
           </n-grid-item>
           <n-grid-item>
-            <n-card class="admin-card" title="模块使用占比">
+            <n-card class="admin-card" title="最近操作模块">
               <EChartPanel :option="moduleUsageOption" />
             </n-card>
           </n-grid-item>
           <n-grid-item>
             <n-card class="admin-card" title="最近动态">
               <n-timeline>
-                <n-timeline-item type="success" title="管理员登录" content="sakura 从本机进入后台" time="19:40" />
-                <n-timeline-item title="用户状态更新" content="operator 启用了一个普通用户" time="18:12" />
-                <n-timeline-item type="warning" title="慢接口告警" content="/api/audit/log/export 耗时 1280ms" time="18:40" />
+                <n-timeline-item
+                  v-for="item in statistics?.recentOperations ?? []"
+                  :key="item.id"
+                  :type="item.result === 'success' ? 'success' : 'error'"
+                  :title="item.action"
+                  :content="`${item.operator} · ${item.module} · ${item.ipAddress}`"
+                  :time="item.operationTime"
+                />
               </n-timeline>
+              <n-empty v-if="!statistics?.recentOperations?.length" description="暂无操作记录" />
             </n-card>
           </n-grid-item>
         </n-grid>

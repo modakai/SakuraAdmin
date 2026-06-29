@@ -44,7 +44,7 @@ spring:
     # 允许接管已经用旧 SQL 初始化过的非空库，避免重放初始化脚本覆盖现有数据。
     baseline-on-migrate: true
     # 旧 SQL 已包含建表和初始化数据，因此已有库从 V2 作为基线继续演进。
-    baseline-version: 1
+    baseline-version: 2
 
   # 文件上传
   servlet:
@@ -107,7 +107,7 @@ wx:
     appSecret: ${WX_OPEN_APP_SECRET:xxx}
 # 对象存储
 oss:
-  enable: false
+  enable: true
   # 对应云厂商的站点域名
   endpoint: oss-cn-shenzhen.aliyuncs.com
   # 对应云厂商桶的绑定域名
