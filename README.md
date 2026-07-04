@@ -2,7 +2,7 @@
 
 这是一个前后端分离的后台管理模板，根目录下包含 Vue 管理端和 Spring Boot 3 后端服务：
 
-- `shadcn-vue-app`：前端项目，基于 shadcn-vue-admin 改造。
+- `naive-vue-app`：前端管理端，基于 Vue 3 与 Naive UI。
 - `springboot3_init`：后端项目，提供用户、权限、字典、协议、通知、审计等基础能力。
 
 ## 技术栈
@@ -10,11 +10,10 @@
 ### 前端
 
 - Vue 3 + TypeScript + Vite
-- shadcn-vue + Reka UI + Tailwind CSS
-- Pinia + pinia-plugin-persistedstate
+- Naive UI
+- Pinia
 - vue-router
-- ofetch
-- Vitest + ESLint
+- Fetch API
 - pnpm
 
 ### 后端
@@ -37,7 +36,7 @@
 
 ```text
 .
-├── shadcn-vue-app/     # 前端管理端
+├── naive-vue-app/      # 前端管理端
 ├── springboot3_init/   # Spring Boot 后端
 ├── docs/               # 项目过程文档
 └── README.md           # 项目级说明
@@ -216,12 +215,12 @@ mvn spring-boot:run
 ### 4. 启动前端
 
 ```bash
-cd shadcn-vue-app
+cd naive-vue-app
 pnpm install
 pnpm dev
 ```
 
-前端开发环境默认通过 `shadcn-vue-app/.env.development` 请求：
+前端开发环境默认通过 Vite 环境变量请求：
 
 ```text
 VITE_SERVER_API_URL=http://localhost:8101
@@ -232,18 +231,13 @@ VITE_SERVER_API_PREFIX=/api
 
 ### 前端环境变量
 
-前端环境变量位于 `shadcn-vue-app/.env.*`。
+前端环境变量由 `naive-vue-app` 的 Vite 配置读取，可通过 `.env.*` 文件或 Docker 构建参数注入。
 
 | 变量 | 默认值 | 说明 |
 | --- | --- | --- |
 | `VITE_SERVER_API_URL` | 开发环境为 `http://localhost:8101` | 后端服务根地址，不要以 `/` 结尾 |
 | `VITE_SERVER_API_PREFIX` | `/api` | 后端接口统一前缀，不要以 `/` 结尾 |
 | `VITE_SERVER_API_TIMEOUT` | 开发环境为 `5000` | 接口超时时间，单位毫秒 |
-| `VITE_AUTH_TOKEN_HEADER_NAME` | `Authorization` | 主 Token 请求头名称 |
-| `VITE_AUTH_TOKEN_HEADER_PREFIX` | `Bearer ` | 主 Token 请求头前缀 |
-| `VITE_AUTH_COMPATIBILITY_TOKEN_HEADER_ENABLED` | `true` | 是否同时发送兼容旧接口的 Token 请求头 |
-| `VITE_AUTH_COMPATIBILITY_TOKEN_HEADER_NAME` | `token` | 兼容旧接口的 Token 请求头名称 |
-| `VITE_APP_TITLE` | `Sakura Admin` | 前端应用标题 |
 
 前端真实请求地址由以下规则拼接：
 
@@ -414,7 +408,7 @@ docker run --name sakura-admin-api -p 8101:8101 --env SPRING_PROFILES_ACTIVE=pro
 ### 前端打包
 
 ```bash
-cd shadcn-vue-app
+cd naive-vue-app
 pnpm install
 pnpm build
 ```
@@ -422,7 +416,7 @@ pnpm build
 构建产物位于：
 
 ```text
-shadcn-vue-app/dist
+naive-vue-app/dist
 ```
 
 部署到 Nginx 时，将 `dist` 作为静态站点目录，并确保 `VITE_SERVER_API_URL` 指向生产后端地址。
@@ -430,7 +424,7 @@ shadcn-vue-app/dist
 ### 前端预览
 
 ```bash
-cd shadcn-vue-app
+cd naive-vue-app
 pnpm preview
 ```
 

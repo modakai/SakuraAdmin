@@ -213,7 +213,7 @@ sys_upload_record
   - `fileSize`
   - `createTime`
 
-该接口只用于上传成功记录的后台排查和审计。`naive-vue-app` 提供上传记录页面和左侧菜单入口，`shadcn-vue-app` 不再承载该功能。
+该接口只用于上传成功记录的后台排查和审计。`naive-vue-app` 提供上传记录页面和左侧菜单入口。
 
 ## 后端限流
 

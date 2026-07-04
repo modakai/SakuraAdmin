@@ -59,7 +59,7 @@ Set-Location DemoApp
 - 后端 `application*.yml` 中的端口、数据库名、应用名和包名引用。
 - MySQL / PostgreSQL 初始化 SQL 中的数据库名、默认管理员账号、默认管理员密码说明和密码 hash。
 - Java 源码、测试代码和 MyBatis XML 中的根包名。
-- `shadcn-vue-app` 的应用标题、API 地址、Vite 开发端口和 package name。
+- `naive-vue-app` 的应用标题、API 地址、Vite 开发端口和 package name。
 
 ## 脚本不会处理的内容
 
@@ -67,7 +67,7 @@ Set-Location DemoApp
 - 不会创建数据库、启动 MySQL、启动 Redis 或执行 SQL。
 - 不会自动安装 pnpm 依赖。
 - 不会自动提交 Git。
-- 不会处理 `naive-vue-app`，当前主线默认是 `shadcn-vue-app`。
+- 不会处理已移除的旧前端目录；当前主线默认是 `naive-vue-app`。
 
 ## 初始化后检查清单
 
@@ -80,7 +80,7 @@ Set-Location springboot3_init
 mvn -DskipTests compile
 
 # 前端构建。
-Set-Location ..\shadcn-vue-app
+Set-Location ..\naive-vue-app
 pnpm build
 
 # 回到项目根目录检查明显模板残留。

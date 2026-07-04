@@ -72,17 +72,12 @@ services:
 
   web:
     build:
-      context: ./shadcn-vue-app
+      context: ./naive-vue-app
       args:
         # 默认将前端暴露到宿主机 80 端口，因此浏览器访问 http://localhost/api。
         VITE_SERVER_API_URL: ${VITE_SERVER_API_URL:-http://localhost}
         VITE_SERVER_API_PREFIX: ${VITE_SERVER_API_PREFIX:-/api}
         VITE_SERVER_API_TIMEOUT: ${VITE_SERVER_API_TIMEOUT:-8000}
-        VITE_AUTH_TOKEN_HEADER_NAME: ${VITE_AUTH_TOKEN_HEADER_NAME:-Authorization}
-        VITE_AUTH_TOKEN_HEADER_PREFIX: ${VITE_AUTH_TOKEN_HEADER_PREFIX:-Bearer }
-        VITE_AUTH_COMPATIBILITY_TOKEN_HEADER_ENABLED: ${VITE_AUTH_COMPATIBILITY_TOKEN_HEADER_ENABLED:-true}
-        VITE_AUTH_COMPATIBILITY_TOKEN_HEADER_NAME: ${VITE_AUTH_COMPATIBILITY_TOKEN_HEADER_NAME:-token}
-        VITE_APP_TITLE: ${VITE_APP_TITLE:-Sakura Admin}
     container_name: sakura-web
     restart: unless-stopped
     depends_on:
