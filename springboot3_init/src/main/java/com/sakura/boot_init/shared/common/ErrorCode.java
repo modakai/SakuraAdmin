@@ -2,7 +2,7 @@ package com.sakura.boot_init.shared.common;
 
 /**
  * 错误码定义。
- *
+ * <p>
  * 作者：Sakura
  */
 public enum ErrorCode {
@@ -13,6 +13,8 @@ public enum ErrorCode {
     NO_AUTH_ERROR(40101, "error.no_auth", "无权限"),
     NOT_FOUND_ERROR(40400, "error.not_found", "请求数据不存在"),
     FORBIDDEN_ERROR(40300, "error.forbidden", "禁止访问"),
+    // 42900 表示业务限流，前端可以据此展示“稍后再试”。
+    TOO_MANY_REQUESTS(42900, "error.too_many_requests", "请求过于频繁，请稍后再试"),
     SYSTEM_ERROR(50000, "error.system", "系统内部异常"),
     OPERATION_ERROR(50001, "error.operation", "操作失败");
 

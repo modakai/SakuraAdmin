@@ -197,6 +197,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
+                    <!-- 保留方法参数名，确保 @RateLimit 的 SpringEL 可以使用 #biz 这类参数名表达式。 -->
+                    <parameters>true</parameters>
                     <!-- 显式声明所有注解处理器，确保 Lombok、MyBatis-Flex、MapStruct Plus 都能稳定生成代码。 -->
                     <annotationProcessorPaths>
                         <path>
