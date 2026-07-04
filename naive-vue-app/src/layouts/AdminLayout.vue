@@ -1,26 +1,16 @@
 <script setup lang="ts">
 import { computed, h, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
+import type { MenuOption } from 'naive-ui'
 import { NIcon, useMessage } from 'naive-ui'
 import {
-  AlertCircleOutline,
-  AnalyticsOutline,
-  BookOutline,
-  CloudUploadOutline,
-  DocumentTextOutline,
-  HomeOutline,
   LogOutOutline,
   MoonOutline,
-  NotificationsOutline,
-  PeopleOutline,
-  PersonCircleOutline,
-  PulseOutline,
-  ServerOutline,
-  SettingsOutline,
   SunnyOutline,
 } from '@vicons/ionicons5'
 import CommandPalette from '../components/admin/CommandPalette.vue'
 import NotificationCenter from '../components/admin/NotificationCenter.vue'
+import { navigationRegistry, type NavigationNode, type NavigationPage } from '../router/navigation'
 import { useAppearanceStore } from '../stores/appearance'
 import { useSessionStore } from '../stores/session'
 
@@ -39,42 +29,43 @@ function menuLink(label: string, to: string) {
   return () => h(RouterLink, { to }, { default: () => label })
 }
 
-const menuOptions = [
-  { label: menuLink('工作台', '/dashboard'), key: '/dashboard', icon: renderIcon(HomeOutline) },
-  {
-    label: '系统管理',
-    key: 'system',
-    icon: renderIcon(SettingsOutline),
-    children: [
-      { label: menuLink('用户管理', '/users'), key: '/users', icon: renderIcon(PeopleOutline) },
-      { label: menuLink('在线用户', '/online-users'), key: '/online-users', icon: renderIcon(PulseOutline) },
-      { label: menuLink('字典管理', '/dicts'), key: '/dicts', icon: renderIcon(BookOutline) },
-      { label: menuLink('协议管理', '/agreements'), key: '/agreements', icon: renderIcon(DocumentTextOutline) },
-      { label: menuLink('上传记录', '/upload-records'), key: '/upload-records', icon: renderIcon(CloudUploadOutline) },
-    ],
-  },
-  {
-    label: '运维监控',
-    key: 'observability',
-    icon: renderIcon(AnalyticsOutline),
-    children: [
-      { label: menuLink('系统状态', '/observability/system-status'), key: '/observability/system-status', icon: renderIcon(ServerOutline) },
-      { label: menuLink('接口监控', '/observability/api-monitor'), key: '/observability/api-monitor', icon: renderIcon(AnalyticsOutline) },
-      { label: menuLink('安全事件', '/observability/security-events'), key: '/observability/security-events', icon: renderIcon(AlertCircleOutline) },
-    ],
-  },
-  {
-    label: '系统设置',
-    key: 'settings',
-    icon: renderIcon(SettingsOutline),
-    children: [
-      { label: menuLink('通知公告', '/notifications'), key: '/notifications', icon: renderIcon(NotificationsOutline) },
-      { label: menuLink('消息模板', '/notification-templates'), key: '/notification-templates', icon: renderIcon(DocumentTextOutline) },
-      { label: menuLink('审计日志', '/audit-logs'), key: '/audit-logs', icon: renderIcon(AlertCircleOutline) },
-      { label: menuLink('个人中心', '/profile'), key: '/profile', icon: renderIcon(PersonCircleOutline) },
-    ],
-  },
-]
+function createPageMenuOption(page: NavigationPage): MenuOption | null {
+  if (page.visibleInMenu === false) {
+    return null
+  }
+
+  return {
+    label: menuLink(page.title, page.path),
+    key: page.path,
+    icon: renderIcon(page.icon),
+  }
+}
+
+function createMenuOption(node: NavigationNode): MenuOption | null {
+  if (node.kind === 'page') {
+    return createPageMenuOption(node)
+  }
+
+  const children = node.children
+    .map(createPageMenuOption)
+    .filter((option): option is MenuOption => option !== null)
+
+  // 菜单分组没有可见子页面时不渲染，避免出现空折叠菜单。
+  if (children.length === 0) {
+    return null
+  }
+
+  return {
+    label: node.title,
+    key: node.key,
+    icon: renderIcon(node.icon),
+    children,
+  }
+}
+
+const menuOptions = computed(() => navigationRegistry
+  .map(createMenuOption)
+  .filter((option): option is MenuOption => option !== null))
 
 const selectedKey = computed(() => route.path)
 
