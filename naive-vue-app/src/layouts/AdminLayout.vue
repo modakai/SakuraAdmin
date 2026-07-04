@@ -8,11 +8,11 @@ import {
   MoonOutline,
   SunnyOutline,
 } from '@vicons/ionicons5'
-import CommandPalette from '../components/admin/CommandPalette.vue'
-import NotificationCenter from '../components/admin/NotificationCenter.vue'
-import { navigationRegistry, type NavigationNode, type NavigationPage } from '../router/navigation'
-import { useAppearanceStore } from '../stores/appearance'
-import { useSessionStore } from '../stores/session'
+import NotificationCenter from '@/features/notifications/ui/NotificationCenter.vue'
+import { navigationRegistry, type NavigationNode, type NavigationPage } from '@/app/router/navigation'
+import CommandPalette from '@/shared/ui/CommandPalette.vue'
+import { useAppearanceStore } from '@/stores/appearance'
+import { useSessionStore } from '@/stores/session'
 
 const route = useRoute()
 const router = useRouter()

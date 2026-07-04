@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
-import { getLoginUser, loginByPassword, logoutRequest } from '../services/api'
-import { TOKEN_STORAGE_KEY, USER_STORAGE_KEY } from '../services/request'
-import type { LoginUser } from '../services/types'
+import { getLoginUser, loginByPassword, logoutRequest } from '@/features/auth/api'
+import type { LoginUser } from '@/features/auth/model'
+import { TOKEN_STORAGE_KEY, USER_STORAGE_KEY } from '@/shared/api/request'
 
 function readStoredUser(): LoginUser | null {
   const raw = localStorage.getItem(USER_STORAGE_KEY)
