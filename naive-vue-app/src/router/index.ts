@@ -12,6 +12,7 @@ import ObservabilitySecurityView from '../views/ObservabilitySecurityView.vue'
 import NotificationsView from '../views/NotificationsView.vue'
 import NotificationTemplatesView from '../views/NotificationTemplatesView.vue'
 import AuditLogsView from '../views/AuditLogsView.vue'
+import UploadRecordsView from '../views/UploadRecordsView.vue'
 import ProfileCenterView from '../views/ProfileCenterView.vue'
 import { useSessionStore } from '../stores/session'
 
@@ -35,6 +36,7 @@ const router = createRouter({
         { path: 'notifications', name: 'notifications', component: NotificationsView, meta: { title: '通知公告' } },
         { path: 'notification-templates', name: 'notification-templates', component: NotificationTemplatesView, meta: { title: '消息模板' } },
         { path: 'audit-logs', name: 'audit-logs', component: AuditLogsView, meta: { title: '审计日志' } },
+        { path: 'upload-records', name: 'upload-records', component: UploadRecordsView, meta: { title: '上传记录' } },
         { path: 'profile', name: 'profile', component: ProfileCenterView, meta: { title: '个人中心' } },
       ],
     },

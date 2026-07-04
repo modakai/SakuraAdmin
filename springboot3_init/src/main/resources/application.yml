@@ -50,7 +50,8 @@ spring:
   servlet:
     multipart:
       # 大小限制
-      max-file-size: 10MB
+      max-file-size: 20MB
+      max-request-size: 20MB
   # Redis 配置
   data:
     redis:
@@ -114,8 +115,12 @@ oss:
   domain: ''
   accessKey: ${OSS_ACCESS_KEY:}
   secretKey: ${OSS_SECRET_KEY:}
-  # 前缀
+  # 旧版统一前缀，仅保留兼容历史配置
   prefix: 'images/'
+  # 图片上传对象前缀
+  imagePrefix: 'images'
+  # 通用文件上传对象前缀
+  filePrefix: 'file'
   # 存储空间名/桶名
   bucketName: sakura-init
   # 存储区域

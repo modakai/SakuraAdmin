@@ -1,21 +1,18 @@
 package com.sakura.boot_init.file.controller;
 
-import cn.hutool.core.io.FileUtil;
-import com.sakura.boot_init.file.service.OssService;
+import com.sakura.boot_init.file.model.vo.UploadRecordVO;
+import com.sakura.boot_init.file.service.FileUploadService;
 import com.sakura.boot_init.shared.common.BaseResponse;
-import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.common.ResultUtils;
-import com.sakura.boot_init.shared.exception.BusinessException;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Arrays;
 
 /**
  * 文件接口
@@ -30,37 +27,31 @@ import java.util.Arrays;
 public class FileController {
 
     @Resource
-    private OssService ossService;
+    private FileUploadService fileUploadService;
 
     /**
-     * 文件上传
+     * 图片上传。
      *
-     * @param multipartFile 上传文件
-     * @return 文件地址
+     * @param multipartFile 图片文件
+     * @param biz 图片上传业务类型
+     * @return 上传结果
      */
-    @PostMapping("/upload")
-    public BaseResponse<String> uploadFile(@RequestPart("file") MultipartFile multipartFile) {
-        validFile(multipartFile);
-        String url = ossService.uploadFile(multipartFile);
-        return ResultUtils.success(url);
+    @PostMapping("/image/upload")
+    public BaseResponse<UploadRecordVO> uploadImage(@RequestPart("file") MultipartFile multipartFile,
+            @RequestParam("biz") String biz) {
+        return ResultUtils.success(fileUploadService.uploadImage(multipartFile, biz));
     }
 
     /**
-     * 校验文件
+     * 通用文件上传。
      *
      * @param multipartFile 上传文件
+     * @param biz 文件上传业务类型
+     * @return 上传结果
      */
-    private void validFile(MultipartFile multipartFile) {
-        // 文件大小
-        long fileSize = multipartFile.getSize();
-        // 文件后缀
-        String fileSuffix = FileUtil.getSuffix(multipartFile.getOriginalFilename());
-        final long ONE_M = 1024 * 1024L;
-        if (fileSize > ONE_M) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件大小不能超过 1M");
-        }
-        if (!Arrays.asList("jpeg", "jpg", "svg", "png", "webp").contains(fileSuffix)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件类型错误");
-        }
+    @PostMapping("/upload")
+    public BaseResponse<UploadRecordVO> uploadFile(@RequestPart("file") MultipartFile multipartFile,
+            @RequestParam("biz") String biz) {
+        return ResultUtils.success(fileUploadService.uploadFile(multipartFile, biz));
     }
 }

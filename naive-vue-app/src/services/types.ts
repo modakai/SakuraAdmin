@@ -215,6 +215,31 @@ export interface AuditLogQuery extends PageQuery {
   exportLimit?: number
 }
 
+export type UploadRecordType = 'image' | 'file'
+export type UploadRecordBiz = 'user_avatar' | 'photo_wall' | 'image' | 'attachment' | 'document' | 'import_file'
+
+export interface UploadRecordItem {
+  id: number
+  userId?: EntityId
+  uploadType: UploadRecordType
+  biz?: UploadRecordBiz | string
+  originalName?: string
+  objectName?: string
+  url?: string
+  fileSuffix?: string
+  contentType?: string
+  fileSize?: number
+  createTime?: string
+}
+
+export interface UploadRecordQuery extends PageQuery {
+  userId?: EntityId | ''
+  uploadType?: UploadRecordType | ''
+  biz?: UploadRecordBiz | ''
+  startTime?: string
+  endTime?: string
+}
+
 export interface OnlineUserItem {
   sessionId: string
   userId?: EntityId

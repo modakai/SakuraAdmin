@@ -13,16 +13,18 @@ const props = withDefaults(defineProps<{
   accept?: string
   action?: string
   fieldName?: string
+  biz?: 'attachment' | 'document' | 'import_file'
   disabled?: boolean
   drag?: boolean
   tips?: string
 }>(), {
   modelValue: () => [],
   max: 5,
-  maxSize: 10 * 1024 * 1024,
+  maxSize: 20 * 1024 * 1024,
   accept: '.pdf,.doc,.docx,.xls,.xlsx,.jpeg,.jpg,.png,.webp,.svg,image/*,application/pdf',
   action: '/file/upload',
   fieldName: 'file',
+  biz: 'attachment',
   disabled: false,
   drag: true,
   tips: '支持 pdf、doc、docx、xls、xlsx 和常见图片格式。',
@@ -102,6 +104,8 @@ function handleCustomRequest(options: UploadCustomRequestOptions) {
   uploadFile(rawFile, {
     action: props.action,
     fieldName: props.fieldName,
+    // 通用文件上传必须声明业务类型，默认作为普通附件记录。
+    data: { biz: props.biz },
     onProgress: options.onProgress,
   })
     .then((result) => {

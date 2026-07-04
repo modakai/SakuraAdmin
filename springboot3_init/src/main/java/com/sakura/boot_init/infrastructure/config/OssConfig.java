@@ -72,9 +72,19 @@ public class OssConfig {
         private String secretKey;
 
         /**
-         * 前缀
+         * 旧版统一前缀，仅保留兼容历史配置。
          */
         private String prefix;
+
+        /**
+         * 图片上传对象前缀。
+         */
+        private String imagePrefix = "images";
+
+        /**
+         * 通用文件上传对象前缀。
+         */
+        private String filePrefix = "file";
 
         /**
          * 存储空间名

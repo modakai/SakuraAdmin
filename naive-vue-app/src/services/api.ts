@@ -24,6 +24,8 @@ import type {
   OnlineUserQuery,
   PageResponse,
   SystemStatus,
+  UploadRecordItem,
+  UploadRecordQuery,
   UserForm,
   UserItem,
   UserQuery,
@@ -229,6 +231,12 @@ export function getAuditLogPage(query: AuditLogQuery) {
 
 export function getAuditLogDetail(id: number) {
   return apiRequest<AuditLogItem>('/audit/log/get', { query: { id } })
+}
+
+export function getUploadRecordPage(query: UploadRecordQuery) {
+  return apiRequest<PageResponse<UploadRecordItem>>('/admin/upload-record/page', {
+    body: toRequestParams(query),
+  })
 }
 
 export function exportAuditLogs(query: AuditLogQuery) {

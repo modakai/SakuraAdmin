@@ -13,15 +13,28 @@ import java.util.stream.Collectors;
  */
 public enum FileUploadBizEnum {
 
-    USER_AVATAR("用户头像", "user_avatar");
+    USER_AVATAR("用户头像", "user_avatar", FileUploadTypeEnum.IMAGE.getValue()),
+
+    PHOTO_WALL("照片墙", "photo_wall", FileUploadTypeEnum.IMAGE.getValue()),
+
+    IMAGE("普通图片", "image", FileUploadTypeEnum.IMAGE.getValue()),
+
+    ATTACHMENT("通用附件", "attachment", FileUploadTypeEnum.FILE.getValue()),
+
+    DOCUMENT("文档附件", "document", FileUploadTypeEnum.FILE.getValue()),
+
+    IMPORT_FILE("导入文件", "import_file", FileUploadTypeEnum.FILE.getValue());
 
     private final String text;
 
     private final String value;
 
-    FileUploadBizEnum(String text, String value) {
+    private final String uploadType;
+
+    FileUploadBizEnum(String text, String value, String uploadType) {
         this.text = text;
         this.value = value;
+        this.uploadType = uploadType;
     }
 
     /**
@@ -51,11 +64,25 @@ public enum FileUploadBizEnum {
         return null;
     }
 
+    /**
+     * 判断业务类型是否属于指定上传类型。
+     *
+     * @param uploadType 上传类型
+     * @return 是否匹配
+     */
+    public boolean matchesUploadType(String uploadType) {
+        return this.uploadType.equals(uploadType);
+    }
+
     public String getValue() {
         return value;
     }
 
     public String getText() {
         return text;
+    }
+
+    public String getUploadType() {
+        return uploadType;
     }
 }

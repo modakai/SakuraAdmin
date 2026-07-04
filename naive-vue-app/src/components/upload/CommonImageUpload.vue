@@ -13,16 +13,18 @@ const props = withDefaults(defineProps<{
   accept?: string
   action?: string
   fieldName?: string
+  biz?: 'user_avatar' | 'photo_wall' | 'image'
   disabled?: boolean
   tips?: string
 }>(), {
   modelValue: () => [],
   variant: 'wall',
   max: 9,
-  maxSize: 1024 * 1024,
+  maxSize: 5 * 1024 * 1024,
   accept: '.jpeg,.jpg,.svg,.png,.webp,image/jpeg,image/png,image/svg+xml,image/webp',
-  action: '/file/upload',
+  action: '/file/image/upload',
   fieldName: 'file',
+  biz: 'image',
   disabled: false,
   tips: '',
 })
@@ -100,6 +102,8 @@ function handleCustomRequest(options: UploadCustomRequestOptions) {
   uploadFile(rawFile, {
     action: props.action,
     fieldName: props.fieldName,
+    // 后端按业务类型校验图片上传用途，头像模式默认归类为用户头像。
+    data: { biz: props.variant === 'avatar' ? 'user_avatar' : props.biz },
     onProgress: options.onProgress,
   })
     .then((result) => {

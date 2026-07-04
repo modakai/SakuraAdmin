@@ -6,6 +6,7 @@ import {
   AlertCircleOutline,
   AnalyticsOutline,
   BookOutline,
+  CloudUploadOutline,
   DocumentTextOutline,
   HomeOutline,
   LogOutOutline,
@@ -49,6 +50,7 @@ const menuOptions = [
       { label: menuLink('在线用户', '/online-users'), key: '/online-users', icon: renderIcon(PulseOutline) },
       { label: menuLink('字典管理', '/dicts'), key: '/dicts', icon: renderIcon(BookOutline) },
       { label: menuLink('协议管理', '/agreements'), key: '/agreements', icon: renderIcon(DocumentTextOutline) },
+      { label: menuLink('上传记录', '/upload-records'), key: '/upload-records', icon: renderIcon(CloudUploadOutline) },
     ],
   },
   {

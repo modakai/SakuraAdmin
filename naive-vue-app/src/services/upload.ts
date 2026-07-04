@@ -36,9 +36,9 @@ function resolveUploadResult(data: unknown, file: File): UploadedFileResult {
     if (url) {
       return {
         url,
-        name: String(record.filename ?? record.name ?? file.name),
-        size: Number(record.size ?? file.size),
-        type: String(record.type ?? file.type),
+        name: String(record.originalName ?? record.filename ?? record.name ?? file.name),
+        size: Number(record.fileSize ?? record.size ?? file.size),
+        type: String(record.contentType ?? record.type ?? file.type),
       }
     }
   }
