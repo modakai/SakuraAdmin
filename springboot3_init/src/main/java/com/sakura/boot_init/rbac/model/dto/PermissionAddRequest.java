@@ -53,6 +53,11 @@ public class PermissionAddRequest implements Serializable {
     private Integer sortOrder;
 
     /**
+     * 是否显示：1显示 0隐藏（仅 menu 生效；缺省按显示处理）。
+     */
+    private Integer visible;
+
+    /**
      * 备注。
      */
     private String remark;

@@ -16,7 +16,12 @@ import com.sakura.boot_init.shared.exception.BusinessException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayDeque;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.sakura.boot_init.rbac.model.entity.table.SysPermissionTableDef.SYS_PERMISSION;
 import static com.sakura.boot_init.rbac.model.entity.table.SysRolePermissionTableDef.SYS_ROLE_PERMISSION;
@@ -47,6 +52,7 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     public long addPermission(PermissionAddRequest request) {
         validatePermissionCodeUnique(request.getPermissionCode(), null);
+        validateParentId(request.getParentId(), null);
         SysPermission permission = new SysPermission();
         permission.setParentId(request.getParentId() == null ? 0L : request.getParentId());
         permission.setType(request.getType());
@@ -71,6 +77,7 @@ public class PermissionServiceImpl implements PermissionService {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "权限点不存在");
         }
         validatePermissionCodeUnique(request.getPermissionCode(), request.getId());
+        validateParentId(request.getParentId(), request.getId());
         permission.setParentId(request.getParentId() == null ? 0L : request.getParentId());
         permission.setType(request.getType());
         permission.setTitle(request.getTitle());
@@ -108,6 +115,58 @@ public class PermissionServiceImpl implements PermissionService {
         }
         evictPermissionUsers(id);
         return sysPermissionMapper.deleteById(id) > 0;
+    }
+
+    /**
+     * 校验父级权限点合法：存在且未删除；更新时父级不能是自身或自身的后代（防环）。
+     *
+     * @param parentId 新父级 id（null/0 表示顶层）
+     * @param selfId 当前权限点 id（新增时传 null，仅做存在性校验）
+     */
+    private void validateParentId(Long parentId, Long selfId) {
+        if (parentId == null || parentId == 0L) {
+            return;
+        }
+        List<SysPermission> all = sysPermissionMapper.selectListByQuery(
+                QueryWrapper.create().where(SYS_PERMISSION.IS_DELETE.eq(0)));
+        boolean exists = all.stream().anyMatch(p -> parentId.equals(p.getId()));
+        if (!exists) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "父级权限点不存在");
+        }
+        if (selfId != null) {
+            if (parentId.equals(selfId)) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "父级不能是自己");
+            }
+            if (collectDescendantIds(selfId, all).contains(parentId)) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "父级不能是自己的子节点");
+            }
+        }
+    }
+
+    /**
+     * 收集某权限点的全部后代 id（按父级分组后 BFS）。
+     *
+     * @param rootId 根权限点 id
+     * @param all 全部未删除的权限点
+     * @return 后代 id 集合（不含 rootId）
+     */
+    private Set<Long> collectDescendantIds(Long rootId, List<SysPermission> all) {
+        Map<Long, List<Long>> byParent = all.stream()
+                .filter(p -> p.getParentId() != null)
+                .collect(Collectors.groupingBy(SysPermission::getParentId,
+                        Collectors.mapping(SysPermission::getId, Collectors.toList())));
+        Set<Long> descendants = new HashSet<>();
+        ArrayDeque<Long> queue = new ArrayDeque<>();
+        queue.add(rootId);
+        while (!queue.isEmpty()) {
+            Long id = queue.poll();
+            for (Long childId : byParent.getOrDefault(id, List.of())) {
+                if (descendants.add(childId)) {
+                    queue.add(childId);
+                }
+            }
+        }
+        return descendants;
     }
 
     /**

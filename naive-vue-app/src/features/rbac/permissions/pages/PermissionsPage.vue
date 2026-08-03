@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { h, onMounted, reactive, ref } from 'vue'
-import { NButton, NTag, useMessage, type DataTableColumns, type SelectOption } from 'naive-ui'
+import { computed, h, onMounted, reactive, ref } from 'vue'
+import { NButton, NTag, useMessage, type DataTableColumns, type SelectOption, type TreeSelectOption } from 'naive-ui'
 import type { EntityId } from '@/shared/api/types'
 import type { PermissionNode } from '@/features/auth/model'
 import { createPermission, deletePermissionById, getPermissionTree, updatePermission } from '../api'
@@ -82,6 +82,47 @@ function openEdit(row: PermissionNode) {
   })
   formVisible.value = true
 }
+
+// ---------- 父级选择 ----------
+// 在权限树中按 id 定位节点。
+function findNode(nodes: PermissionNode[], id: number): PermissionNode | undefined {
+  for (const node of nodes) {
+    if (Number(node.id) === id) {
+      return node
+    }
+    const found = findNode(node.children ?? [], id)
+    if (found) {
+      return found
+    }
+  }
+  return undefined
+}
+
+// 收集一棵节点的全部 id（含自身与子孙），用于编辑时排除自身子树、防止形成环。
+function collectIds(nodes: PermissionNode[]): number[] {
+  return nodes.flatMap(node => [Number(node.id), ...collectIds(node.children ?? [])])
+}
+
+// 把菜单节点构建为 tree-select 选项，剔除被排除的 id。
+function buildMenuOptions(nodes: PermissionNode[], exclude: Set<number>): TreeSelectOption[] {
+  return nodes
+    .filter(node => node.type === 'menu' && !exclude.has(Number(node.id)))
+    .map(node => ({
+      label: node.title,
+      key: Number(node.id),
+      children: buildMenuOptions(node.children ?? [], exclude),
+    }))
+}
+
+// 父级下拉：顶层 + 全部菜单节点；编辑时排除自身及子孙，从根源上选不出环。
+const parentOptions = computed<TreeSelectOption[]>(() => {
+  let exclude = new Set<number>()
+  if (editing.value && form.id != null) {
+    const node = findNode(rows.value, Number(form.id))
+    exclude = new Set(node ? collectIds([node]) : [])
+  }
+  return [{ label: '顶层（根目录）', key: 0 }, ...buildMenuOptions(rows.value, exclude)]
+})
 
 async function saveForm() {
   if (!form.title) {
@@ -186,6 +227,14 @@ onMounted(loadTree)
         <n-input v-model:value="form.permissionCode" placeholder="如 system:user:list（目录节点可留空）" />
       </n-form-item>
       <template v-if="form.type === 'menu'">
+        <n-form-item label="父级菜单">
+          <n-tree-select
+            v-model:value="form.parentId"
+            :options="parentOptions"
+            placeholder="选择父级菜单（默认顶层）"
+            :default-expand-all="true"
+          />
+        </n-form-item>
         <n-form-item label="路由路径">
           <n-input v-model:value="form.path" placeholder="如 /users" />
         </n-form-item>

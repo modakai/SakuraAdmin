@@ -2,6 +2,7 @@ package com.sakura.boot_init.rbac;
 
 import com.sakura.boot_init.infrastructure.auth.LoginUserCache;
 import com.sakura.boot_init.rbac.model.dto.PermissionAddRequest;
+import com.sakura.boot_init.rbac.model.dto.PermissionUpdateRequest;
 import com.sakura.boot_init.rbac.model.entity.SysPermission;
 import com.sakura.boot_init.rbac.model.entity.SysRolePermission;
 import com.sakura.boot_init.rbac.repository.SysPermissionMapper;
@@ -100,6 +101,106 @@ class PermissionServiceImplTest {
 
         assertTrue(deleted);
         verify(permissionMapper).deleteById(any());
+    }
+
+    @Test
+    void shouldRejectAddWhenParentNotExist() {
+        when(permissionMapper.selectListByQuery(any())).thenReturn(List.of(permission(9L)));
+        PermissionAddRequest request = addRequest(999L);
+
+        BusinessException ex = assertThrows(BusinessException.class, () -> service.addPermission(request));
+
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
+        verify(permissionMapper, never()).insert(any());
+    }
+
+    @Test
+    void shouldAcceptAddWhenParentExists() {
+        when(permissionMapper.selectListByQuery(any())).thenReturn(List.of(permission(9L)));
+        org.mockito.Mockito.doAnswer(invocation -> {
+            SysPermission p = invocation.getArgument(0);
+            p.setId(201L);
+            return 1;
+        }).when(permissionMapper).insert(any(SysPermission.class));
+        PermissionAddRequest request = addRequest(9L);
+
+        long id = service.addPermission(request);
+
+        assertEquals(201L, id);
+        verify(permissionMapper).insert(any(SysPermission.class));
+    }
+
+    @Test
+    void shouldRejectUpdateWhenParentIsSelf() {
+        SysPermission current = permission(3L);
+        when(permissionMapper.selectOneById(3L)).thenReturn(current);
+        when(permissionMapper.selectListByQuery(any())).thenReturn(List.of(permission(2L), current));
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> service.updatePermission(updateRequest(3L, 3L)));
+
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
+        verify(permissionMapper, never()).update(any());
+    }
+
+    @Test
+    void shouldRejectUpdateWhenParentIsDescendant() {
+        SysPermission current = permission(3L);
+        SysPermission child = permission(5L);
+        child.setParentId(3L);
+        when(permissionMapper.selectOneById(3L)).thenReturn(current);
+        when(permissionMapper.selectListByQuery(any())).thenReturn(List.of(permission(2L), current, child));
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> service.updatePermission(updateRequest(3L, 5L)));
+
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
+        verify(permissionMapper, never()).update(any());
+    }
+
+    @Test
+    void shouldAcceptUpdateWhenMovingToTopLevel() {
+        SysPermission current = permission(3L);
+        current.setParentId(2L);
+        when(permissionMapper.selectOneById(3L)).thenReturn(current);
+        when(permissionMapper.update(any())).thenReturn(1);
+
+        // 提升到顶层（parentId=0）应放行，无需任何父级查询。
+        boolean updated = service.updatePermission(updateRequest(3L, 0L));
+
+        assertTrue(updated);
+        verify(permissionMapper).update(any());
+    }
+
+    @Test
+    void shouldAcceptUpdateWhenParentValid() {
+        SysPermission current = permission(3L);
+        current.setParentId(2L);
+        when(permissionMapper.selectOneById(3L)).thenReturn(current);
+        when(permissionMapper.selectListByQuery(any())).thenReturn(List.of(permission(2L), permission(10L), current));
+        when(permissionMapper.update(any())).thenReturn(1);
+
+        boolean updated = service.updatePermission(updateRequest(3L, 10L));
+
+        assertTrue(updated);
+        verify(permissionMapper).update(any());
+    }
+
+    private PermissionAddRequest addRequest(Long parentId) {
+        PermissionAddRequest req = new PermissionAddRequest();
+        req.setType("menu");
+        req.setTitle("子节点");
+        req.setParentId(parentId);
+        return req;
+    }
+
+    private PermissionUpdateRequest updateRequest(Long id, Long parentId) {
+        PermissionUpdateRequest req = new PermissionUpdateRequest();
+        req.setId(id);
+        req.setParentId(parentId);
+        req.setType("menu");
+        req.setTitle("节点");
+        return req;
     }
 
     private SysPermission permission(Long id) {
