@@ -10,6 +10,7 @@ import com.sakura.boot_init.infrastructure.auth.TokenManager;
 import com.sakura.boot_init.rbac.model.vo.UserPermission;
 import com.sakura.boot_init.rbac.service.PermissionQueryService;
 import com.sakura.boot_init.rbac.service.PermissionTreeService;
+import com.sakura.boot_init.rbac.service.UserRoleService;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.UserConstant;
 import com.sakura.boot_init.shared.context.LoginUserContext;
@@ -74,14 +75,19 @@ public class AuthServiceImpl implements AuthService {
      */
     private final PermissionTreeService permissionTreeService;
 
+    /**
+     * 用户角色分配服务。
+     */
+    private final UserRoleService userRoleService;
+
     public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager, Converter converter) {
-        this(userMapper, tokenManager, converter, null, null, null, null);
+        this(userMapper, tokenManager, converter, null, null, null, null, null);
     }
 
     @Autowired
     public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager, Converter converter, AuditApi auditApi,
             OnlineUserService onlineUserService, PermissionQueryService permissionQueryService,
-            PermissionTreeService permissionTreeService) {
+            PermissionTreeService permissionTreeService, UserRoleService userRoleService) {
         this.userMapper = userMapper;
         this.tokenManager = tokenManager;
         this.converter = converter;
@@ -89,6 +95,7 @@ public class AuthServiceImpl implements AuthService {
         this.onlineUserService = onlineUserService;
         this.permissionQueryService = permissionQueryService;
         this.permissionTreeService = permissionTreeService;
+        this.userRoleService = userRoleService;
     }
 
     @Override
@@ -262,8 +269,13 @@ public class AuthServiceImpl implements AuthService {
         loginUserVO.setCreateTime(user.getCreateTime());
         loginUserVO.setUpdateTime(user.getUpdateTime());
         // 统一填充角色与权限点树，登录与刷新登录态返回一致数据。
-        if (permissionQueryService != null && permissionTreeService != null) {
+        if (permissionQueryService != null && permissionTreeService != null && userRoleService != null) {
             UserPermission permission = permissionQueryService.loadUserPermission(user.getId());
+            if (permission.roles().isEmpty()) {
+                // 老用户/新注册用户可能没有角色关联，自动补默认普通用户角色，避免登录后菜单为空。
+                userRoleService.ensureDefaultRole(user.getId());
+                permission = permissionQueryService.loadUserPermission(user.getId());
+            }
             loginUserVO.setRoles(permission.roles());
             loginUserVO.setPermissions(permission.permissions());
             loginUserVO.setMenuTree(permissionTreeService.buildTreeForPermission(permission));
