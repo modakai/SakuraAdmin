@@ -52,7 +52,7 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     public long addPermission(PermissionAddRequest request) {
         validatePermissionCodeUnique(request.getPermissionCode(), null);
-        validateParentId(request.getParentId(), null);
+        validateParentId(request.getParentId(), null, request.getType());
         SysPermission permission = new SysPermission();
         permission.setParentId(request.getParentId() == null ? 0L : request.getParentId());
         permission.setType(request.getType());
@@ -77,7 +77,16 @@ public class PermissionServiceImpl implements PermissionService {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "权限点不存在");
         }
         validatePermissionCodeUnique(request.getPermissionCode(), request.getId());
-        validateParentId(request.getParentId(), request.getId());
+        validateParentId(request.getParentId(), request.getId(), request.getType());
+        // 节点改为非菜单类型时，其下不能仍有子节点（仅菜单可作父级）。
+        if (request.getType() != null && !"menu".equals(request.getType())) {
+            List<SysPermission> children = sysPermissionMapper.selectListByQuery(
+                    QueryWrapper.create().where(SYS_PERMISSION.PARENT_ID.eq(request.getId()))
+                            .and(SYS_PERMISSION.IS_DELETE.eq(0)));
+            if (!children.isEmpty()) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "该权限点仍有子节点，不能改为非菜单类型");
+            }
+        }
         permission.setParentId(request.getParentId() == null ? 0L : request.getParentId());
         permission.setType(request.getType());
         permission.setTitle(request.getTitle());
@@ -118,20 +127,40 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     /**
-     * 校验父级权限点合法：存在且未删除；更新时父级不能是自身或自身的后代（防环）。
+     * 校验父级权限点合法（菜单父级规则，见 CONTEXT.md）：
+     * <ul>
+     *   <li>菜单 → 父级为菜单或顶层</li>
+     *   <li>按钮 → 父级为其绑定的菜单</li>
+     *   <li>接口 → 固定顶层</li>
+     * </ul>
+     * 且父级必须存在、未删除；更新时父级不能是自身或自身的后代（防环）。
      *
      * @param parentId 新父级 id（null/0 表示顶层）
-     * @param selfId 当前权限点 id（新增时传 null，仅做存在性校验）
+     * @param selfId 当前权限点 id（新增时传 null，仅做存在性与类型校验）
+     * @param selfType 当前权限点类型（menu/button/api）
      */
-    private void validateParentId(Long parentId, Long selfId) {
-        if (parentId == null || parentId == 0L) {
+    private void validateParentId(Long parentId, Long selfId, String selfType) {
+        boolean topLevel = parentId == null || parentId == 0L;
+        if ("api".equals(selfType)) {
+            if (!topLevel) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "接口权限点必须为顶层");
+            }
+            return;
+        }
+        if (topLevel) {
+            if ("button".equals(selfType)) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "按钮权限点必须绑定菜单");
+            }
             return;
         }
         List<SysPermission> all = sysPermissionMapper.selectListByQuery(
                 QueryWrapper.create().where(SYS_PERMISSION.IS_DELETE.eq(0)));
-        boolean exists = all.stream().anyMatch(p -> parentId.equals(p.getId()));
-        if (!exists) {
+        SysPermission parent = all.stream().filter(p -> parentId.equals(p.getId())).findFirst().orElse(null);
+        if (parent == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "父级权限点不存在");
+        }
+        if (selfType != null && !"menu".equals(parent.getType())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "父级必须是菜单");
         }
         if (selfId != null) {
             if (parentId.equals(selfId)) {

@@ -114,20 +114,29 @@ function buildMenuOptions(nodes: PermissionNode[], exclude: Set<number>): TreeSe
     }))
 }
 
-// 父级下拉：顶层 + 全部菜单节点；编辑时排除自身及子孙，从根源上选不出环。
+// 父级下拉：菜单 → 顶层 + 全部菜单节点；按钮 → 仅菜单（必须绑定菜单，无顶层）。
+// 编辑时排除自身及子孙，从根源上选不出环；接口固定顶层、不显示该控件。
 const parentOptions = computed<TreeSelectOption[]>(() => {
   let exclude = new Set<number>()
   if (editing.value && form.id != null) {
     const node = findNode(rows.value, Number(form.id))
     exclude = new Set(node ? collectIds([node]) : [])
   }
-  return [{ label: '顶层（根目录）', key: 0 }, ...buildMenuOptions(rows.value, exclude)]
+  const menuOptions = buildMenuOptions(rows.value, exclude)
+  if (form.type === 'button') {
+    return menuOptions
+  }
+  return [{ label: '顶层（根目录）', key: 0 }, ...menuOptions]
 })
 
 async function saveForm() {
   if (!form.title) {
     message.error('请输入标题')
     return
+  }
+  // 接口固定顶层：切到接口类型时父级置 0，避免残留旧父级被后端拒绝。
+  if (form.type === 'api') {
+    form.parentId = 0
   }
   formSaving.value = true
   try {
@@ -188,11 +197,17 @@ const columns: DataTableColumns<PermissionNode> = [
     title: '操作',
     key: 'actions',
     width: 210,
-    render: row => h('div', { style: 'display:flex;gap:8px' }, [
-      h(NButton, { size: 'small', onClick: () => openCreate(row) }, { default: () => '新增子节点' }),
-      h(NButton, { size: 'small', onClick: () => openEdit(row) }, { default: () => '编辑' }),
-      h(NButton, { size: 'small', type: 'error', ghost: true, onClick: () => removePermission(row) }, { default: () => '删除' }),
-    ]),
+    render: row => {
+      // 仅菜单可作为父级（按钮绑定菜单、接口固定顶层），故只有菜单行提供「新增子节点」。
+      const actions = row.type === 'menu'
+        ? [h(NButton, { size: 'small', onClick: () => openCreate(row) }, { default: () => '新增子节点' })]
+        : []
+      actions.push(
+        h(NButton, { size: 'small', onClick: () => openEdit(row) }, { default: () => '编辑' }),
+        h(NButton, { size: 'small', type: 'error', ghost: true, onClick: () => removePermission(row) }, { default: () => '删除' }),
+      )
+      return h('div', { style: 'display:flex;gap:8px' }, actions)
+    },
   },
 ]
 
@@ -226,15 +241,15 @@ onMounted(loadTree)
       <n-form-item label="权限码">
         <n-input v-model:value="form.permissionCode" placeholder="如 system:user:list（目录节点可留空）" />
       </n-form-item>
+      <n-form-item v-if="form.type === 'menu' || form.type === 'button'" :label="form.type === 'button' ? '绑定菜单' : '父级菜单'">
+        <n-tree-select
+          v-model:value="form.parentId"
+          :options="parentOptions"
+          :placeholder="form.type === 'button' ? '选择绑定的菜单（必须选择）' : '选择父级菜单（默认顶层）'"
+          :default-expand-all="true"
+        />
+      </n-form-item>
       <template v-if="form.type === 'menu'">
-        <n-form-item label="父级菜单">
-          <n-tree-select
-            v-model:value="form.parentId"
-            :options="parentOptions"
-            placeholder="选择父级菜单（默认顶层）"
-            :default-expand-all="true"
-          />
-        </n-form-item>
         <n-form-item label="路由路径">
           <n-input v-model:value="form.path" placeholder="如 /users" />
         </n-form-item>

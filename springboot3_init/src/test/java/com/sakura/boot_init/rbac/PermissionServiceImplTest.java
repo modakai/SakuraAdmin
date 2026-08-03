@@ -60,7 +60,8 @@ class PermissionServiceImplTest {
             return 1;
         }).when(permissionMapper).insert(any(SysPermission.class));
         PermissionAddRequest request = new PermissionAddRequest();
-        request.setType("button");
+        // 顶层菜单合法；用 menu 保持该用例聚焦「权限码唯一时可插入」。
+        request.setType("menu");
         request.setTitle("新增");
         request.setPermissionCode("system:user:add");
 
@@ -181,6 +182,170 @@ class PermissionServiceImplTest {
         when(permissionMapper.update(any())).thenReturn(1);
 
         boolean updated = service.updatePermission(updateRequest(3L, 10L));
+
+        assertTrue(updated);
+        verify(permissionMapper).update(any());
+    }
+
+    @Test
+    void shouldRejectButtonAtTopLevel() {
+        PermissionAddRequest request = new PermissionAddRequest();
+        request.setType("button");
+        request.setTitle("按钮");
+        request.setParentId(0L);
+
+        BusinessException ex = assertThrows(BusinessException.class, () -> service.addPermission(request));
+
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
+        verify(permissionMapper, never()).insert(any());
+    }
+
+    @Test
+    void shouldRejectApiWithParent() {
+        PermissionAddRequest request = new PermissionAddRequest();
+        request.setType("api");
+        request.setTitle("接口");
+        request.setParentId(9L);
+
+        BusinessException ex = assertThrows(BusinessException.class, () -> service.addPermission(request));
+
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
+        verify(permissionMapper, never()).insert(any());
+    }
+
+    @Test
+    void shouldRejectMenuUnderButtonParent() {
+        SysPermission buttonParent = permission(101L);
+        buttonParent.setType("button");
+        when(permissionMapper.selectListByQuery(any())).thenReturn(List.of(buttonParent));
+        PermissionAddRequest request = new PermissionAddRequest();
+        request.setType("menu");
+        request.setTitle("子菜单");
+        request.setParentId(101L);
+
+        BusinessException ex = assertThrows(BusinessException.class, () -> service.addPermission(request));
+
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
+        verify(permissionMapper, never()).insert(any());
+    }
+
+    @Test
+    void shouldRejectButtonUnderButtonParent() {
+        SysPermission buttonParent = permission(101L);
+        buttonParent.setType("button");
+        when(permissionMapper.selectListByQuery(any())).thenReturn(List.of(buttonParent));
+        PermissionAddRequest request = new PermissionAddRequest();
+        request.setType("button");
+        request.setTitle("按钮");
+        request.setParentId(101L);
+
+        BusinessException ex = assertThrows(BusinessException.class, () -> service.addPermission(request));
+
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
+        verify(permissionMapper, never()).insert(any());
+    }
+
+    @Test
+    void shouldAcceptApiAtTopLevel() {
+        org.mockito.Mockito.doAnswer(invocation -> {
+            SysPermission p = invocation.getArgument(0);
+            p.setId(301L);
+            return 1;
+        }).when(permissionMapper).insert(any(SysPermission.class));
+        PermissionAddRequest request = new PermissionAddRequest();
+        request.setType("api");
+        request.setTitle("接口");
+        request.setParentId(0L);
+
+        long id = service.addPermission(request);
+
+        assertEquals(301L, id);
+        verify(permissionMapper).insert(any(SysPermission.class));
+    }
+
+    @Test
+    void shouldRejectMenuUnderApiParent() {
+        SysPermission apiParent = permission(501L);
+        apiParent.setType("api");
+        when(permissionMapper.selectListByQuery(any())).thenReturn(List.of(apiParent));
+        PermissionAddRequest request = new PermissionAddRequest();
+        request.setType("menu");
+        request.setTitle("子菜单");
+        request.setParentId(501L);
+
+        BusinessException ex = assertThrows(BusinessException.class, () -> service.addPermission(request));
+
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
+        verify(permissionMapper, never()).insert(any());
+    }
+
+    @Test
+    void shouldRejectButtonUnderApiParent() {
+        SysPermission apiParent = permission(501L);
+        apiParent.setType("api");
+        when(permissionMapper.selectListByQuery(any())).thenReturn(List.of(apiParent));
+        PermissionAddRequest request = new PermissionAddRequest();
+        request.setType("button");
+        request.setTitle("按钮");
+        request.setParentId(501L);
+
+        BusinessException ex = assertThrows(BusinessException.class, () -> service.addPermission(request));
+
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
+        verify(permissionMapper, never()).insert(any());
+    }
+
+    @Test
+    void shouldAcceptAddButtonUnderMenu() {
+        when(permissionMapper.selectListByQuery(any())).thenReturn(List.of(permission(3L)));
+        org.mockito.Mockito.doAnswer(invocation -> {
+            SysPermission p = invocation.getArgument(0);
+            p.setId(401L);
+            return 1;
+        }).when(permissionMapper).insert(any(SysPermission.class));
+        PermissionAddRequest request = new PermissionAddRequest();
+        request.setType("button");
+        request.setTitle("新增按钮");
+        request.setParentId(3L);
+
+        long id = service.addPermission(request);
+
+        assertEquals(401L, id);
+        verify(permissionMapper).insert(any(SysPermission.class));
+    }
+
+    @Test
+    void shouldRejectChangingMenuWithChildrenToNonMenu() {
+        SysPermission current = permission(3L);
+        current.setParentId(2L);
+        SysPermission child = permission(5L);
+        child.setParentId(3L);
+        when(permissionMapper.selectOneById(3L)).thenReturn(current);
+        when(permissionMapper.selectListByQuery(any())).thenReturn(List.of(permission(2L), current, child));
+        PermissionUpdateRequest req = updateRequest(3L, 2L);
+        req.setType("button");
+
+        BusinessException ex = assertThrows(BusinessException.class, () -> service.updatePermission(req));
+
+        assertEquals(ErrorCode.PARAMS_ERROR.getCode(), ex.getCode());
+        verify(permissionMapper, never()).update(any());
+    }
+
+    @Test
+    void shouldAcceptButtonRebindToMenu() {
+        SysPermission current = permission(101L);
+        current.setType("button");
+        current.setParentId(3L);
+        when(permissionMapper.selectOneById(101L)).thenReturn(current);
+        // 第一次查询（父级校验）返回菜单集；第二次查询（改非菜单类型须无子节点）返回空。
+        when(permissionMapper.selectListByQuery(any()))
+                .thenReturn(List.of(permission(3L), permission(9L)))
+                .thenReturn(List.of());
+        when(permissionMapper.update(any())).thenReturn(1);
+        PermissionUpdateRequest req = updateRequest(101L, 9L);
+        req.setType("button");
+
+        boolean updated = service.updatePermission(req);
 
         assertTrue(updated);
         verify(permissionMapper).update(any());
