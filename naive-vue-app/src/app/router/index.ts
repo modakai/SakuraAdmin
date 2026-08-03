@@ -2,7 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import LoginPage from '@/features/auth/pages/LoginPage.vue'
 import NotFoundPage from '@/shared/ui/NotFoundPage.vue'
+import type { PermissionNode } from '@/features/auth/model'
 import { useSessionStore } from '@/stores/session'
+import { TOKEN_STORAGE_KEY } from '@/shared/api/request'
 import { ADMIN_LAYOUT_NAME, addDynamicRoutes, collectMenuPaths } from './dynamicRoutes'
 
 const router = createRouter({
@@ -26,6 +28,20 @@ const router = createRouter({
 let dynamicRoutesRegistered = false
 
 /**
+ * 注册后台动态路由（幂等）。
+ *
+ * <p>登录成功后、刷新恢复登录态时调用。登录场景下先注册再 push，可避免导航守卫
+ * 中"注册 + 重定向"的边界问题（首次解析命中 catch-all 的 name 陷阱）。
+ */
+export function registerDynamicRoutes(menuTree: PermissionNode[]) {
+  if (dynamicRoutesRegistered) {
+    return
+  }
+  addDynamicRoutes(router, menuTree)
+  dynamicRoutesRegistered = true
+}
+
+/**
  * 计算已登录用户的可访问首页：优先工作台，其次菜单树第一个路径。
  */
 function homePath(session: ReturnType<typeof useSessionStore>): string | undefined {
@@ -38,8 +54,10 @@ function homePath(session: ReturnType<typeof useSessionStore>): string | undefin
 
 router.beforeEach((to) => {
   const session = useSessionStore()
+  // 登录态以 localStorage 为准实时判断，避免 pinia getter 缓存导致登录后仍判定未登录。
+  const isAuthenticated = Boolean(localStorage.getItem(TOKEN_STORAGE_KEY))
   // 未登录访问后台 → 登录页。
-  if (!session.isAuthenticated) {
+  if (!isAuthenticated) {
     if (to.path === '/login') {
       return true
     }
@@ -49,19 +67,16 @@ router.beforeEach((to) => {
   if (to.path === '/login') {
     return homePath(session) ?? '/dashboard'
   }
-  // 已登录但动态路由尚未注册（如刷新页面）→ 按菜单树注册后重定向一次。
-  // 注意：只保留 path/query/hash 重新导航。首次解析时目标路由未注册，to.name 会落到
-  // catch-all（not-found）；若带 name 重定向，vue-router 按 name 解析将永远命中 404。
+  // 已登录但动态路由尚未注册（如刷新页面）→ 先注册，再按路径重新导航。
+  // 用字符串 fullPath 重定向（与 homePath 分支一致），避免携带 name 命中 catch-all。
   if (!dynamicRoutesRegistered) {
-    addDynamicRoutes(router, session.menuTree)
-    dynamicRoutesRegistered = true
-    return { path: to.path, query: to.query, hash: to.hash, replace: true }
+    registerDynamicRoutes(session.menuTree)
+    return to.fullPath
   }
-  // 权限拦截：目标路径不在用户菜单树中时回到可访问首页；
-  // 没有任何可访问菜单时放行到 404 页，避免重定向死循环。
+  // 权限拦截：目标不在菜单树中则回可访问首页；菜单树为空时放行到 404 页（可返回登录），避免死循环。
   const allowed = collectMenuPaths(session.menuTree)
-  if (!allowed.includes(to.path)) {
-    return homePath(session)
+  if (allowed.length > 0 && !allowed.includes(to.path)) {
+    return homePath(session) ?? '/dashboard'
   }
   return true
 })

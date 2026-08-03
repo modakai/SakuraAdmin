@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useMessage } from 'naive-ui'
 import { CheckmarkCircleOutline, LockClosedOutline, PersonOutline, ShieldCheckmarkOutline } from '@vicons/ionicons5'
 import { useSessionStore } from '@/stores/session'
+import { registerDynamicRoutes } from '@/app/router'
 
 const router = useRouter()
 const message = useMessage()
@@ -28,8 +29,11 @@ async function handleLogin() {
   try {
     // 登录成功后保存后端 token，后续后台接口会自动携带鉴权请求头。
     await session.login(form.account, form.password)
+    // 先注册后台动态路由再跳转，避免导航时路由未注册落到 404。
+    registerDynamicRoutes(session.menuTree)
     message.success('已进入后台')
-    router.push('/dashboard')
+    // 等待导航完成（含守卫通过），期间按钮保持 loading，避免页面空白/闪跳。
+    await router.push('/dashboard')
   }
   catch (error: any) {
     message.error(error?.message || '登录失败')
