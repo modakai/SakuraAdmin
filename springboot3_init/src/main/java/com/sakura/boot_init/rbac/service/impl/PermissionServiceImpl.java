@@ -57,6 +57,7 @@ public class PermissionServiceImpl implements PermissionService {
         permission.setIcon(request.getIcon());
         permission.setSortOrder(request.getSortOrder() == null ? 0 : request.getSortOrder());
         permission.setStatus(1);
+        permission.setVisible(request.getVisible() == null ? 1 : request.getVisible());
         permission.setRemark(request.getRemark());
         permission.setIsDelete(0);
         sysPermissionMapper.insert(permission);
@@ -78,7 +79,12 @@ public class PermissionServiceImpl implements PermissionService {
         permission.setComponent(request.getComponent());
         permission.setIcon(request.getIcon());
         permission.setSortOrder(request.getSortOrder());
-        permission.setStatus(request.getStatus());
+        if (request.getStatus() != null) {
+            permission.setStatus(request.getStatus());
+        }
+        if (request.getVisible() != null) {
+            permission.setVisible(request.getVisible());
+        }
         permission.setRemark(request.getRemark());
         boolean updated = sysPermissionMapper.update(permission) > 0;
         if (updated) {

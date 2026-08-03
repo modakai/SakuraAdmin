@@ -12,5 +12,6 @@ export interface PermissionForm {
   icon?: string
   sortOrder?: number
   status?: number
+  visible?: number
   remark?: string
 }

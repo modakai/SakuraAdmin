@@ -67,6 +67,11 @@ public class SysPermission implements Serializable {
     private Integer status;
 
     /**
+     * 是否显示：1显示 0隐藏（仅 menu 生效，隐藏后仍在树中、由前端侧边栏裁剪）
+     */
+    private Integer visible;
+
+    /**
      * 备注
      */
     private String remark;

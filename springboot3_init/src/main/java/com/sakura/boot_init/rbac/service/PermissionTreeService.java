@@ -125,6 +125,9 @@ public class PermissionTreeService {
                     vo.setComponent(node.getComponent());
                     vo.setIcon(node.getIcon());
                     vo.setSortOrder(node.getSortOrder());
+                    vo.setVisible(node.getVisible());
+                    vo.setStatus(node.getStatus());
+                    vo.setRemark(node.getRemark());
                     vo.setChildren(buildChildren(node.getId(), byParent));
                     return vo;
                 })
@@ -142,7 +145,9 @@ public class PermissionTreeService {
         for (PermissionNodeVO node : nodes) {
             node.setChildren(pruneEmptyDirectories(node.getChildren()));
             boolean isDirectory = "menu".equals(node.getType()) && StringUtils.isBlank(node.getPermissionCode());
-            if (isDirectory && node.getChildren().isEmpty()) {
+            // 隐藏的空目录保留在管理树中，否则管理员无法再找到并改回显示（US7）。
+            boolean hidden = node.getVisible() != null && node.getVisible() == 0;
+            if (isDirectory && node.getChildren().isEmpty() && !hidden) {
                 continue;
             }
             pruned.add(node);

@@ -60,6 +60,11 @@ public class PermissionUpdateRequest implements Serializable {
     private Integer status;
 
     /**
+     * 是否显示：1显示 0隐藏（仅 menu 生效）。
+     */
+    private Integer visible;
+
+    /**
      * 备注。
      */
     private String remark;

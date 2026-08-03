@@ -53,6 +53,21 @@ public class PermissionNodeVO {
     private Integer sortOrder;
 
     /**
+     * 是否显示：1显示 0隐藏（仅 menu 生效；隐藏节点仍下发，由前端侧边栏渲染时裁剪）
+     */
+    private Integer visible;
+
+    /**
+     * 状态：1启用 0禁用
+     */
+    private Integer status;
+
+    /**
+     * 备注
+     */
+    private String remark;
+
+    /**
      * 子节点
      */
     private List<PermissionNodeVO> children = new ArrayList<>();

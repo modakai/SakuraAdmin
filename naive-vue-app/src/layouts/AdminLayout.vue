@@ -38,6 +38,10 @@ function createMenuOption(node: PermissionNode): MenuOption | null {
   if (node.type !== 'menu') {
     return null
   }
+  // 隐藏菜单（visible=0）连同整棵子树不在侧边栏渲染；路由仍注册、URL 仍可直达（见 ADR-0003）。
+  if (node.visible === 0) {
+    return null
+  }
 
   const menuOption: MenuOption = {
     label: menuLink(node.title, node.path ?? ''),

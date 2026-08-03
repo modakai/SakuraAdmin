@@ -11,6 +11,9 @@ export interface PermissionNode {
   component?: string
   icon?: string
   sortOrder?: number
+  visible?: number
+  status?: number
+  remark?: string
   children?: PermissionNode[]
 }
 

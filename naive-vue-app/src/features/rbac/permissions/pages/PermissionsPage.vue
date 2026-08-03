@@ -46,13 +46,14 @@ const form = reactive({
   icon: '',
   sortOrder: 0,
   status: 1,
+  visible: 1,
   remark: '',
 })
 
 function resetForm() {
   Object.assign(form, {
     id: undefined, parentId: 0, type: 'menu', title: '', permissionCode: '',
-    path: '', component: '', icon: '', sortOrder: 0, status: 1, remark: '',
+    path: '', component: '', icon: '', sortOrder: 0, status: 1, visible: 1, remark: '',
   })
 }
 
@@ -75,8 +76,9 @@ function openEdit(row: PermissionNode) {
     component: row.component ?? '',
     icon: row.icon ?? '',
     sortOrder: row.sortOrder ?? 0,
-    status: 1,
-    remark: '',
+    status: row.status ?? 1,
+    visible: row.visible ?? 1,
+    remark: row.remark ?? '',
   })
   formVisible.value = true
 }
@@ -129,6 +131,19 @@ const columns: DataTableColumns<PermissionNode> = [
   { title: '路径', key: 'path', render: row => row.path || '-' },
   { title: '排序', key: 'sortOrder', width: 70 },
   {
+    title: '显示',
+    key: 'visible',
+    width: 90,
+    render: row => {
+      // visible 仅对菜单有意义，按钮/接口不展示该标记。
+      if (row.type !== 'menu') {
+        return h(NTag, { type: 'default', size: 'small' }, { default: () => '—' })
+      }
+      const hidden = row.visible === 0
+      return h(NTag, { type: hidden ? 'default' : 'success', size: 'small' }, { default: () => (hidden ? '已隐藏' : '显示') })
+    },
+  },
+  {
     title: '操作',
     key: 'actions',
     width: 210,
@@ -179,6 +194,12 @@ onMounted(loadTree)
         </n-form-item>
         <n-form-item label="图标">
           <n-input v-model:value="form.icon" placeholder="如 PeopleOutline" />
+        </n-form-item>
+        <n-form-item label="显示/隐藏">
+          <n-switch v-model:value="form.visible" :checked-value="1" :unchecked-value="0">
+            <template #checked>显示</template>
+            <template #unchecked>隐藏</template>
+          </n-switch>
         </n-form-item>
       </template>
       <n-form-item label="排序">
