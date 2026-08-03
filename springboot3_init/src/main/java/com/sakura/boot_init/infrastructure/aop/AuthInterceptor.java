@@ -43,7 +43,7 @@ public class AuthInterceptor {
         }
 
         UserRoleEnum userRoleEnum = UserRoleEnum.getEnumByValue(loginUser.userRole());
-        if (userRoleEnum == null || UserRoleEnum.BAN.equals(userRoleEnum)) {
+        if (userRoleEnum == null) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
 

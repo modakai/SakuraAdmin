@@ -29,3 +29,11 @@ export function deleteUserById(id: EntityId) {
 export function resetUserPassword(id: EntityId) {
   return apiRequest<boolean>('/user/reset/password', { body: { id: String(id) } })
 }
+
+export function getUserRoles(userId: EntityId) {
+  return apiRequest<EntityId[]>(`/user/roles/${userId}`)
+}
+
+export function assignUserRoles(userId: EntityId, roleIds: EntityId[]) {
+  return apiRequest<boolean>('/user/assign-role', { body: { userId, roleIds } })
+}

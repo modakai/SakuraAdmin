@@ -7,6 +7,9 @@ import com.sakura.boot_init.auth.model.vo.LoginUserVO;
 import com.sakura.boot_init.auth.service.AuthService;
 import com.sakura.boot_init.auth.service.OnlineUserService;
 import com.sakura.boot_init.infrastructure.auth.TokenManager;
+import com.sakura.boot_init.rbac.model.vo.UserPermission;
+import com.sakura.boot_init.rbac.service.PermissionQueryService;
+import com.sakura.boot_init.rbac.service.PermissionTreeService;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.UserConstant;
 import com.sakura.boot_init.shared.context.LoginUserContext;
@@ -61,18 +64,31 @@ public class AuthServiceImpl implements AuthService {
      */
     private final Converter converter;
 
+    /**
+     * 用户权限查询服务。
+     */
+    private final PermissionQueryService permissionQueryService;
+
+    /**
+     * 权限点树构建服务。
+     */
+    private final PermissionTreeService permissionTreeService;
+
     public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager, Converter converter) {
-        this(userMapper, tokenManager, converter, null, null);
+        this(userMapper, tokenManager, converter, null, null, null, null);
     }
 
     @Autowired
     public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager, Converter converter, AuditApi auditApi,
-            OnlineUserService onlineUserService) {
+            OnlineUserService onlineUserService, PermissionQueryService permissionQueryService,
+            PermissionTreeService permissionTreeService) {
         this.userMapper = userMapper;
         this.tokenManager = tokenManager;
         this.converter = converter;
         this.auditApi = auditApi;
         this.onlineUserService = onlineUserService;
+        this.permissionQueryService = permissionQueryService;
+        this.permissionTreeService = permissionTreeService;
     }
 
     @Override
@@ -245,6 +261,13 @@ public class AuthServiceImpl implements AuthService {
         loginUserVO.setStatus(user.getStatus());
         loginUserVO.setCreateTime(user.getCreateTime());
         loginUserVO.setUpdateTime(user.getUpdateTime());
+        // 统一填充角色与权限点树，登录与刷新登录态返回一致数据。
+        if (permissionQueryService != null && permissionTreeService != null) {
+            UserPermission permission = permissionQueryService.loadUserPermission(user.getId());
+            loginUserVO.setRoles(permission.roles());
+            loginUserVO.setPermissions(permission.permissions());
+            loginUserVO.setMenuTree(permissionTreeService.buildTreeForPermission(permission));
+        }
         return loginUserVO;
     }
 
@@ -314,14 +337,13 @@ public class AuthServiceImpl implements AuthService {
     /**
      * 校验用户是否允许登录或继续访问。
      *
+     * <p>封禁是账号状态（status），不是角色，因此不再依据 user_role 判断封禁。
+     *
      * @param user 用户实体
      */
     private void validateUserLoginStatus(User user) {
         if (user == null) {
             return;
-        }
-        if (UserRoleEnum.BAN.getValue().equals(user.getUserRole())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "auth.user.banned");
         }
         if (UserConstant.STATUS_DISABLED.equals(user.getStatus())) {
             throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "auth.user.disabled");

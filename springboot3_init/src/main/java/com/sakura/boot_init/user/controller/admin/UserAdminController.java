@@ -2,8 +2,8 @@ package com.sakura.boot_init.user.controller.admin;
 
 import com.mybatisflex.core.paginate.Page;
 import com.sakura.boot_init.shared.enums.AuditOperationTypeEnum;
-import com.sakura.boot_init.shared.annotation.AuthCheck;
 import com.sakura.boot_init.shared.annotation.AuditLogRecord;
+import com.sakura.boot_init.shared.annotation.RequirePermission;
 import com.sakura.boot_init.shared.common.BaseResponse;
 import com.sakura.boot_init.shared.common.DeleteRequest;
 import com.sakura.boot_init.shared.common.ErrorCode;
@@ -61,7 +61,7 @@ public class UserAdminController {
      * @return 新用户 id
      */
     @PostMapping("/add")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @RequirePermission("system:user:add")
     @AuditLogRecord(description = "创建用户", module = "用户管理", operationType = AuditOperationTypeEnum.CREATE)
     public BaseResponse<Long> addUser(@Valid @RequestBody UserAddRequest userAddRequest, HttpServletRequest request) {
         User user = converter.convert(userAddRequest, User.class);
@@ -84,7 +84,7 @@ public class UserAdminController {
      * @return 是否删除成功
      */
     @PostMapping("/delete")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @RequirePermission("system:user:delete")
     @AuditLogRecord(description = "删除用户", module = "用户管理", operationType = AuditOperationTypeEnum.DELETE)
     public BaseResponse<Boolean> deleteUser(@Valid @RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         boolean result = userService.removeUser(deleteRequest.getId());
@@ -99,7 +99,7 @@ public class UserAdminController {
      * @return 是否更新成功
      */
     @PostMapping("/update")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @RequirePermission("system:user:update")
     @AuditLogRecord(description = "更新用户", module = "用户管理", operationType = AuditOperationTypeEnum.UPDATE)
     public BaseResponse<Boolean> updateUser(@Valid @RequestBody UserUpdateRequest userUpdateRequest,
             HttpServletRequest request) {
@@ -129,7 +129,7 @@ public class UserAdminController {
      * @return 用户信息
      */
     @GetMapping("/get")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @RequirePermission("system:user:list")
     public BaseResponse<User> getUserById(@RequestParam @Positive(message = "用户 id 必须大于 0") long id,
             HttpServletRequest request) {
         User user = userService.getById(id);
@@ -145,7 +145,7 @@ public class UserAdminController {
      * @return 分页结果
      */
     @PostMapping("/list/page")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @RequirePermission("system:user:list")
     public BaseResponse<Page<User>> listUserByPage(@Valid @RequestBody UserQueryRequest userQueryRequest,
             HttpServletRequest request) {
         long current = userQueryRequest.getPage();
@@ -163,7 +163,7 @@ public class UserAdminController {
      * @return 是否重置成功
      */
     @PostMapping("/reset/password")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @RequirePermission("system:user:update")
     @AuditLogRecord(description = "重置用户密码", module = "用户管理", operationType = AuditOperationTypeEnum.UPDATE)
     public BaseResponse<Boolean> resetUserPassword(@Valid @RequestBody DeleteRequest deleteRequest,
             HttpServletRequest request) {

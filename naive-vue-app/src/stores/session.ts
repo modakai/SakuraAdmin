@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { getLoginUser, loginByPassword, logoutRequest } from '@/features/auth/api'
-import type { LoginUser } from '@/features/auth/model'
+import type { LoginUser, PermissionNode } from '@/features/auth/model'
 import { TOKEN_STORAGE_KEY, USER_STORAGE_KEY } from '@/shared/api/request'
 
 function readStoredUser(): LoginUser | null {
@@ -18,12 +18,14 @@ function readStoredUser(): LoginUser | null {
 }
 
 function toDisplayUser(user: LoginUser | null) {
+  // RBAC 后以角色集合判断；兼容旧 userRole 字段（如用户管理页直接新建的管理员）。
+  const isAdmin = (user?.roles?.includes('admin') ?? false) || user?.userRole === 'admin'
   return {
     id: user?.id ?? '',
     account: user?.userAccount ?? '',
     name: user?.userName || user?.userAccount || 'Sakura Admin',
     email: user?.userAccount ?? '',
-    role: user?.userRole === 'admin' ? '超级管理员' : '普通用户',
+    role: isAdmin ? '超级管理员' : '普通用户',
     rawRole: user?.userRole ?? '',
     profile: user?.userProfile ?? '',
     avatar: user?.userAvatar ?? '',
@@ -31,11 +33,28 @@ function toDisplayUser(user: LoginUser | null) {
 }
 
 export const useSessionStore = defineStore('session', {
-  state: () => ({
-    token: localStorage.getItem(TOKEN_STORAGE_KEY) || '',
-    isAuthenticated: Boolean(localStorage.getItem(TOKEN_STORAGE_KEY)),
-    user: toDisplayUser(readStoredUser()),
-  }),
+  state: () => {
+    const stored = readStoredUser()
+    return {
+      token: localStorage.getItem(TOKEN_STORAGE_KEY) || '',
+      isAuthenticated: Boolean(localStorage.getItem(TOKEN_STORAGE_KEY)),
+      user: toDisplayUser(stored),
+      roles: (stored?.roles ?? []) as string[],
+      permissions: (stored?.permissions ?? []) as string[],
+      menuTree: (stored?.menuTree ?? []) as PermissionNode[],
+    }
+  },
+  getters: {
+    /**
+     * 判断当前用户是否具备某权限码。
+     */
+    hasPermission: (state) => (code?: string) => {
+      if (!code) {
+        return true
+      }
+      return state.permissions.includes(code)
+    },
+  },
   actions: {
     setSession(user: LoginUser, token = user.token) {
       // 后端登录响应携带 token；刷新登录态接口不一定重新返回 token，所以保留现有 token。
@@ -43,6 +62,9 @@ export const useSessionStore = defineStore('session', {
       this.token = nextToken
       this.isAuthenticated = true
       this.user = toDisplayUser(user)
+      this.roles = user.roles ?? []
+      this.permissions = user.permissions ?? []
+      this.menuTree = user.menuTree ?? []
       if (nextToken) {
         localStorage.setItem(TOKEN_STORAGE_KEY, nextToken)
       }
@@ -62,6 +84,9 @@ export const useSessionStore = defineStore('session', {
       this.token = ''
       this.isAuthenticated = false
       this.user = toDisplayUser(null)
+      this.roles = []
+      this.permissions = []
+      this.menuTree = []
       localStorage.removeItem(TOKEN_STORAGE_KEY)
       localStorage.removeItem(USER_STORAGE_KEY)
     },

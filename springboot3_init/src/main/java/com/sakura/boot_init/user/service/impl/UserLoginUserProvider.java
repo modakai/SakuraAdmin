@@ -2,10 +2,12 @@ package com.sakura.boot_init.user.service.impl;
 
 import com.sakura.boot_init.infrastructure.auth.LoginUserProvider;
 import com.sakura.boot_init.infrastructure.auth.LoginUserCache;
+import com.sakura.boot_init.rbac.model.vo.UserPermission;
+import com.sakura.boot_init.rbac.service.PermissionQueryService;
+import com.sakura.boot_init.rbac.service.UserRoleService;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.UserConstant;
 import com.sakura.boot_init.shared.context.LoginUserInfo;
-import com.sakura.boot_init.shared.enums.UserRoleEnum;
 import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.user.model.entity.User;
 import com.sakura.boot_init.user.repository.UserMapper;
@@ -27,9 +29,22 @@ public class UserLoginUserProvider implements LoginUserProvider {
      */
     private final LoginUserCache loginUserCache;
 
-    public UserLoginUserProvider(UserMapper userMapper, LoginUserCache loginUserCache) {
+    /**
+     * 用户权限查询服务。
+     */
+    private final PermissionQueryService permissionQueryService;
+
+    /**
+     * 用户角色分配服务。
+     */
+    private final UserRoleService userRoleService;
+
+    public UserLoginUserProvider(UserMapper userMapper, LoginUserCache loginUserCache,
+            PermissionQueryService permissionQueryService, UserRoleService userRoleService) {
         this.userMapper = userMapper;
         this.loginUserCache = loginUserCache;
+        this.permissionQueryService = permissionQueryService;
+        this.userRoleService = userRoleService;
     }
 
     /**
@@ -52,8 +67,14 @@ public class UserLoginUserProvider implements LoginUserProvider {
             return null;
         }
         validateUserLoginStatus(user);
+        UserPermission permission = permissionQueryService.loadUserPermission(userId);
+        if (permission.roles().isEmpty()) {
+            // 老用户/新注册用户可能没有角色关联，自动补默认普通用户角色，避免登录后菜单为空。
+            userRoleService.ensureDefaultRole(userId);
+            permission = permissionQueryService.loadUserPermission(userId);
+        }
         LoginUserInfo loginUserInfo = new LoginUserInfo(user.getId(), user.getUserAccount(), user.getUserName(),
-                user.getUserRole());
+                user.getUserRole(), permission.roles(), permission.permissions(), permission.superadmin());
         loginUserCache.put(loginUserInfo);
         return loginUserInfo;
     }
@@ -61,12 +82,11 @@ public class UserLoginUserProvider implements LoginUserProvider {
     /**
      * 校验用户是否允许继续访问系统。
      *
+     * <p>封禁是账号状态（status），不是角色，因此不再依据 user_role 判断封禁。
+     *
      * @param user 用户实体
      */
     private void validateUserLoginStatus(User user) {
-        if (UserRoleEnum.BAN.getValue().equals(user.getUserRole())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "auth.user.banned");
-        }
         if (UserConstant.STATUS_DISABLED.equals(user.getStatus())) {
             throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "auth.user.disabled");
         }

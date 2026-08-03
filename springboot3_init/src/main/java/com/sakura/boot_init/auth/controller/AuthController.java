@@ -4,14 +4,19 @@ import com.sakura.boot_init.auth.model.dto.UserLoginRequest;
 import com.sakura.boot_init.auth.model.dto.UserRegisterRequest;
 import com.sakura.boot_init.auth.model.vo.LoginUserVO;
 import com.sakura.boot_init.auth.service.AuthService;
+import com.sakura.boot_init.rbac.model.vo.PermissionNodeVO;
+import com.sakura.boot_init.rbac.service.PermissionTreeService;
 import com.sakura.boot_init.shared.annotation.NoLoginRequired;
 import com.sakura.boot_init.shared.common.BaseResponse;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.common.ResultUtils;
 import com.sakura.boot_init.infrastructure.config.WxOpenConfig;
+import com.sakura.boot_init.shared.context.LoginUserContext;
+import com.sakura.boot_init.shared.context.LoginUserInfo;
 import com.sakura.boot_init.shared.exception.BusinessException;
 import com.sakura.boot_init.user.model.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -48,9 +53,30 @@ public class AuthController {
      */
     private final WxOpenConfig wxOpenConfig;
 
-    public AuthController(AuthService authService, WxOpenConfig wxOpenConfig) {
+    /**
+     * 权限点树构建服务。
+     */
+    private final PermissionTreeService permissionTreeService;
+
+    public AuthController(AuthService authService, WxOpenConfig wxOpenConfig,
+            PermissionTreeService permissionTreeService) {
         this.authService = authService;
         this.wxOpenConfig = wxOpenConfig;
+        this.permissionTreeService = permissionTreeService;
+    }
+
+    /**
+     * 当前登录用户的权限点树（含菜单与按钮），前端刷新页面后可重新拉取。
+     *
+     * @return 权限点树
+     */
+    @GetMapping("/permissions/tree")
+    public BaseResponse<List<PermissionNodeVO>> getMyPermissionTree() {
+        LoginUserInfo loginUser = LoginUserContext.getLoginUser();
+        if (loginUser == null || loginUser.userId() == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        return ResultUtils.success(permissionTreeService.buildTreeForUser(loginUser.userId()));
     }
 
     /**

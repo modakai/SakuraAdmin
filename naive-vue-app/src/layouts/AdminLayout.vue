@@ -9,7 +9,8 @@ import {
   SunnyOutline,
 } from '@vicons/ionicons5'
 import NotificationCenter from '@/features/notifications/ui/NotificationCenter.vue'
-import { navigationRegistry, type NavigationNode, type NavigationPage } from '@/app/router/navigation'
+import type { PermissionNode } from '@/features/auth/model'
+import { resolveIcon } from '@/app/router/iconMap'
 import CommandPalette from '@/shared/ui/CommandPalette.vue'
 import { useAppearanceStore } from '@/stores/appearance'
 import { useSessionStore } from '@/stores/session'
@@ -21,7 +22,10 @@ const session = useSessionStore()
 const appearance = useAppearanceStore()
 const collapsed = ref(false)
 
-function renderIcon(icon: unknown) {
+function renderIcon(icon?: unknown) {
+  if (!icon) {
+    return undefined
+  }
   return () => h(NIcon, null, { default: () => h(icon as any) })
 }
 
@@ -29,41 +33,38 @@ function menuLink(label: string, to: string) {
   return () => h(RouterLink, { to }, { default: () => label })
 }
 
-function createPageMenuOption(page: NavigationPage): MenuOption | null {
-  if (page.visibleInMenu === false) {
+// 侧边栏由后端下发的菜单树驱动，静态导航注册表不再作为导航来源。
+function createMenuOption(node: PermissionNode): MenuOption | null {
+  if (node.type !== 'menu') {
     return null
   }
 
-  return {
-    label: menuLink(page.title, page.path),
-    key: page.path,
-    icon: renderIcon(page.icon),
+  const menuOption: MenuOption = {
+    label: menuLink(node.title, node.path ?? ''),
+    key: node.path ?? String(node.id),
   }
-}
-
-function createMenuOption(node: NavigationNode): MenuOption | null {
-  if (node.kind === 'page') {
-    return createPageMenuOption(node)
+  const icon = renderIcon(resolveIcon(node.icon))
+  if (icon) {
+    menuOption.icon = icon
   }
 
-  const children = node.children
-    .map(createPageMenuOption)
-    .filter((option): option is MenuOption => option !== null)
+  if (node.path) {
+    return menuOption
+  }
 
-  // 菜单分组没有可见子页面时不渲染，避免出现空折叠菜单。
+  const children = (node.children ?? [])
+    .map(createMenuOption)
+    .filter((child): child is MenuOption => child !== null)
+
+  // 目录没有可见子页面时不渲染，避免出现空折叠菜单。
   if (children.length === 0) {
     return null
   }
-
-  return {
-    label: node.title,
-    key: node.key,
-    icon: renderIcon(node.icon),
-    children,
-  }
+  menuOption.children = children
+  return menuOption
 }
 
-const menuOptions = computed(() => navigationRegistry
+const menuOptions = computed(() => session.menuTree
   .map(createMenuOption)
   .filter((option): option is MenuOption => option !== null))
 

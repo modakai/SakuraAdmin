@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { h, onMounted, reactive, ref } from 'vue'
-import { NButton, NSpace, NSwitch, NTag, useDialog, useMessage } from 'naive-ui'
+import { NButton, NSpace, NSwitch, NTag, useDialog, useMessage, type SelectOption } from 'naive-ui'
 import PageShell from '@/shared/ui/PageShell.vue'
 import CommonImageUpload from '@/shared/upload/CommonImageUpload.vue'
-import { createUser, deleteUserById, getUserPage, resetUserPassword, updateUser } from '../api'
+import { listAllRoles } from '@/features/rbac/roles/api'
+import { assignUserRoles, createUser, deleteUserById, getUserPage, getUserRoles, resetUserPassword, updateUser } from '../api'
+import type { EntityId } from '@/shared/api/types'
 import type { UserForm, UserItem } from '../model'
 
 const message = useMessage()
@@ -163,6 +165,43 @@ async function toggleStatus(row: UserItem, value: boolean) {
   }
 }
 
+// ---------- 分配角色 ----------
+const assignOpen = ref(false)
+const assignLoading = ref(false)
+const assignSaving = ref(false)
+const roleOptions = ref<SelectOption[]>([])
+const assignRoleKeys = ref<EntityId[]>([])
+const assignUser = ref<UserItem | null>(null)
+
+async function openAssign(row: UserItem) {
+  assignUser.value = row
+  assignOpen.value = true
+  assignLoading.value = true
+  try {
+    const [roles, owned] = await Promise.all([listAllRoles(), getUserRoles(row.id)])
+    roleOptions.value = roles.map(role => ({ label: `${role.roleName}（${role.roleCode}）`, value: String(role.id) }))
+    assignRoleKeys.value = owned.map(String)
+  }
+  finally {
+    assignLoading.value = false
+  }
+}
+
+async function saveAssign() {
+  if (!assignUser.value) {
+    return
+  }
+  assignSaving.value = true
+  try {
+    await assignUserRoles(assignUser.value.id, assignRoleKeys.value)
+    message.success('角色已分配，权限生效')
+    assignOpen.value = false
+  }
+  finally {
+    assignSaving.value = false
+  }
+}
+
 const columns = [
   { title: '账号', key: 'userAccount' },
   { title: '昵称', key: 'userName' },
@@ -176,6 +215,7 @@ const columns = [
     render: (row: UserItem) => h(NSpace, { justify: 'end' }, {
       default: () => [
         h(NButton, { size: 'small', onClick: () => openEdit(row) }, { default: () => '编辑' }),
+        h(NButton, { size: 'small', onClick: () => openAssign(row) }, { default: () => '分配角色' }),
         h(NButton, { size: 'small', onClick: () => resetPassword(row) }, { default: () => '重置密码' }),
         h(NButton, { size: 'small', type: 'error', ghost: true, onClick: () => deleteUser(row) }, { default: () => '删除' }),
       ],
@@ -233,5 +273,20 @@ onMounted(loadUsers)
         </n-space>
       </template>
     </n-modal>
+
+    <n-drawer v-model:show="assignOpen" :width="420">
+      <n-drawer-content :title="`分配角色 - ${assignUser?.userName ?? ''}`" closable>
+        <n-spin :show="assignLoading">
+          <n-select v-model:value="assignRoleKeys" multiple :options="roleOptions" placeholder="选择角色" />
+          <n-text depth="3" style="display: block; margin-top: 12px">角色变更后该用户权限即时生效。</n-text>
+        </n-spin>
+        <template #footer>
+          <n-space justify="end">
+            <n-button @click="assignOpen = false">取消</n-button>
+            <n-button type="primary" :loading="assignSaving" @click="saveAssign">保存</n-button>
+          </n-space>
+        </template>
+      </n-drawer-content>
+    </n-drawer>
   </PageShell>
 </template>

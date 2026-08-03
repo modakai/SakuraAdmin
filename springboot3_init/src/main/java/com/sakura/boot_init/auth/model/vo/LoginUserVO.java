@@ -1,10 +1,13 @@
 package com.sakura.boot_init.auth.model.vo;
 
+import com.sakura.boot_init.rbac.model.vo.PermissionNodeVO;
 import com.sakura.boot_init.user.model.entity.User;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 已登录用户视图，已脱敏
@@ -48,6 +51,21 @@ public class LoginUserVO implements Serializable {
      * 状态：1 启用，0 禁用
      */
     private Integer status;
+
+    /**
+     * 角色标识集合。
+     */
+    private List<String> roles;
+
+    /**
+     * 权限码集合。
+     */
+    private Set<String> permissions;
+
+    /**
+     * 当前用户可见的权限点树（含菜单与按钮），前端据此渲染导航。
+     */
+    private List<PermissionNodeVO> menuTree;
 
     /**
      * 登录 token，后续请求需要携带该值。
