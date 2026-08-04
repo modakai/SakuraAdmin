@@ -1,8 +1,8 @@
 package com.sakura.boot_init.rbac.controller;
 
+import com.sakura.boot_init.rbac.api.PermissionNodeVO;
 import com.sakura.boot_init.rbac.model.dto.PermissionAddRequest;
 import com.sakura.boot_init.rbac.model.dto.PermissionUpdateRequest;
-import com.sakura.boot_init.rbac.model.vo.PermissionNodeVO;
 import com.sakura.boot_init.rbac.service.PermissionService;
 import com.sakura.boot_init.rbac.service.PermissionTreeService;
 import com.sakura.boot_init.shared.annotation.RequirePermission;

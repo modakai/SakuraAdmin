@@ -2,11 +2,11 @@ package com.sakura.boot_init.rbac.service.impl;
 
 import com.mybatisflex.core.query.QueryWrapper;
 import com.sakura.boot_init.infrastructure.auth.LoginUserCache;
+import com.sakura.boot_init.rbac.api.UserRoleApi;
 import com.sakura.boot_init.rbac.model.entity.SysRole;
 import com.sakura.boot_init.rbac.model.entity.SysUserRole;
 import com.sakura.boot_init.rbac.repository.SysRoleMapper;
 import com.sakura.boot_init.rbac.repository.SysUserRoleMapper;
-import com.sakura.boot_init.rbac.service.UserRoleService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +22,7 @@ import static com.sakura.boot_init.rbac.model.entity.table.SysUserRoleTableDef.S
  * @author sakura
  */
 @Service
-public class UserRoleServiceImpl implements UserRoleService {
+public class UserRoleServiceImpl implements UserRoleApi {
 
     /**
      * 默认普通用户角色标识。

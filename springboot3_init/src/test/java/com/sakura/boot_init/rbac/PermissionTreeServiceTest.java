@@ -1,10 +1,10 @@
 package com.sakura.boot_init.rbac;
 
+import com.sakura.boot_init.rbac.api.PermissionNodeVO;
+import com.sakura.boot_init.rbac.api.PermissionQueryApi;
+import com.sakura.boot_init.rbac.api.UserPermission;
 import com.sakura.boot_init.rbac.model.entity.SysPermission;
-import com.sakura.boot_init.rbac.model.vo.PermissionNodeVO;
-import com.sakura.boot_init.rbac.model.vo.UserPermission;
 import com.sakura.boot_init.rbac.repository.SysPermissionMapper;
-import com.sakura.boot_init.rbac.service.PermissionQueryService;
 import com.sakura.boot_init.rbac.service.PermissionTreeService;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.mock;
 class PermissionTreeServiceTest {
 
     private final PermissionTreeService service =
-            new PermissionTreeService(mock(SysPermissionMapper.class), mock(PermissionQueryService.class));
+            new PermissionTreeService(mock(SysPermissionMapper.class), mock(PermissionQueryApi.class));
 
     @Test
     void shouldAssembleTreeRecursivelyAndFilterByPermission() {

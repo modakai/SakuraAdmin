@@ -1,6 +1,6 @@
 package com.sakura.boot_init.rbac.controller;
 
-import com.sakura.boot_init.rbac.service.UserRoleService;
+import com.sakura.boot_init.rbac.api.UserRoleApi;
 import com.sakura.boot_init.shared.annotation.RequirePermission;
 import com.sakura.boot_init.shared.common.BaseResponse;
 import com.sakura.boot_init.shared.common.ErrorCode;
@@ -28,9 +28,9 @@ import java.util.List;
 @Validated
 public class UserRoleAdminController {
 
-    private final UserRoleService userRoleService;
+    private final UserRoleApi userRoleService;
 
-    public UserRoleAdminController(UserRoleService userRoleService) {
+    public UserRoleAdminController(UserRoleApi userRoleService) {
         this.userRoleService = userRoleService;
     }
 

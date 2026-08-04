@@ -1,6 +1,6 @@
 package com.sakura.boot_init.auth.model.vo;
 
-import com.sakura.boot_init.rbac.model.vo.PermissionNodeVO;
+import com.sakura.boot_init.rbac.api.PermissionNodeVO;
 import com.sakura.boot_init.user.model.entity.User;
 import lombok.Data;
 

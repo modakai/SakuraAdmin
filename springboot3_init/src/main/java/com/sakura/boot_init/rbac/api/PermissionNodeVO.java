@@ -1,4 +1,4 @@
-package com.sakura.boot_init.rbac.model.vo;
+package com.sakura.boot_init.rbac.api;
 
 import lombok.Data;
 

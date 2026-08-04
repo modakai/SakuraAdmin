@@ -7,10 +7,10 @@ import com.sakura.boot_init.auth.model.vo.LoginUserVO;
 import com.sakura.boot_init.auth.service.AuthService;
 import com.sakura.boot_init.auth.service.OnlineUserService;
 import com.sakura.boot_init.infrastructure.auth.TokenManager;
-import com.sakura.boot_init.rbac.model.vo.UserPermission;
-import com.sakura.boot_init.rbac.service.PermissionQueryService;
-import com.sakura.boot_init.rbac.service.PermissionTreeService;
-import com.sakura.boot_init.rbac.service.UserRoleService;
+import com.sakura.boot_init.rbac.api.PermissionQueryApi;
+import com.sakura.boot_init.rbac.api.PermissionTreeApi;
+import com.sakura.boot_init.rbac.api.UserPermission;
+import com.sakura.boot_init.rbac.api.UserRoleApi;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.UserConstant;
 import com.sakura.boot_init.shared.context.LoginUserContext;
@@ -66,19 +66,19 @@ public class AuthServiceImpl implements AuthService {
     private final Converter converter;
 
     /**
-     * 用户权限查询服务。
+     * 用户权限查询 API。
      */
-    private final PermissionQueryService permissionQueryService;
+    private final PermissionQueryApi permissionQueryService;
 
     /**
-     * 权限点树构建服务。
+     * 权限点树构建 API。
      */
-    private final PermissionTreeService permissionTreeService;
+    private final PermissionTreeApi permissionTreeService;
 
     /**
-     * 用户角色分配服务。
+     * 用户角色分配 API。
      */
-    private final UserRoleService userRoleService;
+    private final UserRoleApi userRoleService;
 
     public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager, Converter converter) {
         this(userMapper, tokenManager, converter, null, null, null, null, null);
@@ -86,8 +86,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     public AuthServiceImpl(UserMapper userMapper, TokenManager tokenManager, Converter converter, AuditApi auditApi,
-            OnlineUserService onlineUserService, PermissionQueryService permissionQueryService,
-            PermissionTreeService permissionTreeService, UserRoleService userRoleService) {
+            OnlineUserService onlineUserService, PermissionQueryApi permissionQueryService,
+            PermissionTreeApi permissionTreeService, UserRoleApi userRoleService) {
         this.userMapper = userMapper;
         this.tokenManager = tokenManager;
         this.converter = converter;

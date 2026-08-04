@@ -2,9 +2,9 @@ package com.sakura.boot_init.user.service.impl;
 
 import com.sakura.boot_init.infrastructure.auth.LoginUserProvider;
 import com.sakura.boot_init.infrastructure.auth.LoginUserCache;
-import com.sakura.boot_init.rbac.model.vo.UserPermission;
-import com.sakura.boot_init.rbac.service.PermissionQueryService;
-import com.sakura.boot_init.rbac.service.UserRoleService;
+import com.sakura.boot_init.rbac.api.PermissionQueryApi;
+import com.sakura.boot_init.rbac.api.UserPermission;
+import com.sakura.boot_init.rbac.api.UserRoleApi;
 import com.sakura.boot_init.shared.common.ErrorCode;
 import com.sakura.boot_init.shared.constant.UserConstant;
 import com.sakura.boot_init.shared.context.LoginUserInfo;
@@ -30,17 +30,17 @@ public class UserLoginUserProvider implements LoginUserProvider {
     private final LoginUserCache loginUserCache;
 
     /**
-     * 用户权限查询服务。
+     * 用户权限查询 API。
      */
-    private final PermissionQueryService permissionQueryService;
+    private final PermissionQueryApi permissionQueryService;
 
     /**
-     * 用户角色分配服务。
+     * 用户角色分配 API。
      */
-    private final UserRoleService userRoleService;
+    private final UserRoleApi userRoleService;
 
     public UserLoginUserProvider(UserMapper userMapper, LoginUserCache loginUserCache,
-            PermissionQueryService permissionQueryService, UserRoleService userRoleService) {
+            PermissionQueryApi permissionQueryService, UserRoleApi userRoleService) {
         this.userMapper = userMapper;
         this.loginUserCache = loginUserCache;
         this.permissionQueryService = permissionQueryService;

@@ -1,9 +1,11 @@
 package com.sakura.boot_init.rbac.service;
 
 import com.mybatisflex.core.query.QueryWrapper;
+import com.sakura.boot_init.rbac.api.PermissionNodeVO;
+import com.sakura.boot_init.rbac.api.PermissionQueryApi;
+import com.sakura.boot_init.rbac.api.PermissionTreeApi;
+import com.sakura.boot_init.rbac.api.UserPermission;
 import com.sakura.boot_init.rbac.model.entity.SysPermission;
-import com.sakura.boot_init.rbac.model.vo.PermissionNodeVO;
-import com.sakura.boot_init.rbac.model.vo.UserPermission;
 import com.sakura.boot_init.rbac.repository.SysPermissionMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,7 @@ import static com.sakura.boot_init.rbac.model.entity.table.SysPermissionTableDef
  * @author sakura
  */
 @Service
-public class PermissionTreeService {
+public class PermissionTreeService implements PermissionTreeApi {
 
     /**
      * 根节点 parentId。
@@ -34,10 +36,10 @@ public class PermissionTreeService {
     private static final long ROOT_PARENT_ID = 0L;
 
     private final SysPermissionMapper sysPermissionMapper;
-    private final PermissionQueryService permissionQueryService;
+    private final PermissionQueryApi permissionQueryService;
 
     public PermissionTreeService(SysPermissionMapper sysPermissionMapper,
-            PermissionQueryService permissionQueryService) {
+            PermissionQueryApi permissionQueryService) {
         this.sysPermissionMapper = sysPermissionMapper;
         this.permissionQueryService = permissionQueryService;
     }

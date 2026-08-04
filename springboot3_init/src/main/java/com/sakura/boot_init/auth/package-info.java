@@ -3,7 +3,7 @@
  */
 @ApplicationModule(
         displayName = "认证模块",
-        allowedDependencies = { "shared", "infrastructure", "user", "audit::api" }
+        allowedDependencies = { "shared", "infrastructure", "user", "audit::api", "rbac::api" }
 )
 package com.sakura.boot_init.auth;
 

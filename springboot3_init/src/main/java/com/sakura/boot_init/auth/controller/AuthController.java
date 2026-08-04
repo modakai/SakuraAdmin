@@ -4,8 +4,8 @@ import com.sakura.boot_init.auth.model.dto.UserLoginRequest;
 import com.sakura.boot_init.auth.model.dto.UserRegisterRequest;
 import com.sakura.boot_init.auth.model.vo.LoginUserVO;
 import com.sakura.boot_init.auth.service.AuthService;
-import com.sakura.boot_init.rbac.model.vo.PermissionNodeVO;
-import com.sakura.boot_init.rbac.service.PermissionTreeService;
+import com.sakura.boot_init.rbac.api.PermissionNodeVO;
+import com.sakura.boot_init.rbac.api.PermissionTreeApi;
 import com.sakura.boot_init.shared.annotation.NoLoginRequired;
 import com.sakura.boot_init.shared.common.BaseResponse;
 import com.sakura.boot_init.shared.common.ErrorCode;
@@ -54,12 +54,12 @@ public class AuthController {
     private final WxOpenConfig wxOpenConfig;
 
     /**
-     * 权限点树构建服务。
+     * 权限点树构建 API。
      */
-    private final PermissionTreeService permissionTreeService;
+    private final PermissionTreeApi permissionTreeService;
 
     public AuthController(AuthService authService, WxOpenConfig wxOpenConfig,
-            PermissionTreeService permissionTreeService) {
+            PermissionTreeApi permissionTreeService) {
         this.authService = authService;
         this.wxOpenConfig = wxOpenConfig;
         this.permissionTreeService = permissionTreeService;

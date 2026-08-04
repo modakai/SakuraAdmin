@@ -1,13 +1,11 @@
-package com.sakura.boot_init.rbac.service;
+package com.sakura.boot_init.rbac.api;
 
 import java.util.List;
 
 /**
- * 用户-角色分配服务。
- *
- * @author sakura
+ * 用户-角色分配对外 API，供其他模块查询与维护用户角色。
  */
-public interface UserRoleService {
+public interface UserRoleApi {
 
     /**
      * 查询用户已分配的角色 id 列表。

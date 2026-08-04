@@ -1,11 +1,12 @@
 package com.sakura.boot_init.rbac.service;
 
 import com.mybatisflex.core.query.QueryWrapper;
+import com.sakura.boot_init.rbac.api.PermissionQueryApi;
+import com.sakura.boot_init.rbac.api.UserPermission;
 import com.sakura.boot_init.rbac.model.entity.SysPermission;
 import com.sakura.boot_init.rbac.model.entity.SysRole;
 import com.sakura.boot_init.rbac.model.entity.SysRolePermission;
 import com.sakura.boot_init.rbac.model.entity.SysUserRole;
-import com.sakura.boot_init.rbac.model.vo.UserPermission;
 import com.sakura.boot_init.rbac.repository.SysPermissionMapper;
 import com.sakura.boot_init.rbac.repository.SysRoleMapper;
 import com.sakura.boot_init.rbac.repository.SysRolePermissionMapper;
@@ -30,7 +31,7 @@ import static com.sakura.boot_init.rbac.model.entity.table.SysUserRoleTableDef.S
  * @author sakura
  */
 @Service
-public class PermissionQueryService {
+public class PermissionQueryService implements PermissionQueryApi {
 
     private final SysUserRoleMapper sysUserRoleMapper;
     private final SysRoleMapper sysRoleMapper;
