@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, h, onMounted, reactive, ref } from 'vue'
-import { NButton, NTag, useMessage, type DataTableColumns, type SelectOption, type TreeSelectOption } from 'naive-ui'
+import { NButton, NTag, useMessage, type DataTableColumns, type FormInst, type FormRules, type SelectOption, type TreeSelectOption } from 'naive-ui'
 import type { EntityId } from '@/shared/api/types'
 import type { PermissionNode } from '@/features/auth/model'
 import { createPermission, deletePermissionById, getPermissionTree, updatePermission } from '../api'
@@ -35,6 +35,7 @@ const typeTagMap: Record<string, { type: 'info' | 'success' | 'warning', label: 
 const formVisible = ref(false)
 const formSaving = ref(false)
 const editing = ref(false)
+const formRef = ref<FormInst | null>(null)
 const form = reactive({
   id: undefined as EntityId | undefined,
   parentId: 0,
@@ -129,14 +130,43 @@ const parentOptions = computed<TreeSelectOption[]>(() => {
   return [{ label: '顶层（根目录）', key: 0 }, ...menuOptions]
 })
 
-async function saveForm() {
-  if (!form.title) {
-    message.error('请输入标题')
-    return
+// 必填校验按类型动态变化：按钮必须绑定菜单；按钮/接口/叶子菜单必须填权限码；叶子菜单必须填组件标识。
+const formRules = computed<FormRules>(() => {
+  const rules: FormRules = {
+    title: { required: true, message: '请输入标题', trigger: ['blur', 'input'] },
   }
+  const isLeafMenu = form.type === 'menu' && Boolean(form.path)
+  if (form.type === 'button') {
+    rules.parentId = {
+      validator: (_rule, value) => {
+        if (!value || value === 0) {
+          return new Error('请选择绑定的菜单')
+        }
+        return true
+      },
+      trigger: ['change', 'blur'],
+    }
+  }
+  if (form.type === 'button' || form.type === 'api' || isLeafMenu) {
+    rules.permissionCode = { required: true, message: '请输入权限码', trigger: ['blur', 'input'] }
+  }
+  if (isLeafMenu) {
+    rules.component = { required: true, message: '请填写组件标识', trigger: ['blur', 'input'] }
+  }
+  return rules
+})
+
+async function saveForm() {
   // 接口固定顶层：切到接口类型时父级置 0，避免残留旧父级被后端拒绝。
   if (form.type === 'api') {
     form.parentId = 0
+  }
+  try {
+    await formRef.value?.validate()
+  }
+  catch {
+    message.error('请完善必填项')
+    return
   }
   formSaving.value = true
   try {
@@ -231,15 +261,15 @@ onMounted(loadTree)
   </n-card>
 
   <n-modal v-model:show="formVisible" preset="card" :title="editing ? '编辑权限点' : '新增权限点'" style="width: 620px">
-    <n-form :model="form" label-placement="top">
+    <n-form ref="formRef" :model="form" :rules="formRules" label-placement="top">
       <n-grid :cols="2" :x-gap="16">
         <n-form-item-gi label="类型">
           <n-select v-model:value="form.type" :options="typeOptions" />
         </n-form-item-gi>
-        <n-form-item-gi label="标题">
+        <n-form-item-gi path="title" label="标题">
           <n-input v-model:value="form.title" placeholder="如 用户管理" />
         </n-form-item-gi>
-        <n-form-item-gi v-if="form.type === 'menu' || form.type === 'button'" :label="form.type === 'button' ? '绑定菜单' : '父级菜单'">
+        <n-form-item-gi v-if="form.type === 'menu' || form.type === 'button'" path="parentId" :label="form.type === 'button' ? '绑定菜单' : '父级菜单'">
           <n-tree-select
             v-model:value="form.parentId"
             :options="parentOptions"
@@ -247,14 +277,14 @@ onMounted(loadTree)
             :default-expand-all="true"
           />
         </n-form-item-gi>
-        <n-form-item-gi :span="form.type === 'api' ? 2 : 1" label="权限码">
+        <n-form-item-gi :span="form.type === 'api' ? 2 : 1" path="permissionCode" label="权限码">
           <n-input v-model:value="form.permissionCode" placeholder="如 system:user:list（目录节点可留空）" />
         </n-form-item-gi>
         <template v-if="form.type === 'menu'">
           <n-form-item-gi label="路由路径">
             <n-input v-model:value="form.path" placeholder="如 /users" />
           </n-form-item-gi>
-          <n-form-item-gi label="组件标识">
+          <n-form-item-gi path="component" label="组件标识">
             <n-input v-model:value="form.component" placeholder="如 users/UsersPage（需在组件映射表登记）" />
           </n-form-item-gi>
           <n-form-item-gi :span="2" label="图标">
