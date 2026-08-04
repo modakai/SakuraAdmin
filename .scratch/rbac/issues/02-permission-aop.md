@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 — RBAC 数据模型与种子数据
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [ ] 新增按权限码鉴权的注解，扩展现有 AOP 切面体系
 - [ ] 未登录访问 → 拒绝

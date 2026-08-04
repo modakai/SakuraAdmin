@@ -1,6 +1,6 @@
 # RBAC 权限控制 —— Spec
 
-Status: ready-for-agent
+Status: done
 
 ## Problem Statement
 

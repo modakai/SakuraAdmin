@@ -4,7 +4,7 @@
 
 **Blocked by:** 04 — 前端动态菜单/路由（宽重构）
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [ ] 权限点树展示，支持按 menu / button / api 类型区分
 - [ ] 菜单节点 CRUD（标题/路径/组件标识/图标/排序/父级）

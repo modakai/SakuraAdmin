@@ -4,7 +4,7 @@
 
 **Blocked by:** 05 — 角色管理
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [ ] 用户管理页展示用户当前角色
 - [ ] 给用户分配一个或多个角色（多选）

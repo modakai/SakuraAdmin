@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 — 接口鉴权切面生效
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [ ] 登录接口返回用户信息、角色集合、权限点树
 - [ ] 权限点树按 parent_id 递归组装、按排序值排序、过滤停用节点

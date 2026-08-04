@@ -4,7 +4,7 @@
 
 **Blocked by:** 03 — 登录聚合返回与权限点树
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [ ] 侧边栏由后端返回的菜单树渲染，层级与排序与配置一致
 - [ ] 路由动态注册（addRoute），无权限路径被守卫拦截并提示

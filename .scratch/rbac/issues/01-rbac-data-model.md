@@ -4,7 +4,7 @@
 
 **Blocked by:** None — can start immediately
 
-**Status:** ready-for-agent
+**Status:** done
 
 - [ ] 新增四张表结构（角色、权限点、用户-角色关联、角色-权限点关联），MySQL 与 PostgreSQL 双库 schema 一致
 - [ ] 权限点表支持 menu / button / api 三种类型，menu 类型含父子层级、路径、组件标识、图标、排序
