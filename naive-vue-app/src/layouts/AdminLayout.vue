@@ -10,7 +10,7 @@ import {
 } from '@vicons/ionicons5'
 import NotificationCenter from '@/features/notifications/ui/NotificationCenter.vue'
 import type { PermissionNode } from '@/features/auth/model'
-import { resolveIcon } from '@/app/router/iconMap'
+import { resolveIcon } from '@/shared/ui/iconCatalog'
 import CommandPalette from '@/shared/ui/CommandPalette.vue'
 import { useAppearanceStore } from '@/stores/appearance'
 import { useSessionStore } from '@/stores/session'

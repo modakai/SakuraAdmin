@@ -3,6 +3,7 @@ import { computed, h, onMounted, reactive, ref } from 'vue'
 import { NButton, NTag, useMessage, type DataTableColumns, type FormInst, type FormRules, type SelectOption, type TreeSelectOption } from 'naive-ui'
 import type { EntityId } from '@/shared/api/types'
 import type { PermissionNode } from '@/features/auth/model'
+import IconPicker from '@/shared/ui/IconPicker.vue'
 import { createPermission, deletePermissionById, getPermissionTree, updatePermission } from '../api'
 
 const message = useMessage()
@@ -288,7 +289,7 @@ onMounted(loadTree)
             <n-input v-model:value="form.component" placeholder="如 users/UsersPage（需在组件映射表登记）" />
           </n-form-item-gi>
           <n-form-item-gi :span="2" label="图标">
-            <n-input v-model:value="form.icon" placeholder="如 PeopleOutline" />
+            <IconPicker v-model:value="form.icon" />
           </n-form-item-gi>
         </template>
         <n-form-item-gi v-if="form.type === 'menu'" label="显示/隐藏">
