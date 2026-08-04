@@ -230,45 +230,47 @@ onMounted(loadTree)
     />
   </n-card>
 
-  <n-modal v-model:show="formVisible" preset="card" :title="editing ? '编辑权限点' : '新增权限点'" style="width: 520px">
+  <n-modal v-model:show="formVisible" preset="card" :title="editing ? '编辑权限点' : '新增权限点'" style="width: 620px">
     <n-form :model="form" label-placement="top">
-      <n-form-item label="类型">
-        <n-select v-model:value="form.type" :options="typeOptions" />
-      </n-form-item>
-      <n-form-item label="标题">
-        <n-input v-model:value="form.title" placeholder="如 用户管理" />
-      </n-form-item>
-      <n-form-item label="权限码">
-        <n-input v-model:value="form.permissionCode" placeholder="如 system:user:list（目录节点可留空）" />
-      </n-form-item>
-      <n-form-item v-if="form.type === 'menu' || form.type === 'button'" :label="form.type === 'button' ? '绑定菜单' : '父级菜单'">
-        <n-tree-select
-          v-model:value="form.parentId"
-          :options="parentOptions"
-          :placeholder="form.type === 'button' ? '选择绑定的菜单（必须选择）' : '选择父级菜单（默认顶层）'"
-          :default-expand-all="true"
-        />
-      </n-form-item>
-      <template v-if="form.type === 'menu'">
-        <n-form-item label="路由路径">
-          <n-input v-model:value="form.path" placeholder="如 /users" />
-        </n-form-item>
-        <n-form-item label="组件标识">
-          <n-input v-model:value="form.component" placeholder="如 users/UsersPage（需在组件映射表登记）" />
-        </n-form-item>
-        <n-form-item label="图标">
-          <n-input v-model:value="form.icon" placeholder="如 PeopleOutline" />
-        </n-form-item>
-        <n-form-item label="显示/隐藏">
+      <n-grid :cols="2" :x-gap="16">
+        <n-form-item-gi label="类型">
+          <n-select v-model:value="form.type" :options="typeOptions" />
+        </n-form-item-gi>
+        <n-form-item-gi label="标题">
+          <n-input v-model:value="form.title" placeholder="如 用户管理" />
+        </n-form-item-gi>
+        <n-form-item-gi v-if="form.type === 'menu' || form.type === 'button'" :label="form.type === 'button' ? '绑定菜单' : '父级菜单'">
+          <n-tree-select
+            v-model:value="form.parentId"
+            :options="parentOptions"
+            :placeholder="form.type === 'button' ? '选择绑定的菜单（必须选择）' : '选择父级菜单（默认顶层）'"
+            :default-expand-all="true"
+          />
+        </n-form-item-gi>
+        <n-form-item-gi :span="form.type === 'api' ? 2 : 1" label="权限码">
+          <n-input v-model:value="form.permissionCode" placeholder="如 system:user:list（目录节点可留空）" />
+        </n-form-item-gi>
+        <template v-if="form.type === 'menu'">
+          <n-form-item-gi label="路由路径">
+            <n-input v-model:value="form.path" placeholder="如 /users" />
+          </n-form-item-gi>
+          <n-form-item-gi label="组件标识">
+            <n-input v-model:value="form.component" placeholder="如 users/UsersPage（需在组件映射表登记）" />
+          </n-form-item-gi>
+          <n-form-item-gi :span="2" label="图标">
+            <n-input v-model:value="form.icon" placeholder="如 PeopleOutline" />
+          </n-form-item-gi>
+        </template>
+        <n-form-item-gi v-if="form.type === 'menu'" label="显示/隐藏">
           <n-switch v-model:value="form.visible" :checked-value="1" :unchecked-value="0">
             <template #checked>显示</template>
             <template #unchecked>隐藏</template>
           </n-switch>
-        </n-form-item>
-      </template>
-      <n-form-item label="排序">
-        <n-input-number v-model:value="form.sortOrder" :min="0" style="width: 100%" />
-      </n-form-item>
+        </n-form-item-gi>
+        <n-form-item-gi label="排序">
+          <n-input-number v-model:value="form.sortOrder" :min="0" style="width: 100%" />
+        </n-form-item-gi>
+      </n-grid>
       <n-form-item label="备注">
         <n-input v-model:value="form.remark" type="textarea" :rows="2" />
       </n-form-item>
