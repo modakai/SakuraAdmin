@@ -5,7 +5,12 @@ import NotFoundPage from '@/shared/ui/NotFoundPage.vue'
 import type { PermissionNode } from '@/features/auth/model'
 import { useSessionStore } from '@/stores/session'
 import { TOKEN_STORAGE_KEY } from '@/shared/api/request'
-import { ADMIN_LAYOUT_NAME, addDynamicRoutes, collectMenuPaths } from './dynamicRoutes'
+import {
+  ADMIN_LAYOUT_NAME,
+  addDynamicRoutes,
+  collectMenuPaths,
+  rebuildDynamicRoutes as rebuildDynamicRoutesInternal,
+} from './dynamicRoutes'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -38,6 +43,14 @@ export function registerDynamicRoutes(menuTree: PermissionNode[]) {
     return
   }
   addDynamicRoutes(router, menuTree)
+  dynamicRoutesRegistered = true
+}
+
+/**
+ * 重建动态路由：按最新菜单树移除并重注册 admin-layout 下全部子路由（权限刷新用，见 ADR-0004）。
+ */
+export function rebuildDynamicRoutes(menuTree: PermissionNode[]) {
+  rebuildDynamicRoutesInternal(router, menuTree)
   dynamicRoutesRegistered = true
 }
 
@@ -80,5 +93,37 @@ router.beforeEach((to) => {
   }
   return true
 })
+
+// 权限刷新编排的并发去重：自动触发与手动点击可能同时发起，合并为一次刷新。
+let refreshInFlight = false
+
+/**
+ * 刷新当前登录用户的权限数据并重建动态路由（手动顶栏按钮与权限/角色管理页自动触发共用）。
+ *
+ * <p>流程：重拉最新 LoginUser（含最新菜单树）→ 覆盖会话 → 重建动态路由 →
+ * 若当前路由已不在新菜单树中则跳转回可访问首页，避免停留在已卸载的页面。
+ * 刷新期间重复调用直接忽略（返回 null），防止并发重复拉取与路由抖动。
+ */
+export async function refreshPermissions() {
+  if (refreshInFlight) {
+    return null
+  }
+  refreshInFlight = true
+  try {
+    const session = useSessionStore()
+    const user = await session.refreshCurrentUser()
+    const tree = user.menuTree ?? []
+    rebuildDynamicRoutes(tree)
+    const currentPath = router.currentRoute.value.path
+    const allowed = collectMenuPaths(tree)
+    if (allowed.length > 0 && !allowed.includes(currentPath)) {
+      await router.replace(homePath(session) ?? '/dashboard')
+    }
+    return user
+  }
+  finally {
+    refreshInFlight = false
+  }
+}
 
 export default router

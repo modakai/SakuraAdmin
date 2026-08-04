@@ -6,8 +6,10 @@ import { NIcon, useMessage } from 'naive-ui'
 import {
   LogOutOutline,
   MoonOutline,
+  RefreshOutline,
   SunnyOutline,
 } from '@vicons/ionicons5'
+import { refreshPermissions } from '@/app/router'
 import NotificationCenter from '@/features/notifications/ui/NotificationCenter.vue'
 import type { PermissionNode } from '@/features/auth/model'
 import { resolveIcon } from '@/shared/ui/iconCatalog'
@@ -79,6 +81,27 @@ async function logout() {
   message.success('已退出后台')
   router.push('/login')
 }
+
+// ---------- 手动权限刷新 ----------
+// 重拉当前登录用户的最新权限数据并重建动态路由，无需重新登录即可让菜单/路由/按钮生效（ADR-0004）。
+const refreshing = ref(false)
+
+async function handleRefreshPermissions() {
+  if (refreshing.value) {
+    return
+  }
+  refreshing.value = true
+  try {
+    const user = await refreshPermissions()
+    message.success(user ? '权限已刷新' : '正在刷新中，请稍候')
+  }
+  catch {
+    message.error('权限刷新失败，请稍后重试')
+  }
+  finally {
+    refreshing.value = false
+  }
+}
 </script>
 
 <template>
@@ -130,6 +153,16 @@ async function logout() {
                 <SunnyOutline v-else />
               </n-icon>
             </template>
+          </n-button>
+          <n-button
+            quaternary
+            circle
+            aria-label="刷新权限"
+            title="刷新权限"
+            :loading="refreshing"
+            @click="handleRefreshPermissions"
+          >
+            <template #icon><n-icon><RefreshOutline /></n-icon></template>
           </n-button>
           <NotificationCenter />
           <n-tag type="success" round>{{ session.user.role }}</n-tag>

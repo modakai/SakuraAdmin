@@ -3,6 +3,7 @@ import { computed, h, onMounted, reactive, ref } from 'vue'
 import { NButton, NTag, useMessage, type DataTableColumns, type FormInst, type FormRules, type SelectOption, type TreeSelectOption } from 'naive-ui'
 import type { EntityId } from '@/shared/api/types'
 import type { PermissionNode } from '@/features/auth/model'
+import { refreshPermissions } from '@/app/router'
 import IconPicker from '@/shared/ui/IconPicker.vue'
 import { createPermission, deletePermissionById, getPermissionTree, updatePermission } from '../api'
 
@@ -181,6 +182,7 @@ async function saveForm() {
     }
     formVisible.value = false
     await loadTree()
+    await triggerPermissionRefresh()
   }
   finally {
     formSaving.value = false
@@ -191,6 +193,18 @@ async function removePermission(row: PermissionNode) {
   await deletePermissionById(row.id)
   message.success('权限点已删除')
   await loadTree()
+  await triggerPermissionRefresh()
+}
+
+// 权限点增/改/删后自动刷新当前用户权限并重建动态路由（ADR-0004）。
+// 刷新失败不阻断本次操作的成功提示，用户可稍后手动点顶栏刷新按钮重试。
+async function triggerPermissionRefresh() {
+  try {
+    await refreshPermissions()
+  }
+  catch {
+    // 忽略。
+  }
 }
 
 const columns: DataTableColumns<PermissionNode> = [

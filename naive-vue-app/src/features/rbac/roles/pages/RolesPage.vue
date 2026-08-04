@@ -3,6 +3,7 @@ import { h, onMounted, reactive, ref } from 'vue'
 import { NButton, NTag, useMessage, type DataTableColumns, type TreeOption } from 'naive-ui'
 import type { EntityId } from '@/shared/api/types'
 import type { PermissionNode } from '@/features/auth/model'
+import { refreshPermissions } from '@/app/router'
 import {
   assignPermissions,
   createRole,
@@ -89,6 +90,18 @@ async function removeRole(row: RoleItem) {
   await deleteRoleById(row.id)
   message.success('角色已删除，关联已清理')
   await loadRoles()
+  await triggerPermissionRefresh()
+}
+
+// 角色删除/分配权限后自动刷新当前用户权限并重建动态路由（ADR-0004）。
+// 刷新失败不阻断本次操作的成功提示，用户可稍后手动点顶栏刷新按钮重试。
+async function triggerPermissionRefresh() {
+  try {
+    await refreshPermissions()
+  }
+  catch {
+    // 忽略。
+  }
 }
 
 // ---------- 分配权限 ----------
@@ -130,6 +143,7 @@ async function saveAssign() {
     await assignPermissions(currentRole.value.id, checkedKeys.value)
     message.success('权限已更新')
     drawerVisible.value = false
+    await triggerPermissionRefresh()
   }
   finally {
     assigning.value = false
